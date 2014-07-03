@@ -3,6 +3,13 @@
   "title": "imoin",
   "id": "jid1-4gPoRFTL1bn7nA",
   "description": "I monitor icinga and nagios",
+  "preferences": [{
+        "name": "statuscgi",
+        "title": "Path to cgi-bin/status.cgi",
+        "description": "Complete path to cgi-bin/status.cgi, e.g. https://www.examle.com/icinga/cgi-bin/status.cgi",
+        "type": "string",
+        "value": ""
+    }],
   "author": "Erik Wegner",
   "license": "MPL 2.0",
   "version": "1"
