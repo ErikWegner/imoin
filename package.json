@@ -16,6 +16,8 @@
         "type": "integer",
         "value": 5
     }],
+  "icon": "data/icon-64.png",
+  "icon64": "data/icon-64.png",
   "author": "Erik Wegner",
   "license": "MPL 2.0",
   "version": "1"
