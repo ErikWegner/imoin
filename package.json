@@ -9,6 +9,12 @@
         "description": "Complete path to cgi-bin/status.cgi, e.g. https://www.examle.com/icinga/cgi-bin/status.cgi",
         "type": "string",
         "value": ""
+    },{
+        "name": "updateinterval",
+        "title": "Refresh interval",
+        "description": "Update interval in minutes (recommended value: 5)",
+        "type": "integer",
+        "value": 5
     }],
   "author": "Erik Wegner",
   "license": "MPL 2.0",
