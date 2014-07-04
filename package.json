@@ -14,7 +14,7 @@
         "title": "Refresh interval",
         "description": "Update interval in minutes (recommended value: 5)",
         "type": "integer",
-        "value": 5
+        "value": 2
     }],
   "icon": "data/icon-64.png",
   "icon64": "data/icon-64.png",
