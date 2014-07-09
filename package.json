@@ -2,8 +2,23 @@
   "name": "imoin",
   "title": "imoin",
   "id": "jid1-4gPoRFTL1bn7nA",
-  "description": "a basic add-on",
-  "author": "",
+  "description": "Monitor your icinga or nagios instance.",
+  "preferences": [{
+        "name": "extensions.imoin.statuscgi",
+        "title": "Path to cgi-bin/status.cgi",
+        "description": "Complete path to cgi-bin/status.cgi, e.g. https://www.examle.com/icinga/cgi-bin/status.cgi",
+        "type": "string",
+        "value": ""
+    },{
+        "name": "extensions.imoin.updateinterval",
+        "title": "Refresh interval",
+        "description": "Update interval in minutes (recommended value: 5)",
+        "type": "integer",
+        "value": 5
+    }],
+  "icon": "data/icon-64.png",
+  "icon64": "data/icon-64.png",
+  "author": "Erik Wegner",
   "license": "MPL 2.0",
-  "version": "0.1"
+  "version": "1"
 }
