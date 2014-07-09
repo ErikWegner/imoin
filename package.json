@@ -2,7 +2,7 @@
   "name": "imoin",
   "title": "imoin",
   "id": "jid1-4gPoRFTL1bn7nA",
-  "description": "I monitor icinga and nagios",
+  "description": "Monitor your icinga or nagios instance.",
   "preferences": [{
         "name": "extensions.imoin.statuscgi",
         "title": "Path to cgi-bin/status.cgi",
@@ -14,7 +14,7 @@
         "title": "Refresh interval",
         "description": "Update interval in minutes (recommended value: 5)",
         "type": "integer",
-        "value": 2
+        "value": 5
     }],
   "icon": "data/icon-64.png",
   "icon64": "data/icon-64.png",
