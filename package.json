@@ -4,9 +4,9 @@
   "id": "jid1-4gPoRFTL1bn7nA",
   "description": "Monitor your icinga or nagios instance.",
   "preferences": [{
-        "name": "extensions.imoin.statuscgi",
-        "title": "Path to cgi-bin/status.cgi",
-        "description": "Complete path to cgi-bin/status.cgi, e.g. https://www.examle.com/icinga/cgi-bin/status.cgi",
+        "name": "extensions.imoin.cgipath",
+        "title": "Path to icinga/nagios",
+        "description": "Complete path to cgi-bin/, e.g. https://www.examle.com/icinga/cgi-bin/",
         "type": "string",
         "value": ""
     },{
@@ -20,5 +20,5 @@
   "icon64": "data/icon-64.png",
   "author": "Erik Wegner",
   "license": "MPL 2.0",
-  "version": "1"
+  "version": "2"
 }
