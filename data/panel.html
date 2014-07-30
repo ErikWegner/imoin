@@ -26,9 +26,29 @@
                     <tr class="updatetime"><td colspan="2"><%= updatetime %></td></tr>
                 </table>
             </div>
+            <table width="100%" id="details" cellspacing="0">
+            </table>
         </script>
         
-                <style type="text/css">
+        <script type="text/template" id="hosttemplate">
+            <tr class="host">
+                <td colspan="3"><%= hostname %></td><td class="<%= status %>"><%= status %> <%= acknowledged %></td><td><%= actions %></td>
+            </tr>
+            <tr class="host">
+                <td class="space"></td><td colspan="99"><%= information %></td>
+            </tr>
+        </script>
+        
+        <script type="text/template" id="servicetemplate">
+            <tr class="service <%= trcssclass %>">
+                <td class="space"></td><td colspan="2"><%= service_description %></td><td class="<%= status %>"><%= status %> <%= acknowledged %></td><td><%= actions %></td>
+            </tr>
+            <tr class="service <%= trcssclass %>">
+                <td class="space"></td><td class="space"></td><td colspan="99" class="information"><%= status_information %></td>
+            </tr>
+        </script>
+        
+        <style type="text/css">
             * body {
                 font-family: sans-serif;
             }
@@ -63,6 +83,34 @@
             }
             .main .space {
                 height: 1ex;
+            }
+            
+            table#details {
+                font-size: 80%;
+                color: black;
+                text-shadow: white 1px 1px 1px;
+            }
+            
+            table#details td.space {
+                width: 2ex;
+                background: none;
+            }
+            
+            tr.service {
+                background-color: #bbb;
+            }
+            
+            tr.service.odd {
+                background-color: #eee;
+            }
+            
+            tr.service.even {
+                background-color: #ddd;
+            }
+            
+            tr.host td.UP,
+            tr.service td.OK {
+                background-color: #3f3;
             }
         </style>
     </head>

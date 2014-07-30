@@ -14,9 +14,12 @@ Done
 To do
 =====
 
+☐ https://developer.mozilla.org/en-US/Add-ons/Overlay_Extensions/XUL_School/JavaScript_Object_Management  
+☐ Use Password manager
 ☐ Reschedule next service check  
 ☐ Reschedule next host check  
 ☐ Provide links to the monitoring instance (e.g. clicking on a service name opens that service on the icinga instance)  
 ☐ Provide Flattr button  
 ☐ Show more details for service checks  
 ☐ Show more details for host checks  
+☐ Localization  
