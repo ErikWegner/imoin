@@ -26,31 +26,32 @@
                     <tr class="updatetime"><td colspan="2"><%= updatetime %></td></tr>
                 </table>
             </div>
+            <button class="btnFilterDetails" data-filter="0">Filter</button>
+            <button class="btnFilterDetails" data-filter="1">Hosts</button>
+            <button class="btnFilterDetails" data-filter="2">Services</button>
+            <label><input type="checkbox" id="showhostdetails" checked="checked"/> Hostdetails</label>
+            <label><input type="checkbox" id="showservicedetails" checked="checked"/> Servicedetails</label>
             <div id="details" />
-            <button class="btnFilterDetails">0</button>
-            <button class="btnFilterDetails">1</button>
-            <button class="btnFilterDetails">2</button>
-            <button class="btnFilterDetails">3</button>
         </script>
         
         <script type="text/template" id="hosttemplate">
             <div class="host">
-                <div class="level1">
+                <div class="host">
                     <span class="hostname"><%= hostname %></span>
                     <span class="status <%= status %>"><%= status %></span>
                     <span class="actions"><%= actions %></span>
-                    <div class="hostcheckinfo level4"><%= information %></div>
+                    <div class="hostcheckinfo"><%= information %></div>
                 </div>
                 <div class="services"></div>
             </div>
         </script>
         
         <script type="text/template" id="servicetemplate">
-            <div class="service level2">
+            <div class="service">
                 <span class="servicename"><%= service_description %></span>
                 <span class="status <%= status %>"><%= status %></span>
                 <span class="actions"><%= actions %></span>
-                <div class="info level4"><%= status_information %></div>
+                <div class="info"><%= status_information %></div>
             </div>
         </script>
         

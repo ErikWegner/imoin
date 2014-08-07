@@ -5,29 +5,36 @@ var servicetemplate = _.template($('#servicetemplate').html());
 
 //  global variables
 var detailstable = null;
-var hostcontainer = null;
-
-function processServiceDetail(servicedetail) {
-    // output the details for a service
-    servicedetail.actions = "R A";
-    servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
-    hostcontainer.append(servicetemplate(servicedetail));
-}
-
-function processHostDetail(hostdetail) {
-    // output the details for a host
-    hostdetail.actions = "R A";
-    hostdetail.acknowledged = hostdetail.has_been_acknowledged === true ? "A" : "";
-    detailstable.append(hosttemplate(hostdetail));
-    hostcontainer = detailstable.find('.services').last();
-    _(hostdetail.services).each(processServiceDetail);
-}
+var dstatus = null;
 
 self.port.on("ProcessStatusUpdate", function(status) {
     // this function refreshes the tables
     $('body').html(maintemplate(status));
+    
+    dstatus = status;
+    var hostcontainer = null;
+    var hostindex;
+    var hostdetail;
+    var serviceindex;
+    var servicedetail;
     detailstable = $('#details');
-    _(status.details).each(processHostDetail);
+    for (hostindex in dstatus.details) {
+        hostdetail = dstatus.details[hostindex];
+        // output the details for a host
+        hostdetail.actions = "R A";
+        hostdetail.acknowledged = hostdetail.has_been_acknowledged === true ? "A" : "";
+        detailstable.append(hosttemplate(hostdetail));
+        hostdetail.el$ = detailstable.children().last();
+        hostdetail.services$ = hostdetail.el$.find(".services");
+        for (serviceindex in hostdetail.services) {
+            servicedetail = hostdetail.services[serviceindex];
+            servicedetail.host = hostdetail;
+            servicedetail.actions = "R A";
+            servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
+            hostdetail.services$.append(servicetemplate(servicedetail));
+            servicedetail.el$ = hostdetail.services$.children().last();
+        }
+    }
     filterDetails(0);
 });
 
@@ -45,29 +52,34 @@ var triggerRefresh = function() {
 
 $(document).on('click', '.refresh', null, triggerRefresh);
 
+function filterInfos() {
+    $('.hostcheckinfo').toggle($('#showhostdetails').prop('checked'));
+    $('.service > .info').toggle($('#showservicedetails').prop('checked'));
+}
+
 function filterDetails(a) {
     // 0 => only problems
     if (a!=parseInt(a)) {
-        a = parseInt($(this).text());
+        a = parseInt($(this).data('filter'));
     }
     
-    function showParentHost() {
-        $(this).parent().parent().find(".level1").show();
-    }
-    
-    $('.level4').hide();
-    $('.level2').hide();
-    $('.level1').hide();
-    detailstable.find(".service > .status").filter(function(e) {return !$(this).hasClass("OK")}).parent().show().each(showParentHost).find('.level4').show();
-    detailstable.find(".host > .status").filter(function(e) {return !e.hasClass("OK")}).show();
-    
-    if (a > 0) {
-        $('.level1').show();
-        if (a > 1) {
-            $('.level2').show();
-            if (a > 2) {$('.level4').show();}
+    var hostindex;
+    var hostdetail;
+    var serviceindex;
+    var servicedetail;
+    for (hostindex in dstatus.details) {
+        hostdetail = dstatus.details[hostindex];
+        var serviceerror = false;
+        for (serviceindex in hostdetail.services) {
+            servicedetail = hostdetail.services[serviceindex];
+            servicedetail.el$.toggle(a > 1 || servicedetail.status !== "OK")
+            serviceerror = serviceerror || servicedetail.status !== "OK";
         }
+        hostdetail.el$.toggle(a > 0 || serviceerror);
     }
+    
+    filterInfos();
 }
 
 $(document).on('click', '.btnFilterDetails', filterDetails);
+$(document).on('click', 'input[type=checkbox]', filterInfos);
