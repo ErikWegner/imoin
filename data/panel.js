@@ -17,11 +17,13 @@ self.port.on("ProcessStatusUpdate", function(status) {
     var hostdetail;
     var serviceindex;
     var servicedetail;
+    var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" />';
+    var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" />';
     detailstable = $('#details');
     for (hostindex in dstatus.details) {
         hostdetail = dstatus.details[hostindex];
         // output the details for a host
-        hostdetail.actions = "R A";
+        hostdetail.actions = chkimg + " " + ackimg;
         hostdetail.acknowledged = hostdetail.has_been_acknowledged === true ? "A" : "";
         detailstable.append(hosttemplate(hostdetail));
         hostdetail.el$ = detailstable.children().last();
@@ -29,7 +31,7 @@ self.port.on("ProcessStatusUpdate", function(status) {
         for (serviceindex in hostdetail.services) {
             servicedetail = hostdetail.services[serviceindex];
             servicedetail.host = hostdetail;
-            servicedetail.actions = "R A";
+            servicedetail.actions = chkimg + " " + ackimg;
             servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
             hostdetail.services$.append(servicetemplate(servicedetail));
             servicedetail.el$ = hostdetail.services$.children().last();
