@@ -17,8 +17,8 @@ self.port.on("ProcessStatusUpdate", function(status) {
     var hostdetail;
     var serviceindex;
     var servicedetail;
-    var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" />';
-    var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" />';
+    var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" />';
+    var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" class="ack" />';
     detailstable = $('#details');
     for (hostindex in dstatus.details) {
         hostdetail = dstatus.details[hostindex];
@@ -52,7 +52,17 @@ var triggerRefresh = function() {
     self.port.emit("triggerRefresh");
 }
 
+var triggerCmdExec = function(e) {
+    var i$ = $(e.target);
+    var hostname = i$.parents('.host').find('.hostname').text().toLowerCase();
+    var servicename = i$.parents('.service').find('.servicename').text().toLowerCase();
+
+    self.port.emit("triggerCmdExec", {hostname: hostname, servicename: servicename, command: e.data.command});
+}
+
 $(document).on('click', '.refresh', null, triggerRefresh);
+$(document).on('click', '.recheck', {command: "recheck"}, triggerCmdExec);
+$(document).on('click', '.ack', {command: "ack"}, triggerCmdExec);
 
 function filterInfos() {
     $('.hostcheckinfo').toggle($('#showhostdetails').prop('checked'));
