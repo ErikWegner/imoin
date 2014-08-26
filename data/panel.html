@@ -2,30 +2,30 @@
     <head>
         <title>imoin panel</title>
         
-        <script type="text/template" id="errortemplate">
+        <template id="errortemplate">
             <div style="text-align: center">
             <img src="icon-64.png" alt="Icinga logo" /><br>
-            <p class="errormessage"><%= message %></p>
+            <p class="errormessage">&lt;%= message %&gt;</p>
             <p><a class="refresh" href="javascript:void(0);">&#8634; Refresh</a></p>
             </div>
-        </script>
+        </template>
         
-        <script type="text/template" id="maintemplate">
+        <template id="maintemplate">
             <div style="text-align: center;">
                 <p><a class="refresh" href="javascript:void(0);">&#8634; Refresh</a></p>
                 <div>
                     <table class="main" cellspacing=0 style="vertical-align:top; display: inline-block; margin-right: 1em;">
                         <tr><th colspan="2">Service status</th></tr>
-                        <tr class="OK"><td>Ok</td><td class="num"><%= serviceok %>/<%= totalservices %></td></tr>
-                        <tr class="WARN"><td>Warn</td><td class="num"><%= servicewarnings %>/<%= totalservices %></td></tr>
-                        <tr class="CRIT"><td>Crit</td><td class="num"><%= serviceerrors %>/<%= totalservices %></td></tr>
+                        <tr class="OK"><td>Ok</td><td class="num">&lt;%= serviceok %&gt;/&lt;%= totalservices %&gt;</td></tr>
+                        <tr class="WARN"><td>Warn</td><td class="num">&lt;%= servicewarnings %&gt;/&lt;%= totalservices %&gt;</td></tr>
+                        <tr class="CRIT"><td>Crit</td><td class="num">&lt;%= serviceerrors %&gt;/&lt;%= totalservices %&gt;</td></tr>
                     </table>
                     <table class="main" cellspacing=0 style="display: inline-block;">
                         <tr><th colspan="2">Host status</th></tr>
-                        <tr class="UP"><td>Up</td><td class="num"><%= hostup %>/<%= totalhosts %></td></tr>
-                        <tr class="DOWN"><td>Down</td><td class="num"><%= hosterrors %>/<%= totalhosts %></td></tr>
+                        <tr class="UP"><td>Up</td><td class="num">&lt;%= hostup %&gt;/&lt;%= totalhosts %&gt;</td></tr>
+                        <tr class="DOWN"><td>Down</td><td class="num">&lt;%= hosterrors %&gt;/&lt;%= totalhosts %&gt;</td></tr>
                         <tr class="space"><td colspan="2"> </td></tr>
-                        <tr class="updatetime"><td colspan="2"><%= updatetime %></td></tr>
+                        <tr class="updatetime"><td colspan="2">&lt;%= updatetime %&gt;</td></tr>
                     </table>
                 </div>
                 
@@ -40,28 +40,28 @@
             
             <div id="details" />
             
-        </script>
+        </template>
         
-        <script type="text/template" id="hosttemplate">
+        <template id="hosttemplate">
             <div class="host">
                 <div class="host">
-                    <span class="hostname"><%= hostname %></span>
-                    <span class="status <%= status %>"><%= status %></span>
-                    <span class="actions"><%= actions %></span>
-                    <div class="hostcheckinfo"><%= information %></div>
+                    <span class="hostname" data-url="&lt;%= hostlink %&gt;">&lt;%= hostname %&gt;</span>
+                    <span class="status &lt;%= status %&gt;">&lt;%= status %&gt;</span>
+                    <span class="actions">&lt;%= actions %&gt;</span>
+                    <div class="hostcheckinfo">&lt;%= information %&gt;</div>
                 </div>
                 <div class="services"></div>
             </div>
-        </script>
+        </template>
         
-        <script type="text/template" id="servicetemplate">
+        <template id="servicetemplate">
             <div class="service">
-                <span class="servicename"><%= service_description %></span>
-                <span class="status <%= status %>"><%= status %></span>
-                <span class="actions"><%= actions %></span>
-                <div class="info"><%= status_information %></div>
+                <span class="servicename" data-url="&lt;%= servicelink %&gt;">&lt;%= service_description %&gt;</span>
+                <span class="status &lt;%= status %&gt;">&lt;%= status %&gt;</span>
+                <span class="actions">&lt;%= actions %&gt;</span>
+                <div class="info">&lt;%= status_information %&gt;</div>
             </div>
-        </script>
+        </template>
         
         <style type="text/css">
         .host {
@@ -201,6 +201,11 @@
             tr.host td.UP,
             tr.service td.OK {
                 background-color: #3f3;
+            }
+            
+            .hostname,
+            .servicename {
+                cursor: pointer;
             }
         </style>
     </head>

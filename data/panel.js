@@ -1,7 +1,7 @@
-var errortemplate = _.template($('#errortemplate').html());
-var maintemplate = _.template($('#maintemplate').html());
-var hosttemplate = _.template($('#hosttemplate').html());
-var servicetemplate = _.template($('#servicetemplate').html());
+var errortemplate = _.template($('#errortemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
+var maintemplate = _.template($('#maintemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
+var hosttemplate = _.template($('#hosttemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
+var servicetemplate = _.template($('#servicetemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
 
 //  global variables
 var detailstable = null;
@@ -54,15 +54,21 @@ var triggerRefresh = function() {
 
 var triggerCmdExec = function(e) {
     var i$ = $(e.target);
-    var hostname = i$.parents('.host').find('.hostname').text().toLowerCase();
-    var servicename = i$.parents('.service').find('.servicename').text().toLowerCase();
+    var hostname = i$.parents('.host').find('.hostname').text();
+    var servicename = i$.parents('.service').find('.servicename').text();
 
     self.port.emit("triggerCmdExec", {hostname: hostname, servicename: servicename, command: e.data.command});
+}
+
+var triggerOpenPage = function(e) {
+    var i$ = $(e.target);
+    self.port.emit("triggerOpenPage", i$.data("url"));
 }
 
 $(document).on('click', '.refresh', null, triggerRefresh);
 $(document).on('click', '.recheck', {command: "recheck"}, triggerCmdExec);
 $(document).on('click', '.ack', {command: "ack"}, triggerCmdExec);
+$(document).on('click', '.hostname, .servicename', null, triggerOpenPage)
 
 function filterInfos() {
     $('.hostcheckinfo').toggle($('#showhostdetails').prop('checked'));
