@@ -15,6 +15,22 @@
         "description": "Update interval in minutes (recommended value: 5)",
         "type": "integer",
         "value": 5
+    },{
+        "name": "extensions.imoin.authentication",
+        "title": "Authentication",
+        "description": "Select how to authenticate",
+        "type": "menulist",
+        "value": 1,
+        "options": [
+            {
+                "value": "0",
+                "label": "No action"
+            },
+            {
+                "value": "1",
+                "label": "Basic auth through Firefox Password Manager"
+            }
+        ]
     }],
   "icon": "data/icon-64.png",
   "icon64": "data/icon-64.png",
