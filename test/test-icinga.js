@@ -107,7 +107,11 @@ exports["test ProcessResponseAllGreen"] = function(assert, done) {
         assert.pass("StatusUpdate");
         assert.equal(typeof status, "object", "status is an object");
         assert.equal(typeof status.details, "object", "status.details is an object");
-        assert.equal(status.details.length, status.totalhosts, "test totalhosts matches details length");
+        var i1 = 0, i2 = 0;
+        for (i1 in status.details) {
+            i2++;
+        }
+        assert.equal(i2, status.totalhosts, "test totalhosts matches details length");
         done();
     });
     

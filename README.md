@@ -15,7 +15,7 @@ Done
 ☑ Show more details for service checks  
 ☑ Show more details for host checks  
 ☑ Provide links to the monitoring instance (e.g. clicking on a service name opens that service on the icinga instance)  
-☑ Use Password manager
+☑ Use Password manager (blocked by https://bugzilla.mozilla.org/show_bug.cgi?id=726796)  
 
 To do
 =====
