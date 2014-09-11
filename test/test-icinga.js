@@ -85,10 +85,20 @@ var redservicejson = { "cgi_json_version": "1.10.0",
 }
 
 
+var response_1_6 = { "cgi_json_version": "1.6.0",
+"status": {
+"host_status": [
+{ "host": "test", "service": "Cron", "status": "OK", "last_check": "2014-08-29 12:00:05", "duration": "3d  1h  2m 43s", "attempts": "1/4", "is_flapping": false, "in_scheduled_downtime": false, "active_checks_enabled": true, "passive_checks_enabled": true, "notifications_enabled": true, "has_been_acknowledged": false, "status_information": "FILE_AGE OK: /tmp/cronmonitor is 304 seconds old and 0 bytes"},
+{ "host": "test", "service": "Disks", "status": "OK", "last_check": "2014-08-29 11:59:22", "duration": "3d  1h  4m 49s", "attempts": "1/4", "is_flapping": false, "in_scheduled_downtime": false, "active_checks_enabled": true, "passive_checks_enabled": true, "notifications_enabled": true, "has_been_acknowledged": false, "status_information": "DISK OK - free space: / 35657 MB (87% inode=99%): /dev/shm 8037 MB (100% inode=99%): /boot 97 MB (75% inode=99%):"},
+{ "host": "test", "service": "Server", "status": "OK", "last_check": "2014-08-29 12:02:05", "duration": "1d 22h  6m 26s", "attempts": "1/4", "is_flapping": false, "in_scheduled_downtime": false, "active_checks_enabled": true, "passive_checks_enabled": true, "notifications_enabled": true, "has_been_acknowledged": false, "status_information": "SERVER OK"},
+{ "host": "test", "service": "Load", "status": "OK", "last_check": "2014-08-29 11:59:18", "duration": "3d  1h  4m 12s", "attempts": "1/4", "is_flapping": false, "in_scheduled_downtime": false, "active_checks_enabled": true, "passive_checks_enabled": true, "notifications_enabled": true, "has_been_acknowledged": false, "status_information": "OK - load average: 0.34, 0.19, 0.17"},
+{ "host": "test", "service": "Memory", "status": "OK", "last_check": "2014-08-29 11:59:23", "duration": "3d  1h  5m 34s", "attempts": "1/4", "is_flapping": false, "in_scheduled_downtime": false, "active_checks_enabled": true, "passive_checks_enabled": true, "notifications_enabled": true, "has_been_acknowledged": false, "status_information": "Memory: OK Total: 16075 MB - Used: 2848 MB - 17% used"}
+]
+}
+}
+
+
 exports["test ProcessResponseAllGreen"] = function(assert, done) {
-    //var timers = require("sdk/timers");
-    
-    
     var EventNames = {
         InstanceUrlChanged: "InstanceUrlChanged",
         QueryStatus: "QueryStatus",
@@ -103,7 +113,13 @@ exports["test ProcessResponseAllGreen"] = function(assert, done) {
     icinga.SetEventTransport(target);
     icinga.SetEventNames(EventNames);
 
-    on(target, EventNames.StatusUpdate, function(status) {
+    once(target, EventNames.GenericError, function(m) {
+       assert.fail(m);
+       done();
+    });
+    
+
+    once(target, EventNames.StatusUpdate, function(status) {
         assert.pass("StatusUpdate");
         assert.equal(typeof status, "object", "status is an object");
         assert.equal(typeof status.details, "object", "status.details is an object");
@@ -116,13 +132,43 @@ exports["test ProcessResponseAllGreen"] = function(assert, done) {
     });
     
     icinga.ProcessResponse(redservicejson);
-    
-    //timers.setTimeout(function () {
-    //    console.log("Timed out");
-    //    assert.pass("async Unit test running!");
-    //    g = 1;
-    //    done();
-    //}, 250);
 }
+
+exports["test ProcessResponse_1_6"] = function(assert, done) {
+    var EventNames = {
+        InstanceUrlChanged: "InstanceUrlChanged",
+        QueryStatus: "QueryStatus",
+        Unconfigured: "Unconfigured",
+        GenericError: "GenericError",
+        ProcessResponse: "ProcessResponse",
+        StatusUpdate: "StatusUpdate"
+    };
+    var { on, once, off, emit } = require('sdk/event/core');
+    var target = { name: 'imointarget' };
+    var icinga = require("./icinga");
+    icinga.SetEventTransport(target);
+    icinga.SetEventNames(EventNames);
+
+    once(target, EventNames.GenericError, function(m) {
+       assert.fail(m);
+       done();
+    });
+    
+    once(target, EventNames.StatusUpdate, function(status) {
+        assert.pass("StatusUpdate");
+        assert.equal(typeof status, "object", "status is an object");
+        assert.equal(typeof status.details, "object", "status.details is an object");
+        var i1 = 0, i2 = 0;
+        for (i1 in status.details) {
+            i2++;
+        }
+        assert.equal(i2, status.totalhosts, "test totalhosts matches details length");
+        assert.equal(i2, 1, "test totalhosts matches 1");
+        done();
+    });
+    
+    icinga.ProcessResponse(response_1_6);
+}
+
 
 require("sdk/test").run(exports);
