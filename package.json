@@ -31,10 +31,15 @@
                 "label": "Basic auth through Firefox Password Manager"
             }
         ]
+    },{
+        "type": "control",
+        "label": "Set username/password",
+        "name": "extensions.imoin.setUsernamePassword",
+        "title": "Set username/password"
     }],
   "icon": "data/icon-64.png",
   "icon64": "data/icon-64.png",
   "author": "Erik Wegner",
   "license": "MPL 2.0",
-  "version": "4"
+  "version": "5"
 }
