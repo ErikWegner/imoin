@@ -47,19 +47,19 @@
         </template>
         
         <template id="hosttemplate">
-            <div class="host">
-                <div class="host">
+            <div class="host" style="&lt;%= initialhide %&gt;">
+                <div>
                     <span class="hostname" data-url="&lt;%= hostlink %&gt;">&lt;%= hostname %&gt;</span>
                     <span class="status &lt;%= status %&gt;">&lt;%= status %&gt;</span>
                     <span class="actions">&lt;%= actions %&gt;</span>
                     <div class="hostcheckinfo">&lt;%= information %&gt;</div>
                 </div>
-                <div class="services"></div>
+                <div class="services">&lt;%= servicesdata %&gt;</div>
             </div>
         </template>
         
         <template id="servicetemplate">
-            <div class="service">
+            <div class="service" style="&lt;%= initialhide %&gt;">
                 <span class="servicename" data-url="&lt;%= servicelink %&gt;">&lt;%= service_description %&gt;</span>
                 <span class="status &lt;%= status %&gt;">&lt;%= status %&gt;</span>
                 <span class="actions">&lt;%= actions %&gt;</span>
