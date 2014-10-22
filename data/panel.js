@@ -20,24 +20,32 @@ self.port.on("ProcessStatusUpdate", function(status) {
     var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" />';
     var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" class="ack" />';
     detailstable = $('#details');
+    var largehtml = "";
     for (hostindex in dstatus.details) {
         hostdetail = dstatus.details[hostindex];
         // output the details for a host
         hostdetail.actions = chkimg + " " + ackimg;
         hostdetail.acknowledged = hostdetail.has_been_acknowledged === true ? "A" : "";
-        detailstable.append(hosttemplate(hostdetail));
-        hostdetail.el$ = detailstable.children().last();
-        hostdetail.services$ = hostdetail.el$.find(".services");
+        var servicesdata = "";
+        var serviceerror = false;
         for (serviceindex in hostdetail.services) {
             servicedetail = hostdetail.services[serviceindex];
             servicedetail.host = hostdetail;
             servicedetail.actions = chkimg + " " + ackimg;
             servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
-            hostdetail.services$.append(servicetemplate(servicedetail));
-            servicedetail.el$ = hostdetail.services$.children().last();
+            servicedetail.initialhide = servicedetail.status === "OK" ? "display: none;" : "";
+            serviceerror |= servicedetail.status !== "OK";
+            servicesdata += servicetemplate(servicedetail);
         }
+        hostdetail.initialhide = (serviceerror || hostdetail.status !== "UP") ? "" : "display: none;";
+        console.log(hostdetail.initialhide);
+        hostdetail.servicesdata = servicesdata;
+        largehtml += hosttemplate(hostdetail);
+        console.log(hosttemplate(hostdetail) + "\n\n");
+        delete(hostdetail.servicesdata);
+        delete(hostdetail.style);
     }
-    filterDetails(0);
+    detailstable.html(largehtml);
 });
 
 self.port.on("GenericError", function(message) {
@@ -81,20 +89,17 @@ function filterDetails(a) {
         a = parseInt($(this).data('filter'));
     }
     
-    var hostindex;
-    var hostdetail;
-    var serviceindex;
-    var servicedetail;
-    for (hostindex in dstatus.details) {
-        hostdetail = dstatus.details[hostindex];
+    $('.host').each(function() {
+        var host$ = $(this); 
         var serviceerror = false;
-        for (serviceindex in hostdetail.services) {
-            servicedetail = hostdetail.services[serviceindex];
-            servicedetail.el$.toggle(a > 1 || servicedetail.status !== "OK")
-            serviceerror = serviceerror || servicedetail.status !== "OK";
-        }
-        hostdetail.el$.toggle(a > 0 || serviceerror);
-    }
+        host$.find('.service').each(function() {
+            var serv$ = $(this);
+            var servNotOk = serv$.find('.status').text() !== "OK"
+            serv$.toggle(a > 1 || servNotOk);
+            serviceerror |= servNotOk;
+        });
+        host$.toggle(a > 0 || serviceerror);
+    });
     
     filterInfos();
 }
