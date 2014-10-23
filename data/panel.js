@@ -38,10 +38,8 @@ self.port.on("ProcessStatusUpdate", function(status) {
             servicesdata += servicetemplate(servicedetail);
         }
         hostdetail.initialhide = (serviceerror || hostdetail.status !== "UP") ? "" : "display: none;";
-        console.log(hostdetail.initialhide);
         hostdetail.servicesdata = servicesdata;
         largehtml += hosttemplate(hostdetail);
-        console.log(hosttemplate(hostdetail) + "\n\n");
         delete(hostdetail.servicesdata);
         delete(hostdetail.style);
     }

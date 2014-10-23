@@ -31,10 +31,23 @@
                 "label": "Basic auth through Firefox Password Manager"
             }
         ]
-    }],
+    }, {
+        "name": "extensions.imoin.authentication.username",
+        "title": "Username (optional)",
+        "description": "Identify the Firefox Password Manager enty by this username, if multiple entries exist. This is case sensitive.",
+        "type": "string",
+        "value": ""
+    }, {
+        "name": "extensions.imoin.hostgroup",
+        "title": "Hostgroup (optional)",
+        "description": "Only list this hostgroup.",
+        "type": "string",
+        "value": ""
+    }
+                 ],
   "icon": "data/icon-64.png",
   "icon64": "data/icon-64.png",
   "author": "Erik Wegner",
   "license": "MPL 2.0",
-  "version": "5"
+  "version": "6"
 }
