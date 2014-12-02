@@ -2,10 +2,21 @@ var errortemplate = "";
 var maintemplate = "";
 var hosttemplate = "";
 var servicetemplate = "";
-var emptytemplate = document.getElementById("processing").innerHTML;
+var processingtemplate = document.getElementById("processing").innerHTML;
+
+var panelcontentstatus = {
+    processing: 0,
+    error: 1,
+    data: 2
+}
+
+var panelcontent = panelcontentstatus.processing
 
 self.port.on("show", function (output) {
     console.log("panel show");
+    if (panelcontent == panelcontentstatus.processing) {
+        document.body.innerHTML = processingtemplate
+    }
 });
 
 
