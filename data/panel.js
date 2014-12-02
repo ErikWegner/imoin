@@ -1,7 +1,16 @@
-var errortemplate = _.template($('#errortemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
-var maintemplate = _.template($('#maintemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
-var hosttemplate = _.template($('#hosttemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
-var servicetemplate = _.template($('#servicetemplate').html().replace(/&lt;/g,"<").replace(/&gt;/g,">"));
+var errortemplate = "";
+var maintemplate = "";
+var hosttemplate = "";
+var servicetemplate = "";
+var emptytemplate = document.getElementById("processing").innerHTML;
+
+self.port.on("show", function (output) {
+    console.log("panel show");
+});
+
+
+/*
+var $ = function() {};
 
 //  global variables
 var detailstable = null;
@@ -47,11 +56,11 @@ self.port.on("ProcessStatusUpdate", function(status) {
 });
 
 self.port.on("GenericError", function(message) {
-   $('body').html(errortemplate({message: message}));
+   //$('body').html(errortemplate({message: message}));
 });
 
 self.port.on("show", function (output) {
-    self.port.emit("resize", document.documentElement.scrollWidth, document.documentElement.scrollHeight);
+    console.log("panel show");
 });
 
 var triggerRefresh = function() {
@@ -59,6 +68,7 @@ var triggerRefresh = function() {
 }
 
 var triggerCmdExec = function(e) {
+    return;
     var i$ = $(e.target);
     var hostname = i$.parents('.host').find('.hostname').text();
     var servicename = i$.parents('.service').find('.servicename').text();
@@ -103,4 +113,4 @@ function filterDetails(a) {
 }
 
 $(document).on('click', '.btnFilterDetails', filterDetails);
-$(document).on('click', 'input[type=checkbox]', filterInfos);
+$(document).on('click', 'input[type=checkbox]', filterInfos);*/
