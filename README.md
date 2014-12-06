@@ -18,11 +18,11 @@ Done
 ☑ Use Password manager (see https://bugzilla.mozilla.org/show_bug.cgi?id=726796 if you are using FireFTP)  
 ☑ Filter by a hostgroup  
 ☑ Update panel contents on opening (for even larger results, split view to several html instances)  
+☑ Use toggle buttons  
 
 To do
 =====
 
-☐ Use toggle buttons  
 ☐ Filter by hostgroup, contact, (...?), on the fly  
 ☐ Provide Flattr button  
 ☐ Localization  
