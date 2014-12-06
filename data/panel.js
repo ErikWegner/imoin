@@ -20,6 +20,8 @@ var statusdata = null;
 // store a rendered template for later display
 var rendered_template = "";
 
+var filtered_lists_templates = {};
+
 self.port.on("show", function (output) {
     console.log("panel show: " + panelcontent);
     
@@ -42,8 +44,66 @@ self.port.on("show", function (output) {
     }
 });
 
+var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" />';
+var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" class="ack" />';
+
 function renderMainTemplate() {
-    console.log("renderMainTemplate");
+    // render three lists
+    // list 1: show a host, if any of its services is not ok, show service if it is not ok
+    // list 2: show all hosts, show service if it is not ok
+    // list 3: show all hosts, show all services
+    
+    var html1 = "", html2 = "", html3 = "";
+    
+    for (hostindex in statusdata.details) {
+        hostdetail = statusdata.details[hostindex];
+
+        var show_host_in_list1 = hostdetail.status !== "UP";
+        var all_serviceshtml = "";
+        var not_ok_serviceshtml = "";
+        var renderbuffer = "";
+        
+        // output the details for a host
+        hostdetail.actions = chkimg + " " + ackimg;
+        hostdetail.acknowledged = hostdetail.has_been_acknowledged === true ? "A" : "";
+        
+        for (serviceindex in hostdetail.services) {
+            servicedetail = hostdetail.services[serviceindex];
+            servicedetail.host = hostdetail;
+            servicedetail.actions = chkimg + " " + ackimg;
+            servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
+            servicedetail.initialhide = servicedetail.status === "OK" ? "display: none;" : "";
+            
+            renderbuffer = renderTemplate(servicetemplate, servicedetail);
+            
+            all_serviceshtml += renderbuffer;
+            
+            if (servicedetail.status !== "OK") {
+                show_host_in_list1 = true;
+                not_ok_serviceshtml += renderbuffer;
+            }
+        }
+
+        hostdetail.servicesdata = not_ok_serviceshtml;
+        renderbuffer = renderTemplate(hosttemplate, hostdetail);
+        
+        // list 1
+        if (show_host_in_list1) {
+            html1 += renderbuffer;
+        }
+        
+        // list 2
+        html2 += renderbuffer;
+        
+        // list 3
+        hostdetail.servicesdata = all_serviceshtml;
+        html3 += renderTemplate(hosttemplate, hostdetail);
+    }
+    
+    panelcontent = panelcontentstatus.template_rendered;
+
+    statusdata.details = html1;
+    
     return renderTemplate(maintemplate, statusdata);
 }
 
@@ -86,8 +146,6 @@ self.port.on("ProcessStatusUpdate", function(status) {
     var hostdetail;
     var serviceindex;
     var servicedetail;
-    var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" />';
-    var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" class="ack" />';
     detailstable = $('#details');
     var largehtml = "";
     for (hostindex in dstatus.details) {
