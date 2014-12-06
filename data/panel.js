@@ -41,11 +41,32 @@ self.port.on("show", function (output) {
     
     if (panelcontent == panelcontentstatus.template_rendered) {
         document.body.innerHTML = rendered_template;
+        registerMainEventHandler();
     }
 });
 
 var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" />';
 var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" class="ack" />';
+
+// switch between the filtered details lists
+function listswitch(e) {
+    if (e == null || e.target == null) return;
+    var filtervalue = e.target.getAttribute("value");
+    var details_el = document.getElementById("details");
+    if (details_el && filtervalue in filtered_lists_templates) {
+        details_el.innerHTML = filtered_lists_templates[filtervalue];
+    }
+}
+
+function registerMainEventHandler() {
+    var cbnames = ["r1", "r2", "r3"];
+    for (var cbname_index in cbnames) {
+        var el = document.getElementById(cbnames[cbname_index]);
+        if (el) {
+            el.addEventListener("click", listswitch);
+        }
+    }
+}
 
 function renderMainTemplate() {
     // render three lists
@@ -72,7 +93,6 @@ function renderMainTemplate() {
             servicedetail.host = hostdetail;
             servicedetail.actions = chkimg + " " + ackimg;
             servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
-            servicedetail.initialhide = servicedetail.status === "OK" ? "display: none;" : "";
             
             renderbuffer = renderTemplate(servicetemplate, servicedetail);
             
@@ -104,17 +124,21 @@ function renderMainTemplate() {
 
     statusdata.details = html1;
     
+    filtered_lists_templates = {
+        filter0: html1,
+        filter1: html2,
+        filter2: html3
+    };
+    
     return renderTemplate(maintemplate, statusdata);
 }
 
 function renderTemplate(template, data) {
-    console.log("renderTemplate");
     var result = template;
     if ("object" === typeof(data)) {
         var keys = Object.keys(data);
         for (var key_index in keys) {
             var okey = keys[key_index];
-            console.log("key " + okey);
             result = result.replace(new RegExp('{' + okey + '}', "g"), data[okey]);
         }
     }
@@ -124,7 +148,6 @@ function renderTemplate(template, data) {
 }
 
 self.port.on("ProcessStatusUpdate", function(p_status) {
-    console.log("panel: ProcessStatusUpdate");
     panelcontent = panelcontentstatus.needs_processing;
     statusdata = p_status;
 });
@@ -136,47 +159,6 @@ self.port.on("GenericError", function(message) {
 });
 
 /*
-self.port.on("ProcessStatusUpdate", function(status) {
-    // this function refreshes the tables
-    $('body').html(maintemplate(status));
-    
-    dstatus = status;
-    var hostcontainer = null;
-    var hostindex;
-    var hostdetail;
-    var serviceindex;
-    var servicedetail;
-    detailstable = $('#details');
-    var largehtml = "";
-    for (hostindex in dstatus.details) {
-        hostdetail = dstatus.details[hostindex];
-        // output the details for a host
-        hostdetail.actions = chkimg + " " + ackimg;
-        hostdetail.acknowledged = hostdetail.has_been_acknowledged === true ? "A" : "";
-        var servicesdata = "";
-        var serviceerror = false;
-        for (serviceindex in hostdetail.services) {
-            servicedetail = hostdetail.services[serviceindex];
-            servicedetail.host = hostdetail;
-            servicedetail.actions = chkimg + " " + ackimg;
-            servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
-            servicedetail.initialhide = servicedetail.status === "OK" ? "display: none;" : "";
-            serviceerror |= servicedetail.status !== "OK";
-            servicesdata += servicetemplate(servicedetail);
-        }
-        hostdetail.initialhide = (serviceerror || hostdetail.status !== "UP") ? "" : "display: none;";
-        hostdetail.servicesdata = servicesdata;
-        largehtml += hosttemplate(hostdetail);
-        delete(hostdetail.servicesdata);
-        delete(hostdetail.style);
-    }
-    detailstable.html(largehtml);
-});
-
-self.port.on("show", function (output) {
-    console.log("panel show");
-});
-
 var triggerRefresh = function() {
     self.port.emit("triggerRefresh");
 }

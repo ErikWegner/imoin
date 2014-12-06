@@ -41,11 +41,11 @@
                 </div>
                 
                 <div>
-                    <input type="radio" class="cb" value="0" name="filter" id="r1" checked="checked">
+                    <input type="radio" class="cb" value="filter0" name="filter" id="r1" checked="checked">
                     <label for="r1">Errors/Warnings</label>
-                    <input type="radio" class="cb" value="1" name="filter" id="r2">
+                    <input type="radio" class="cb" value="filter1" name="filter" id="r2">
                     <label for="r2">All Hosts</label>
-                    <input type="radio" class="cb" value="2" name="filter" id="r3">
+                    <input type="radio" class="cb" value="filter2" name="filter" id="r3">
                     <label for="r3">All Services</label>
                     <!--
                     <label><input type="checkbox" id="showhostdetails" checked="checked"/> Hostdetails</label>
@@ -59,7 +59,7 @@
         </template>
         
         <template id="hosttemplate">
-            <div class="host" style="{initialhide}">
+            <div class="host">
                 <div>
                     <span class="hostname" data-url="{hostlink}">{hostname}</span>
                     <span class="status {status}">{status}</span>
@@ -71,7 +71,7 @@
         </template>
         
         <template id="servicetemplate">
-            <div class="service" style="{initialhide}">
+            <div class="service">
                 <span class="servicename" data-url="{servicelink}">{service_description}</span>
                 <span class="status {status}">{status}</span>
                 <span class="actions">{actions}</span>
