@@ -21,6 +21,16 @@ Done
 To do
 =====
 
-☐ https://developer.mozilla.org/en-US/Add-ons/Overlay_Extensions/XUL_School/JavaScript_Object_Management  
+☐ Use toggle buttons  
+☐ Update panel contents on opening (for even larger results, split view to several html instances)  
+☐ Filter by hostgroup, contact, (...?), on the fly  
 ☐ Provide Flattr button  
 ☐ Localization  
+
+Development tasks
+=================
+
+☐ Build a test server to do local, offline development  
+☐ Retrieve status data, update icon, store data  
+☐ Clicking the icon opens the panel, shows a waiting animation, processes the stored data and finally updates the panel  
+☐ Remove third party libraries  
