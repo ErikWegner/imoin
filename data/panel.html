@@ -3,6 +3,7 @@
 <html>
     <head>
         <title>imoin panel</title>
+        <link href="panel.css" type="text/css" rel="stylesheet">
         
         <meta charset="utf-8" />
         
@@ -15,34 +16,37 @@
         <template id="errortemplate">
             <div style="text-align: center">
             <img src="icon-64.png" alt="Icinga logo" /><br>
-            <p class="errormessage">&lt;%= message %&gt;</p>
+            <p class="errormessage">{message}</p>
             <p><a class="refresh" href="javascript:void(0);">&#8634; Refresh</a></p>
             </div>
         </template>
         
         <template id="maintemplate">
             <div style="text-align: center;">
-                <p><a class="refresh" href="javascript:void(0);">&#8634; Refresh</a> &lt;%= hostgroupinfo %&gt;</p>
+                <p><a class="refresh" href="javascript:void(0);">&#8634; Refresh</a> {hostgroupinfo}</p>
                 <div>
                     <table class="main" cellspacing=0 style="vertical-align:top; display: inline-block; margin-right: 1em;">
                         <tr><th colspan="2">Service status</th></tr>
-                        <tr class="OK"><td>Ok</td><td class="num">&lt;%= serviceok %&gt;/&lt;%= totalservices %&gt;</td></tr>
-                        <tr class="WARN"><td>Warn</td><td class="num">&lt;%= servicewarnings %&gt;/&lt;%= totalservices %&gt;</td></tr>
-                        <tr class="CRIT"><td>Crit</td><td class="num">&lt;%= serviceerrors %&gt;/&lt;%= totalservices %&gt;</td></tr>
+                        <tr class="OK"><td>Ok</td><td class="num">{serviceok}/{totalservices}</td></tr>
+                        <tr class="WARN"><td>Warn</td><td class="num">{servicewarnings}/{totalservices}</td></tr>
+                        <tr class="CRIT"><td>Crit</td><td class="num">{serviceerrors}/{totalservices}</td></tr>
                     </table>
                     <table class="main" cellspacing=0 style="display: inline-block;">
                         <tr><th colspan="2">Host status</th></tr>
-                        <tr class="UP"><td>Up</td><td class="num">&lt;%= hostup %&gt;/&lt;%= totalhosts %&gt;</td></tr>
-                        <tr class="DOWN"><td>Down</td><td class="num">&lt;%= hosterrors %&gt;/&lt;%= totalhosts %&gt;</td></tr>
+                        <tr class="UP"><td>Up</td><td class="num">{hostup}/{totalhosts}</td></tr>
+                        <tr class="DOWN"><td>Down</td><td class="num">{hosterrors}/{totalhosts}</td></tr>
                         <tr class="space"><td colspan="2"> </td></tr>
-                        <tr class="updatetime"><td colspan="2">&lt;%= updatetime %&gt;</td></tr>
+                        <tr class="updatetime"><td colspan="2">{updatetime}</td></tr>
                     </table>
                 </div>
                 
                 <div>
-                    <button class="btnFilterDetails" data-filter="0">Filter</button>
-                    <button class="btnFilterDetails" data-filter="1">Hosts</button>
-                    <button class="btnFilterDetails" data-filter="2">Services</button>
+                    <input type="radio" class="cb" value="0" name="filter" id="r1" checked="checked">
+                    <label for="r1">Errors/Warnings</label>
+                    <input type="radio" class="cb" value="1" name="filter" id="r2">
+                    <label for="r2">All Hosts</label>
+                    <input type="radio" class="cb" value="2" name="filter" id="r3">
+                    <label for="r3">All Services</label>
                     <label><input type="checkbox" id="showhostdetails" checked="checked"/> Hostdetails</label>
                     <label><input type="checkbox" id="showservicedetails" checked="checked"/> Servicedetails</label>
                 </div>
@@ -53,171 +57,26 @@
         </template>
         
         <template id="hosttemplate">
-            <div class="host" style="&lt;%= initialhide %&gt;">
+            <div class="host" style="{initialhide}">
                 <div>
-                    <span class="hostname" data-url="&lt;%= hostlink %&gt;">&lt;%= hostname %&gt;</span>
-                    <span class="status &lt;%= status %&gt;">&lt;%= status %&gt;</span>
-                    <span class="actions">&lt;%= actions %&gt;</span>
-                    <div class="hostcheckinfo">&lt;%= information %&gt;</div>
+                    <span class="hostname" data-url="{hostlink}">{hostname}</span>
+                    <span class="status {status}">{status}</span>
+                    <span class="actions">{actions}</span>
+                    <div class="hostcheckinfo">{information}</div>
                 </div>
-                <div class="services">&lt;%= servicesdata %&gt;</div>
+                <div class="services">{servicesdata}</div>
             </div>
         </template>
         
         <template id="servicetemplate">
-            <div class="service" style="&lt;%= initialhide %&gt;">
-                <span class="servicename" data-url="&lt;%= servicelink %&gt;">&lt;%= service_description %&gt;</span>
-                <span class="status &lt;%= status %&gt;">&lt;%= status %&gt;</span>
-                <span class="actions">&lt;%= actions %&gt;</span>
-                <div class="info">&lt;%= status_information %&gt;</div>
+            <div class="service" style="{initialhide}">
+                <span class="servicename" data-url="{servicelink}">{service_description}</span>
+                <span class="status {status}">{status}</span>
+                <span class="actions">{actions}</span>
+                <div class="info">{status_information}</div>
             </div>
         </template>
-        
-        <style type="text/css">
-        .host {
-            padding: 0.5ex;
-        }
-        
-        .host:hover {
-            background-color: #eef;
-            border-radius: 1ex;
-        }
-        
-        .hostname {
-            font-size: 160%;
-        }
-        
-        .hostcheckinfo,
-        .service .info {
-            color: #888;
-            padding-left: 1ex;
-        }
-        .service:hover {
-            background-color: #ffe;
-            border-radius: 0.5ex;
-        }
-        
-        .services {
-            padding-left: 2em;
-        }
-        
-        .service {
-            margin-bottom: 1ex;
-            border-top: 1px dotted #ddd;
-        }
-        .service:last-child {
-            border-bottom: 1px dotted #ddd;
-        }
-        
-        .servicename {
-            font-size: 120%;
-        }
-        
-        .actions {
-            float: right;
-            width: 6em;
-            text-align: right;
-            display: inline-block;
-            margin-top: 0.5ex;
-            padding-right: 1ex;
-        }
-        
-        .status {
-            float: right;
-            width: 6em;
-            display: inline-block;
-            text-align: center;
-            margin-top: 0.5ex;
-        }
-        
-        .status.OK, 
-        .status.UP {
-            background-color: #3f3;
-        }
-        
-        .status.WARNING {
-            background-color: #ffa500;
-        }
-        
-        .status.CRITICAL,
-        .status.DOWN {
-            background-color: #f33;
-        }
-        
-        #details {
-            width: 625px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-            * body {
-                font-family: sans-serif;
-            }
-            .main th {
-                font-size: 110%;
-            }
-            .main td {
-                font-size: 100%;
-                color: black;
-                text-shadow: white 1px 1px 1px;
-            }
-            .main th {
-                color: black;
-                background-color: #bbb;
-                text-shadow: white 1px 1px 1px;
-            }
-            .main .OK, .main .UP {
-                background-color: #3f3;
-            }
-            .main .CRIT, .main .DOWN {
-                background-color: #f33;
-            }
-            .main .WARN {
-                background-color: #ffa500;
-            }
-            .main .num {
-                text-align: right;
-            }
-            .main .updatetime {
-                font-size: 75%;
-                text-align: center;
-            }
-            .main .space {
-                height: 1ex;
-            }
-            
-            table#details {
-                font-size: 80%;
-                color: black;
-                text-shadow: white 1px 1px 1px;
-            }
-            
-            table#details td.space {
-                width: 2ex;
-                background: none;
-            }
-            
-            tr.service {
-                background-color: #bbb;
-            }
-            
-            tr.service.odd {
-                background-color: #eee;
-            }
-            
-            tr.service.even {
-                background-color: #ddd;
-            }
-            
-            tr.host td.UP,
-            tr.service td.OK {
-                background-color: #3f3;
-            }
-            
-            .hostname,
-            .servicename {
-                cursor: pointer;
-            }
-        </style>
+
     </head>
     <body>
     </body>

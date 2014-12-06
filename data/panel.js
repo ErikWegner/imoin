@@ -1,32 +1,81 @@
-var errortemplate = "";
-var maintemplate = "";
-var hosttemplate = "";
-var servicetemplate = "";
+var errortemplate = document.getElementById("errortemplate").innerHTML;
+var maintemplate = document.getElementById("maintemplate").innerHTML;
+var hosttemplate = document.getElementById("hosttemplate").innerHTML;
+var servicetemplate = document.getElementById("servicetemplate").innerHTML;
 var processingtemplate = document.getElementById("processing").innerHTML;
 
 var panelcontentstatus = {
-    processing: 0,
+    needs_processing: 0,
     error: 1,
-    data: 2
+    data: 2,
+    empty: 3,
+    template_rendered: 4
 }
 
 var panelcontent = panelcontentstatus.processing
 
+// store the incoming data object for later processing
+var statusdata = null;
+
+// store a rendered template for later display
+var rendered_template = "";
+
 self.port.on("show", function (output) {
-    console.log("panel show");
-    if (panelcontent == panelcontentstatus.processing) {
-        document.body.innerHTML = processingtemplate
+    console.log("panel show: " + panelcontent);
+    
+    switch(panelcontent) {
+        case panelcontentstatus.needs_processing:
+            rendered_template = renderMainTemplate();
+            break;
+
+        case panelcontentstatus.empty:
+            rendered_template = renderTemplate(errortemplate, { message: "No data yet" });
+            break;
+        
+        case panelcontentstatus.error:
+            rendered_template = renderTemplate(errortemplate, statusdata);
+            break;
+    }
+    
+    if (panelcontent == panelcontentstatus.template_rendered) {
+        document.body.innerHTML = rendered_template;
     }
 });
 
+function renderMainTemplate() {
+    console.log("renderMainTemplate");
+    return renderTemplate(maintemplate, statusdata);
+}
+
+function renderTemplate(template, data) {
+    console.log("renderTemplate");
+    var result = template;
+    if ("object" === typeof(data)) {
+        var keys = Object.keys(data);
+        for (var key_index in keys) {
+            var okey = keys[key_index];
+            console.log("key " + okey);
+            result = result.replace(new RegExp('{' + okey + '}', "g"), data[okey]);
+        }
+    }
+    
+    panelcontent = panelcontentstatus.template_rendered;
+    return result;
+}
+
+self.port.on("ProcessStatusUpdate", function(p_status) {
+    console.log("panel: ProcessStatusUpdate");
+    panelcontent = panelcontentstatus.needs_processing;
+    statusdata = p_status;
+});
+
+
+self.port.on("GenericError", function(message) {
+    statusdata = { message: message };
+    panelcontent = panelcontentstatus.error;
+});
 
 /*
-var $ = function() {};
-
-//  global variables
-var detailstable = null;
-var dstatus = null;
-
 self.port.on("ProcessStatusUpdate", function(status) {
     // this function refreshes the tables
     $('body').html(maintemplate(status));
@@ -64,10 +113,6 @@ self.port.on("ProcessStatusUpdate", function(status) {
         delete(hostdetail.style);
     }
     detailstable.html(largehtml);
-});
-
-self.port.on("GenericError", function(message) {
-   //$('body').html(errortemplate({message: message}));
 });
 
 self.port.on("show", function (output) {

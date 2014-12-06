@@ -1,0 +1,173 @@
+/*
+  Hide radio button (the round disc)
+  we will use just the label to create pushbutton effect
+*/
+input[type=radio] {
+    display:none;
+    margin:10px;
+}
+ 
+/*
+  Change the look'n'feel of labels (which are adjacent to radiobuttons).
+  Add some margin, padding to label
+*/
+input[type=radio] + label {
+    display:inline-block;
+    margin:-2px;
+    padding: 1ex 2em;
+    background-color: #e7e7e7;
+    border-color: #ddd;
+}
+/*
+ Change background color for label next to checked radio button
+ to make it look like highlighted button
+*/
+input[type=radio]:checked + label {
+   background-image: none;
+    background-color:#a0a0a0;
+}
+
+
+.host {
+padding: 0.5ex;
+}
+
+.host:hover {
+background-color: #eef;
+border-radius: 1ex;
+}
+
+.hostname {
+font-size: 160%;
+}
+
+.hostcheckinfo,
+.service .info {
+color: #888;
+padding-left: 1ex;
+}
+.service:hover {
+background-color: #ffe;
+border-radius: 0.5ex;
+}
+
+.services {
+padding-left: 2em;
+}
+
+.service {
+margin-bottom: 1ex;
+border-top: 1px dotted #ddd;
+}
+.service:last-child {
+border-bottom: 1px dotted #ddd;
+}
+
+.servicename {
+font-size: 120%;
+}
+
+.actions {
+float: right;
+width: 6em;
+text-align: right;
+display: inline-block;
+margin-top: 0.5ex;
+padding-right: 1ex;
+}
+
+.status {
+float: right;
+width: 6em;
+display: inline-block;
+text-align: center;
+margin-top: 0.5ex;
+}
+
+.status.OK, 
+.status.UP {
+background-color: #3f3;
+}
+
+.status.WARNING {
+background-color: #ffa500;
+}
+
+.status.CRITICAL,
+.status.DOWN {
+background-color: #f33;
+}
+
+#details {
+width: 625px;
+max-height: 400px;
+overflow-y: auto;
+}
+* body {
+    font-family: sans-serif;
+}
+.main th {
+    font-size: 110%;
+}
+.main td {
+    font-size: 100%;
+    color: black;
+    text-shadow: white 1px 1px 1px;
+}
+.main th {
+    color: black;
+    background-color: #bbb;
+    text-shadow: white 1px 1px 1px;
+}
+.main .OK, .main .UP {
+    background-color: #3f3;
+}
+.main .CRIT, .main .DOWN {
+    background-color: #f33;
+}
+.main .WARN {
+    background-color: #ffa500;
+}
+.main .num {
+    text-align: right;
+}
+.main .updatetime {
+    font-size: 75%;
+    text-align: center;
+}
+.main .space {
+    height: 1ex;
+}
+
+table#details {
+    font-size: 80%;
+    color: black;
+    text-shadow: white 1px 1px 1px;
+}
+
+table#details td.space {
+    width: 2ex;
+    background: none;
+}
+
+tr.service {
+    background-color: #bbb;
+}
+
+tr.service.odd {
+    background-color: #eee;
+}
+
+tr.service.even {
+    background-color: #ddd;
+}
+
+tr.host td.UP,
+tr.service td.OK {
+    background-color: #3f3;
+}
+
+.hostname,
+.servicename {
+    cursor: pointer;
+}
