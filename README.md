@@ -19,6 +19,10 @@ Done
 ☑ Filter by a hostgroup  
 ☑ Update panel contents on opening (for even larger results, split view to several html instances)  
 ☑ Use toggle buttons  
+☑ Remove third party libraries  
+☑ Build a test server to do local, offline development  
+☑ Clicking the icon opens the panel, shows a waiting screen, processes the stored data and finally updates the panel  
+☑ Retrieve status data, update icon, store data  
 
 To do
 =====
@@ -30,7 +34,5 @@ To do
 Development tasks
 =================
 
-☐ Build a test server to do local, offline development  
-☐ Retrieve status data, update icon, store data  
-☐ Clicking the icon opens the panel, shows a waiting animation, processes the stored data and finally updates the panel  
-☐ Remove third party libraries  
+☐ Improve templating speed  
+☐ Add a waiting animation or modify pointer  
