@@ -15,14 +15,14 @@ Done
 ☑ Show more details for service checks  
 ☑ Show more details for host checks  
 ☑ Provide links to the monitoring instance (e.g. clicking on a service name opens that service on the icinga instance)  
-☑ Use Password manager (blocked by https://bugzilla.mozilla.org/show_bug.cgi?id=726796)  
+☑ Use Password manager (see https://bugzilla.mozilla.org/show_bug.cgi?id=726796 if you are using FireFTP)  
 ☑ Filter by a hostgroup  
+☑ Update panel contents on opening (for even larger results, split view to several html instances)  
 
 To do
 =====
 
 ☐ Use toggle buttons  
-☐ Update panel contents on opening (for even larger results, split view to several html instances)  
 ☐ Filter by hostgroup, contact, (...?), on the fly  
 ☐ Provide Flattr button  
 ☐ Localization  
