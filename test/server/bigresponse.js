@@ -23,6 +23,7 @@ var bigresponse = {
 var responsedata = JSON.stringify(bigresponse);
 
 http.createServer(function (req, res) {
+  console.log("answering");
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.end(responsedata);
 }).listen(port);

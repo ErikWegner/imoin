@@ -63,7 +63,7 @@
                 <div>
                     <span class="hostname" data-url="{hostlink}">{hostname}</span>
                     <span class="status {status}">{status}</span>
-                    <span class="actions">{actions}</span>
+                    <span class="actions" data-hostname="{hostname}">{actions}</span>
                     <div class="hostcheckinfo">{information}</div>
                 </div>
                 <div class="services">{servicesdata}</div>
@@ -74,7 +74,7 @@
             <div class="service">
                 <span class="servicename" data-url="{servicelink}">{service_description}</span>
                 <span class="status {status}">{status}</span>
-                <span class="actions">{actions}</span>
+                <span class="actions" data-hostname="{host_name}" data-servicename="{service_description}">{actions}</span>
                 <div class="info">{status_information}</div>
             </div>
         </template>

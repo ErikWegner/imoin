@@ -89,6 +89,7 @@ var responseobject = { "cgi_json_version": "1.10.0",
 var responsedata = JSON.stringify(responseobject);
 
 http.createServer(function (req, res) {
+  console.log("answering");
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.end(responsedata);
 }).listen(port);

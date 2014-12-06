@@ -22,9 +22,19 @@ var rendered_template = "";
 
 var filtered_lists_templates = {};
 
-self.port.on("show", function (output) {
-    console.log("panel show: " + panelcontent);
-    
+var isShowing = false;
+
+self.port.on("hide", function() {
+   isShowing = false; 
+});
+
+self.port.on("show", function () {
+//    console.log("panel show: " + panelcontent);
+    isShowing = true;
+    showAndUpdatePanelContent();
+});
+
+function showAndUpdatePanelContent() {
     switch(panelcontent) {
         case panelcontentstatus.needs_processing:
             rendered_template = renderMainTemplate();
@@ -41,12 +51,12 @@ self.port.on("show", function (output) {
     
     if (panelcontent == panelcontentstatus.template_rendered) {
         document.body.innerHTML = rendered_template;
-        registerMainEventHandler();
+        registerMainEventHandlers();
     }
-});
+}
 
-var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" />';
-var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" class="ack" />';
+var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" data-command="recheck" />';
+var ackimg = '<img src="ack.png" width="14" height="14" alt="Acknowledge" title="Acknowledge" class="ack" data-command="ack" />';
 
 // switch between the filtered details lists
 function listswitch(e) {
@@ -55,10 +65,18 @@ function listswitch(e) {
     var details_el = document.getElementById("details");
     if (details_el && filtervalue in filtered_lists_templates) {
         details_el.innerHTML = filtered_lists_templates[filtervalue];
+        registerDetailsEventHandlers();
     }
 }
 
-function registerMainEventHandler() {
+function registerEventHanderForClass(handler, classname) {
+    var elements = document.getElementsByClassName(classname);
+    Array.prototype.forEach.call(elements, function(element) {
+        element.addEventListener("click", handler);
+    });
+}
+
+function registerMainEventHandlers() {
     var cbnames = ["r1", "r2", "r3"];
     for (var cbname_index in cbnames) {
         var el = document.getElementById(cbnames[cbname_index]);
@@ -66,6 +84,16 @@ function registerMainEventHandler() {
             el.addEventListener("click", listswitch);
         }
     }
+    
+    registerEventHanderForClass(triggerRefresh, 'refresh');
+    registerDetailsEventHandlers();
+}
+
+function registerDetailsEventHandlers() {
+    registerEventHanderForClass(triggerOpenPage, 'hostname');
+    registerEventHanderForClass(triggerOpenPage, 'servicename');
+    registerEventHanderForClass(triggerCmdExec, 'recheck');
+    registerEventHanderForClass(triggerCmdExec, 'ack');
 }
 
 function renderMainTemplate() {
@@ -150,6 +178,10 @@ function renderTemplate(template, data) {
 self.port.on("ProcessStatusUpdate", function(p_status) {
     panelcontent = panelcontentstatus.needs_processing;
     statusdata = p_status;
+    debugger;
+    if (isShowing) {
+        showAndUpdatePanelContent();
+    }
 });
 
 
@@ -158,55 +190,26 @@ self.port.on("GenericError", function(message) {
     panelcontent = panelcontentstatus.error;
 });
 
-/*
 var triggerRefresh = function() {
     self.port.emit("triggerRefresh");
 }
 
 var triggerCmdExec = function(e) {
-    return;
-    var i$ = $(e.target);
-    var hostname = i$.parents('.host').find('.hostname').text();
-    var servicename = i$.parents('.service').find('.servicename').text();
-
-    self.port.emit("triggerCmdExec", {hostname: hostname, servicename: servicename, command: e.data.command});
+    var el = e.target
+    if (el == null) return;
+    
+    var command = el.getAttribute("data-command");
+    
+    el = el.parentElement;
+    if (el == null) return;
+    
+    var hostname = el.getAttribute("data-hostname");
+    var servicename = el.getAttribute("data-servicename") || "";
+    
+    self.port.emit("triggerCmdExec", {hostname: hostname, servicename: servicename, command: command});
 }
 
 var triggerOpenPage = function(e) {
-    var i$ = $(e.target);
-    self.port.emit("triggerOpenPage", i$.data("url"));
+    var url = e.target.getAttribute("data-url");
+    self.port.emit("triggerOpenPage", url);
 }
-
-$(document).on('click', '.refresh', null, triggerRefresh);
-$(document).on('click', '.recheck', {command: "recheck"}, triggerCmdExec);
-$(document).on('click', '.ack', {command: "ack"}, triggerCmdExec);
-$(document).on('click', '.hostname, .servicename', null, triggerOpenPage)
-
-function filterInfos() {
-    $('.hostcheckinfo').toggle($('#showhostdetails').prop('checked'));
-    $('.service > .info').toggle($('#showservicedetails').prop('checked'));
-}
-
-function filterDetails(a) {
-    // 0 => only problems
-    if (a!=parseInt(a)) {
-        a = parseInt($(this).data('filter'));
-    }
-    
-    $('.host').each(function() {
-        var host$ = $(this); 
-        var serviceerror = false;
-        host$.find('.service').each(function() {
-            var serv$ = $(this);
-            var servNotOk = serv$.find('.status').text() !== "OK"
-            serv$.toggle(a > 1 || servNotOk);
-            serviceerror |= servNotOk;
-        });
-        host$.toggle(a > 0 || serviceerror);
-    });
-    
-    filterInfos();
-}
-
-$(document).on('click', '.btnFilterDetails', filterDetails);
-$(document).on('click', 'input[type=checkbox]', filterInfos);*/
