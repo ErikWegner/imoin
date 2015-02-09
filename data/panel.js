@@ -1,7 +1,5 @@
-var errortemplate = document.getElementById("errortemplate").innerHTML;
 var maintemplate = document.getElementById("maintemplate").innerHTML;
 var hosttemplate = document.getElementById("hosttemplate").innerHTML;
-var servicetemplate = document.getElementById("servicetemplate").innerHTML;
 var processingtemplate = document.getElementById("processing").innerHTML;
 
 var panelcontentstatus = {
@@ -18,7 +16,7 @@ var panelcontent = panelcontentstatus.processing
 var statusdata = null;
 
 // store a rendered template for later display
-var rendered_template = "";
+var rendered_template = document.createTextNode("");
 
 var filtered_lists_templates = {};
 
@@ -41,18 +39,80 @@ function showAndUpdatePanelContent() {
             break;
 
         case panelcontentstatus.empty:
-            rendered_template = renderTemplate(errortemplate, { message: "No data yet" });
+            rendered_template = renderTemplateError({ message: "No data yet" });
             break;
         
         case panelcontentstatus.error:
-            rendered_template = renderTemplate(errortemplate, statusdata);
+            rendered_template = renderTemplateError(statusdata);
             break;
     }
     
     if (panelcontent == panelcontentstatus.template_rendered) {
-        document.body.innerHTML = rendered_template;
+        while (document.body.childNodes.length > 0) {
+          document.body.removeChild(document.body.childNodes[document.body.childNodes.length - 1]);
+        }
+        document.body.appendChild(rendered_template);
         registerMainEventHandlers();
     }
+}
+
+function renderTemplateError(statusdata) {
+  var r = document.createElement("div");
+  r.setAttribute("style", "text-align:center");
+  var img = document.createElement("img");
+  img.setAttribute("src", "icon-64.png");
+  img.setAttribute("alt", "Icinga logo");
+  r.appendChild(img);
+  r.appendChild(document.createElement("br"));
+  var p = document.createElement("p");
+  p.setAttribute("class", "errormessag");
+  r.appendChild(p);
+  p.appendChild(document.createTextNode(statusdata.message));
+  
+  var a = document.createElement("a");
+  a.setAttribute("class", "refresh");
+  a.setAttribute("href", "javascript:void(0);");
+  a.appendChild(document.createTextNode("↺ Refresh"));
+  p = document.createElement("p");
+  p.appendChild(a);
+  r.appendChild(p);
+  
+  panelcontent = panelcontentstatus.template_rendered;
+  return r;
+}
+
+function renderServiceTemplate(servicedata) {
+  var r = document.createElement("div");
+  r.setAttribute("class", "service");
+  var span;
+  
+  span = document.createElement("span");
+  span.setAttribute("class", "servicename");
+  span.setAttribute("data-url", servicedata.servicelink);
+  span.appendChild(document.createTextNode(servicedata.service_description));
+  r.appendChild(span);
+  
+  span = document.createElement("span");
+  span.setAttribute("class", "status " + servicedata.status);
+  span.appendChild(document.createTextNode(servicedata.status));
+  r.appendChild(span);
+  
+  span = document.createElement("span");
+  span.setAttribute("class", "actions");
+  span.setAttribute("data-hostname", servicedata.hostname);
+  span.setAttribute("data-servicename", servicedata.service_description);
+  span.appendChild(document.createTextNode(servicedata.actions));
+  r.appendChild(span);
+  
+  var divc = document.createElement("div");
+  divc.setAttribute("class", "info");
+  divc.appendChild(document.createTextNode(servicedata.status_information));
+  r.appendChild(divc);
+  
+  return r;
+}
+
+function renderHostTemplate(hostdata) {
 }
 
 var chkimg = '<img src="rck.png" width="14" height="14" alt="Recheck" title="Recheck" class="recheck" data-command="recheck" />';
@@ -102,15 +162,15 @@ function renderMainTemplate() {
     // list 2: show all hosts, show service if it is not ok
     // list 3: show all hosts, show all services
     
-    var html1 = "", html2 = "", html3 = "";
+    var html1 = [], html2 = [], html3 = [];
     
     for (hostindex in statusdata.details) {
         hostdetail = statusdata.details[hostindex];
 
         var show_host_in_list1 = hostdetail.status !== "UP";
         var all_serviceshtml = "";
-        var not_ok_serviceshtml = "";
-        var renderbuffer = "";
+        var not_ok_serviceshtml = [];
+        var renderbuffer;
         
         // output the details for a host
         hostdetail.actions = chkimg + " " + ackimg;
@@ -122,13 +182,13 @@ function renderMainTemplate() {
             servicedetail.actions = chkimg + " " + ackimg;
             servicedetail.acknowledged = servicedetail.has_been_acknowledged === true ? "A" : "";
             
-            renderbuffer = renderTemplate(servicetemplate, servicedetail);
+            renderbuffer = renderServiceTemplate(servicedetail);
             
             all_serviceshtml += renderbuffer;
             
             if (servicedetail.status !== "OK") {
                 show_host_in_list1 = true;
-                not_ok_serviceshtml += renderbuffer;
+                not_ok_serviceshtml.push(renderbuffer);
             }
         }
 
@@ -158,7 +218,105 @@ function renderMainTemplate() {
         filter2: html3
     };
     
-    return renderTemplate(maintemplate, statusdata);
+  
+    // top table and hosts list
+  var r = document.createElement("div");
+  r.setAttribute("style", "text-align:center");
+  
+  var p, a, div1, table, tr, th, td;
+  r.appendChild(p = document.createElement("p"));
+  p.appendChild(a = document.createElement("a"));
+  a.setAttribute("class", "refresh");
+  a.setAttribute("href", "javascript:void(0);");
+  a.appendChild(document.createTextNode("↺ Refresh"));
+  p.appendChild(a);
+  if (statusdata.hostgroupinfo !== null && statusdata.hostgroupinfo !== "") p.appendChild(" " + statusdata.hostgroupinfo);
+
+  r.appendChild(div1 = document.createElement("div"));
+
+  div1.appendChild(table = document.createElement("table"));
+  table.setAttribute("class", "main");
+  table.setAttribute("cellspacing", "0");
+  table.setAttribute("style", "vertical-align:top; display: inline-block; margin-right: 1em");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.appendChild(th = document.createElement("th"));
+  th.appendChild(document.createTextNode("Service status"))
+  th.setAttribute("colspan", "2");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.className = "OK";
+  AddCellToTr(tr, "Ok");
+  AddCellToTr(tr, statusdata.serviceok + "/" + statusdata.totalservices, "num");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.className = "WARN";
+  AddCellToTr(tr, "Warn");
+  AddCellToTr(tr, statusdata.servicewarnings + "/" + statusdata.totalservices, "num");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.className = "CRIT";
+  AddCellToTr(tr, "Crit");
+  AddCellToTr(tr, statusdata.serviceerrors + "/" + statusdata.totalservices, "num");
+  
+  div1.appendChild(table = document.createElement("table"));
+  table.setAttribute("class", "main");
+  table.setAttribute("cellspacing", "0");
+  table.setAttribute("style", "display: inline-block");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.appendChild(th = document.createElement("th"));
+  th.appendChild(document.createTextNode("Host status"))
+  th.setAttribute("colspan", "2");
+
+  table.appendChild(tr = document.createElement("tr"));
+  tr.className = "UP";
+  AddCellToTr(tr, "Up");
+  AddCellToTr(tr, statusdata.hostup + "/" + statusdata.totalhosts, "num");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.className = "DOWN";
+  AddCellToTr(tr, "Down");
+  AddCellToTr(tr, statusdata.hosterrors + "/" + statusdata.totalhosts, "num");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.className = "space";
+  tr.appendChild(td = document.createElement("td"));
+  td.setAttribute("colspan", "2");
+  
+  table.appendChild(tr = document.createElement("tr"));
+  tr.className = "updatetime";
+  tr.appendChild(td = document.createElement("td"));
+  td.setAttribute("colspan", "2");
+  td.appendChild(document.createTextNode(statusdata.updatetime));
+  
+/*  var img = document.createElement("img");
+  img.setAttribute("src", "icon-64.png");
+  img.setAttribute("alt", "Icinga logo");
+  r.appendChild(img);
+  r.appendChild(document.createElement("br"));
+  var p = document.createElement("p");
+  p.setAttribute("class", "errormessag");
+  r.appendChild(p);
+  p.appendChild(document.createTextNode(statusdata.message));
+  
+  var a = document.createElement("a");
+  a.setAttribute("class", "refresh");
+  a.setAttribute("href", "javascript:void(0);");
+  a.appendChild(document.createTextNode("↺ Refresh"));
+  p = document.createElement("p");
+  p.appendChild(a);
+  r.appendChild(p);
+  */
+  return r;
+}
+
+function AddCellToTr(tr, text, tdclass) {
+  var td = document.createElement("td")
+  td.appendChild(document.createTextNode(text));
+  if (tdclass !== null && tdclass !== "") td.className = tdclass;
+  tr.appendChild(td);
+  return tr;
 }
 
 function renderTemplate(template, data) {

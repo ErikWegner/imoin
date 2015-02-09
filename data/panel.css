@@ -171,3 +171,8 @@ tr.service td.OK {
 .servicename {
     cursor: pointer;
 }
+
+#details {
+  border: 1px #e7e7e7 solid;
+  margin-top: 1px;
+}
