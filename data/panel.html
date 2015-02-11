@@ -4,48 +4,7 @@
     <head>
         <title>imoin panel</title>
         <link href="panel.css" type="text/css" rel="stylesheet">
-        
         <meta charset="utf-8" />
-        
-        <template id="processing">
-            <div style="padding-top:10em;vertical-align:center;text-align:center;">
-                Processing...
-            </div>
-        </template>
-        
-        <template id="maintemplate">
-            <div style="text-align: center;">
-                
-                <div>
-                    <input type="radio" class="cb" value="filter0" name="filter" id="r1" checked="checked">
-                    <label for="r1">Errors/Warnings</label>
-                    <input type="radio" class="cb" value="filter1" name="filter" id="r2">
-                    <label for="r2">All Hosts</label>
-                    <input type="radio" class="cb" value="filter2" name="filter" id="r3">
-                    <label for="r3">All Services</label>
-                    <!--
-                    <label><input type="checkbox" id="showhostdetails" checked="checked"/> Hostdetails</label>
-                    <label><input type="checkbox" id="showservicedetails" checked="checked"/> Servicedetails</label>
-                    -->
-                </div>
-            </div>
-            
-            <div id="details">{details}</div>
-            
-        </template>
-        
-        <template id="hosttemplate">
-            <div class="host">
-                <div>
-                    <span class="hostname" data-url="{hostlink}">{hostname}</span>
-                    <span class="status {status}">{status}</span>
-                    <span class="actions" data-hostname="{hostname}">{actions}</span>
-                    <div class="hostcheckinfo">{information}</div>
-                </div>
-                <div class="services">{servicesdata}</div>
-            </div>
-        </template>
-
     </head>
     <body>
     </body>
