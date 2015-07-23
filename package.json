@@ -8,7 +8,7 @@
         "title": "Path to icinga/nagios",
         "description": "Complete path to cgi-bin/, e.g. https://www.examle.com/icinga/cgi-bin/",
         "type": "string",
-        "value": "http://localhost:1080/"
+        "value": ""
     },{
         "name": "extensions.imoin.updateinterval",
         "title": "Refresh interval",
@@ -49,5 +49,5 @@
   "icon64": "data/icon-64.png",
   "author": "Erik Wegner",
   "license": "MPL 2.0",
-  "version": "9"
+  "version": "10"
 }

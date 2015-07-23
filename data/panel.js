@@ -137,7 +137,7 @@ function renderServiceTemplate(servicedata) {
   
   span = document.createElement("span");
   span.setAttribute("class", "actions");
-  span.setAttribute("data-hostname", servicedata.hostname);
+  span.setAttribute("data-hostname", servicedata.host_name);
   span.setAttribute("data-servicename", servicedata.service_description);
   span.appendChild(ackimg.cloneNode(true));
   span.appendChild(document.createTextNode(" "));
@@ -255,7 +255,6 @@ function renderMainTemplate() {
         
         // list 3
         hostdetail.servicesdata = all_serviceshtml;
-      debugger
         html3.appendChild(renderHostTemplate(hostdetail));
     }
     
@@ -272,14 +271,13 @@ function renderMainTemplate() {
   var r = document.createElement("div");
   r.setAttribute("style", "text-align:center");
   
-  var p, a, div1, table, tr, th, td, input, label;
+  var p, a, div1, table, tr, th, td;
   r.appendChild(p = document.createElement("p"));
   p.appendChild(a = document.createElement("a"));
   a.setAttribute("class", "refresh");
   a.setAttribute("href", "javascript:void(0);");
   a.appendChild(document.createTextNode("↺ Refresh"));
-  p.appendChild(a);
-  if (statusdata.hostgroupinfo !== null && statusdata.hostgroupinfo !== "") p.appendChild(" " + statusdata.hostgroupinfo);
+  if (statusdata.hostgroupinfo !== null && statusdata.hostgroupinfo !== "") p.appendChild(document.createTextNode(" " + statusdata.hostgroupinfo));
 
   r.appendChild(div1 = document.createElement("div"));
 
