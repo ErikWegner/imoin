@@ -1,8 +1,9 @@
 {
   "name": "imoin",
   "title": "imoin",
-  "id": "jid1-4gPoRFTL1bn7nA",
+  "id": "jid1-4gPoRFTL1bn7nA@jetpack",
   "description": "Monitor your icinga or nagios instance.",
+  "main": "lib/main.js",
   "preferences": [{
         "name": "extensions.imoin.cgipath",
         "title": "Path to icinga/nagios",
@@ -43,11 +44,22 @@
         "description": "Only list this hostgroup.",
         "type": "string",
         "value": ""
+    }, {
+        "name": "extensions.imoin.panel.width",
+        "title": "Panel width",
+        "description": "The width of the panel in pixels.",
+        "type": "integer",
+        "value": 640
+    }, {
+        "name": "extensions.imoin.panel.height",
+        "title": "Panel height",
+        "description": "The height of the panel in pixels.",
+        "type": "integer",
+        "value": 570
     }
   ],
   "icon": "data/icon-64.png",
-  "icon64": "data/icon-64.png",
   "author": "Erik Wegner",
   "license": "MPL 2.0",
-  "version": "10"
+  "version": "11"
 }
