@@ -269,6 +269,7 @@ function renderMainTemplate() {
   
   // top table and hosts list
   var r = document.createElement("div");
+  r.setAttribute("class", "header");
   r.setAttribute("style", "text-align:center");
   
   var p, a, div1, table, tr, th, td;
@@ -344,6 +345,7 @@ function renderMainTemplate() {
   AddInput(div1, "filter2", "r3", "All Services");
   
   div1 = document.createElement("div");
+  div1.setAttribute("class", "content");
   div1.id = "details";
   div1.appendChild(html1);
   

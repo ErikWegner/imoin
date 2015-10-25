@@ -98,11 +98,6 @@ background-color: #ffa500;
 background-color: #f33;
 }
 
-#details {
-width: 625px;
-max-height: 400px;
-overflow-y: auto;
-}
 * body {
     font-family: sans-serif;
 }
@@ -175,4 +170,18 @@ tr.service td.OK {
 #details {
   border: 1px #e7e7e7 solid;
   margin-top: 1px;
+}
+
+.header
+{
+    height:160px;
+}
+.content
+{
+    position:absolute;
+    top: 160px;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    overflow-y: auto;
 }
