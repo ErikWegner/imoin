@@ -28,7 +28,6 @@ To do
 =====
 
 ☐ Filter by hostgroup, contact, (...?), on the fly  
-☐ Provide Flattr button  
 ☐ Localization  
 
 Development tasks
