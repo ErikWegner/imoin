@@ -1,4 +1,5 @@
-imoin.xpi
 /nbproject/private/
-*.xpi
 /nbproject
+*.xpi
+*.iml
+.idea
