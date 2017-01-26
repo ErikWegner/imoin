@@ -11,7 +11,9 @@
   },
 
   "background": {
-    "scripts": ["scripts/main.js"]
+    "scripts": [
+      "scripts/main.js"
+    ]
   },
 
   "browser_action": {

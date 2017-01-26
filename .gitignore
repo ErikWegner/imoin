@@ -3,3 +3,4 @@
 *.xpi
 *.iml
 .idea
+scripts/*.js.map

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "none",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": false
+  },
+  "include": [
+    "scripts/main.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
+}
