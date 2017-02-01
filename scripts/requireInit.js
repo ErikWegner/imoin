@@ -1,19 +1,7 @@
-var baseUrl = browser.extension.getURL("/");
+/// <reference path="definitions/requirejs/index.d.ts" />
 requirejs.config({
-    config: {
-        text: {
-            useXhr: function (url, protocol, hostname, port) {
-                return true;
-            }
-        }
-    },
-    skipDataMain: true,
-    baseUrl: baseUrl,
-    paths: {
-        "./firefox": "scripts/firefox",
-        "app": "scripts/main"
-    }
+    skipDataMain: true
 });
-require(['app'], function (app) {
+require(['main'], function (main) {
     console.log("all js loaded");
 });

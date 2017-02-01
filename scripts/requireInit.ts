@@ -1,24 +1,9 @@
-declare var browser: any
+/// <reference path="definitions/requirejs/index.d.ts" />
 
-var baseUrl=browser.extension.getURL("/");
 requirejs.config({
-    config: {
-        text: {
-            useXhr: function (url: string, protocol: string, hostname: string, port: number) {
-                // allow cross-domain requests
-                // remote server allows CORS
-                return true;
-            }
-        }
-    },
-    skipDataMain: true,
-    baseUrl: baseUrl,
-    paths: {
-        "./firefox": "scripts/firefox",
-        "app": "scripts/main"
-    }
+    skipDataMain: true
 });
 
-require(['app'], function (app: any) {
-    console.log("all js loaded");//not working
+require(['main'], function (main: any) {
+    console.log("all js loaded");
 });

@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "module": "es2015",
+    "module": "amd",
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "sourceMap": false
+    "sourceMap": false,
+    "outFile": "scripts/mainall.js"
   },
   "include": [
-    "scripts/IEnvironment.ts",
     "scripts/main.ts"
   ],
   "exclude": [

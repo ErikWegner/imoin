@@ -4,5 +4,4 @@
 *.iml
 .idea
 scripts/*.js.map
-scripts/main.js
-scripts/IEnvironment.js
+scripts/*.js

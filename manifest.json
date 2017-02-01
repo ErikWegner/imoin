@@ -12,7 +12,9 @@
 
   "background": {
     "scripts": [
-      "scripts/mainall.js"
+      "vendor/require.js",
+      "scripts/mainall.js",
+      "scripts/requireInit.js"
     ]
   },
 
