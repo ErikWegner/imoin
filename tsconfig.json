@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "module": "none",
+    "module": "es2015",
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": false
   },
   "include": [
+    "scripts/IEnvironment.ts",
     "scripts/main.ts"
   ],
   "exclude": [
