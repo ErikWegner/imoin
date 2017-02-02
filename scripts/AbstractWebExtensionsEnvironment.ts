@@ -1,5 +1,6 @@
 import {IEnvironment} from "./IEnvironment";
 import {Settings} from "./Settings";
+import {Monitor} from "./MonitorData";
 
 /**
  * A common implementation
@@ -21,5 +22,7 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
         })
 
     }
+
+    abstract displayStatus(data: Monitor.MonitorData): void
 }
 
