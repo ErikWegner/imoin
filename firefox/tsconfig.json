@@ -8,7 +8,8 @@
     "outFile": "mainall.js"
   },
   "include": [
-    "../scripts/main.ts"
+    "../scripts/main.ts",
+    "../scripts/requireInit.ts"
   ],
   "exclude": [
     "node_modules",

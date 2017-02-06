@@ -4,7 +4,9 @@
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "firefox": "gulp firefox",
+    "clean": "gulp clean"
   },
   "repository": {
     "type": "git",
@@ -17,7 +19,9 @@
   "author": "Erik Wegner",
   "license": "ISC",
   "dependencies": {
+    "event-stream": "^3.3.4",
     "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
     "gulp-typescript": "^3.1.4",
     "typescript": "^2.1.5"
   }
