@@ -5,10 +5,10 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": false,
-    "outFile": "scripts/mainall.js"
+    "outFile": "mainall.js"
   },
   "include": [
-    "scripts/main.ts"
+    "../scripts/main.ts"
   ],
   "exclude": [
     "node_modules",

@@ -1,0 +1,24 @@
+{
+  "name": "imoin",
+  "version": "2.0.0",
+  "description": "Icinga/Nagios status display",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@qwirl.eu:imoin"
+  },
+  "keywords": [
+    "Icinga",
+    "Nagios"
+  ],
+  "author": "Erik Wegner",
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.1.4",
+    "typescript": "^2.1.5"
+  }
+}

@@ -7,12 +7,12 @@ define("MonitorData", ["require", "exports"], function (require, exports) {
     "use strict";
     var Monitor;
     (function (Monitor) {
+        var Status;
         (function (Status) {
             Status[Status["GREEN"] = 0] = "GREEN";
             Status[Status["YELLOW"] = 1] = "YELLOW";
             Status[Status["RED"] = 2] = "RED";
-        })(Monitor.Status || (Monitor.Status = {}));
-        var Status = Monitor.Status;
+        })(Status = Monitor.Status || (Monitor.Status = {}));
         var Service = (function () {
             function Service(name) {
                 this.name = name;
@@ -80,7 +80,7 @@ define("firefox", ["require", "exports", "AbstractWebExtensionsEnvironment"], fu
     var Firefox = (function (_super) {
         __extends(Firefox, _super);
         function Firefox() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Firefox.prototype.displayStatus = function (data) {
             console.log(data);
@@ -119,7 +119,7 @@ define("icingaapi", ["require", "exports", "AbstractMonitor", "MonitorData"], fu
     var IcingaApi = (function (_super) {
         __extends(IcingaApi, _super);
         function IcingaApi() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         IcingaApi.prototype.fetchStatus = function () {
             return new Promise(function (resolve, reject) {
