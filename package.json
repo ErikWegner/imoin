@@ -5,7 +5,9 @@
   "main": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "firefox": "gulp firefox",
+    "build:firefox": "gulp firefox",
+    "package:firefox": "npm run build:firefox && cd release/firefox && web-ext build",
+    "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
     "clean": "gulp clean"
   },
   "repository": {
@@ -23,6 +25,7 @@
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-typescript": "^3.1.4",
-    "typescript": "^2.1.5"
+    "typescript": "^2.1.5",
+    "web-ext": "^1.8.1"
   }
 }
