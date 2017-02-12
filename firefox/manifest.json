@@ -12,9 +12,8 @@
 
   "background": {
     "scripts": [
-      "vendor/require.js",
-      "scripts/mainall.js",
-      "scripts/requireInit.js"
+      "require.js",
+      "mainall.js"
     ]
   },
 
@@ -25,6 +24,10 @@
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png"
     }
+  },
+
+  "options_ui": {
+    "page": "html/options.html"
   },
 
   "permissions": [
