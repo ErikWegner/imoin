@@ -30,11 +30,15 @@ gulp.task('firefox', [
     'firefox-scripts',
     ], function () {
         return es.concat(
-            gulp.src(['firefox/html/**/*']).pipe(gulp.dest(targetpaths.html)),
-            gulp.src([
-                'firefox/manifest.json',
-                'vendor/require.js'
-                ]).pipe(gulp.dest(targetpaths.target)),
+            gulp
+                .src(['firefox/html/**/*'])
+                .pipe(gulp.dest(targetpaths.html)),
+            gulp
+                .src([
+                    'firefox/manifest.json',
+                    'vendor/require.js'
+                    ])
+                .pipe(gulp.dest(targetpaths.target))
         )
         
 })

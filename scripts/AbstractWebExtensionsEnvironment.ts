@@ -24,5 +24,7 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
     }
 
     abstract displayStatus(data: Monitor.MonitorData): void
+
+    abstract load(url: string): Promise<string>
 }
 

@@ -20,13 +20,6 @@ var e: IEnvironment = new Firefox();
 
 e.loadSettings().then((settings) => {
     var monitor = resolveMonitor(settings);
-    e.initTimer(
-        settings.timerPeriod,
-        function () {
-            monitor.fetchStatus().then(
-                status => {
-                    e.displayStatus(status);
-                }
-            )
-        });
+    monitor.init(e, settings);
+    monitor.startTimer();
 });

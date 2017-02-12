@@ -18,6 +18,7 @@ export namespace Monitor {
     }
 
     export class MonitorData {
+        private hosts: Array<Host> = []
         constructor(readonly status: Status) {}
     }
 }

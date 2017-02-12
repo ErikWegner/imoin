@@ -13,4 +13,7 @@ export interface IEnvironment {
 
     /* Update the UI to reflect the updated status data */
     displayStatus(data: MonitorData): void;
+
+    /* Load a resource */
+    load(url: string): Promise<string>
 }

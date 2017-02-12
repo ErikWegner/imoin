@@ -30,7 +30,8 @@
   "permissions": [
     "alarms",
     "storage",
-    "webRequest"
+    "https://*/",
+    "http://*/"
   ],
 
   "applications": {

@@ -34,4 +34,21 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         this.addAlarm(browser, delay, callback);
     }
 
+    load(url: string): Promise<string> {
+        return new Promise<string>(
+            (resolve, reject) => {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4) {
+                        resolve(xhr.responseText);
+                    } else {
+                        reject(xhr.responseText);
+                    }
+                }
+                xhr.send();                
+            }
+        );
+    }
+
 }
