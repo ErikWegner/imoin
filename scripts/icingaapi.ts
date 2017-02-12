@@ -22,6 +22,7 @@ interface IServiceJsonData {
         attrs: {
             display_name: string
             last_check_result: {
+                /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
                 state: number
                 output: string
             }
@@ -51,7 +52,7 @@ export class IcingaApi extends AbstractMonitor {
                         resolve(this.processData(hostdata, servicedata));
                     })
                     .catch(a => {
-                        resolve(new Monitor.MonitorData(Status.RED));
+                        resolve(Monitor.ErrorMonitorData(a[0] + "|" + a[1]));
                     })
             }
         );
@@ -76,12 +77,24 @@ export class IcingaApi extends AbstractMonitor {
     }
 
     processData(hostdata: IHostJsonData, servicedata: IServiceJsonData): Monitor.MonitorData {
+        if (
+            hostdata == null 
+            || hostdata.results == null
+            || servicedata == null
+            || servicedata.results == null
+            ) {
+            return Monitor.ErrorMonitorData("Result empty");
+        }
+
+        var m = new Monitor.MonitorData();
         var hostByName: { [name: string]: Monitor.Host } = {}
-        var m = new Monitor.MonitorData(Status.RED);
         hostdata.results.forEach(hostdatahost => {
             var host = new Monitor.Host(hostdatahost.name)
             hostByName[host.name] = host
+            host.setState(hostdatahost.attrs.last_check_result.state == 0 ? Status.GREEN : Status.RED)
+            m.addHost(host)
         });
+
         return m
     }
 }
