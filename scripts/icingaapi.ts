@@ -76,6 +76,10 @@ export class IcingaApi extends AbstractMonitor {
             });
     }
 
+    shutdown() {
+        this.environment.stopTimer();
+    }
+
     processData(hostdata: IHostJsonData, servicedata: IServiceJsonData): Monitor.MonitorData {
         if (
             hostdata == null 

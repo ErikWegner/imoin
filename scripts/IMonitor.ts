@@ -8,4 +8,6 @@ import {Settings} from "./Settings";
 export interface IMonitor {
     init(environment: IEnvironment, settings: Settings): void
     startTimer(): void
+    /* Stop all activities */
+    shutdown(): void
 }

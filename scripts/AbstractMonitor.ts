@@ -6,4 +6,5 @@ import {Settings} from "./Settings";
 export abstract class AbstractMonitor implements IMonitor {
     abstract init(environment: IEnvironment, settings: Settings): void
     abstract startTimer(): void
+    abstract shutdown(): void
 }

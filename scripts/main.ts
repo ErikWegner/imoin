@@ -17,11 +17,21 @@ function resolveMonitor(settings: Settings): IMonitor {
 }
 
 var e: IEnvironment = new Firefox();
+var monitor: IMonitor = null;
 
-e.loadSettings().then((settings) => {
-    var monitor = resolveMonitor(settings);
+function start() {
     if (monitor != null) {
-        monitor.init(e, settings);
-        monitor.startTimer();
+        monitor.shutdown();
     }
-});
+    
+    e.loadSettings().then((settings) => {
+        var monitor = resolveMonitor(settings);
+        if (monitor != null) {
+            monitor.init(e, settings);
+            monitor.startTimer();
+        }
+    });
+}
+
+start()
+e.onSettingsChanged(function() { start(); });

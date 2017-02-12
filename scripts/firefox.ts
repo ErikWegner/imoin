@@ -8,6 +8,17 @@ declare var browser: any
  * Implementation for Firefox
  */
 export class Firefox extends AbstractWebExtensionsEnvironment {
+    constructor() {
+        super();
+        browser.runtime.onMessage.addListener(this.handleMessage);
+    }
+
+    handleMessage(request: any, sender: any, sendResponse: (message: any) => void) {
+        if (request.message == "SettingsChanged") {
+            this.notifySettingsChanged();
+        }
+    }
+
     displayStatus(data: Monitor.MonitorData): void {
         console.log(data)
     }
@@ -32,6 +43,10 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
 
     initTimer(delay: number, callback: () => void): void {
         this.addAlarm(browser, delay, callback);
+    }
+
+    stopTimer() {
+        this.removeAlarm(browser);
     }
 
     load(url: string): Promise<string> {
