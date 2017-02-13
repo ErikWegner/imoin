@@ -24,10 +24,16 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     }
 
     loadSettings() : Promise<Settings> {
+        console.log("Loading settings");
         return new Promise<Settings>(
             (resolve, reject) => {
-                var gettingItem = browser.storage.local.get("imoinsettings");
+                /* Change the array of keys to match the options.js */
+                var gettingItem = browser.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"]);
                 gettingItem.then(function (settings: Settings) {
+                        console.log("Settings loaded");
+                        var clone = JSON.parse(JSON.stringify(settings))
+                        if (clone.password) clone.password = "*****"
+                        console.log(clone);
                         // success
                         resolve(settings);
                     }, function (error: any) {

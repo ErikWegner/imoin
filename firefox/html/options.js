@@ -1,7 +1,7 @@
 function saveOptions(e) {
   e.preventDefault();
   browser.storage.local.set({
-    timerPeriod: document.querySelector("#timerPeriod").value,
+    timerPeriod: parseInt(document.querySelector("#timerPeriod").value),
     icingaversion: document.querySelector("#icingaversion").value,
     url: document.querySelector("#url").value,
     username: document.querySelector("#username").value,
@@ -23,6 +23,7 @@ function restoreOptions() {
     console.log(`Error: ${error}`);
   }
 
+  /* Change the array of keys to match the firefox.ts */
   var getting = browser.storage.local.get(
     ["timerPeriod", "icingaversion", "url", "username", "password"]);
   getting.then(setCurrentChoice, onError);

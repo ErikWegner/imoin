@@ -16,12 +16,14 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
     abstract stopTimer(): void
 
     handleAlarm() {
+        console.log("Periodic alarm");
         if (this.onAlarmCallback != null) {
             this.onAlarmCallback();
         }
     }
 
     addAlarm(webExtension: any, delay: number, callback: () => void): void {
+        console.log("Adding alarm every " + delay + " minutes");
         this.onAlarmCallback = callback;
         webExtension.alarms.create(
             "imoin",
@@ -29,8 +31,10 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
                 periodInMinutes: delay
             }
         )
+        console.log("Adding alarm listener")
         webExtension.alarms.onAlarm.addListener(this.handleAlarm)
-
+        console.log("Triggering immediate update")
+        callback();
     }
 
     removeAlarm(webExtension: any) {

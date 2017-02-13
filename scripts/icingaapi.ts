@@ -36,6 +36,7 @@ export class IcingaApi extends AbstractMonitor {
     private settings: Settings
 
     fetchStatus(): Promise<Monitor.MonitorData> {
+        console.log("fetchStatus");
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
                 var hosturl = this.settings.url + "/api/v1/objects/hosts?attrs=display_name&attrs=last_check_result"
@@ -64,13 +65,14 @@ export class IcingaApi extends AbstractMonitor {
     }
 
     startTimer() {
-        var fetchfunc = this.fetchStatus
+        var fetchfunc = this.fetchStatus.bind(this)
+        var e = this.environment
         this.environment.initTimer(
             this.settings.timerPeriod,
             function () {
                 fetchfunc().then(
-                    status => {
-                        this.environment.displayStatus(status);
+                    (status : Monitor.MonitorData) => {
+                        e.displayStatus(status);
                     }
                 )
             });

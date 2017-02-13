@@ -20,6 +20,7 @@ var e: IEnvironment = new Firefox();
 var monitor: IMonitor = null;
 
 function start() {
+    console.log("start");
     if (monitor != null) {
         monitor.shutdown();
     }
