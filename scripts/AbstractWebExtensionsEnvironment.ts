@@ -32,7 +32,10 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
             }
         )
         console.log("Adding alarm listener")
-        webExtension.alarms.onAlarm.addListener(this.handleAlarm)
+        var me = this
+        webExtension.alarms.onAlarm.addListener(function() {
+            me.handleAlarm()
+        })
         console.log("Triggering immediate update")
         callback();
     }
@@ -54,6 +57,6 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
 
     abstract displayStatus(data: Monitor.MonitorData): void
 
-    abstract load(url: string): Promise<string>
+    abstract load(url: string, username: string, password: string): Promise<string>
 }
 

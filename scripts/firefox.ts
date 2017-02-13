@@ -55,10 +55,11 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         this.removeAlarm(browser);
     }
 
-    load(url: string): Promise<string> {
+    load(url: string, username: string, password: string): Promise<string> {
         return new Promise<string>(
             (resolve, reject) => {
                 var xhr = new XMLHttpRequest();
+                xhr.setRequestHeader("Authorization", "Basic " + btoa(username+":"+password))
                 xhr.open("GET", url, true);
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState == 4) {

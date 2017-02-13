@@ -21,5 +21,5 @@ export interface IEnvironment {
     displayStatus(data: MonitorData): void;
 
     /* Load a resource */
-    load(url: string): Promise<string>
+    load(url: string, username: string, password: string): Promise<string>
 }

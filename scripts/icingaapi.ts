@@ -42,8 +42,8 @@ export class IcingaApi extends AbstractMonitor {
                 var hosturl = this.settings.url + "/api/v1/objects/hosts?attrs=display_name&attrs=last_check_result"
                 var servicesurl = this.settings.url + "/api/v1/objects/services?attrs=display_name&attrs=last_check_result"
 
-                var hostsrequest = this.environment.load(hosturl)
-                var servicesrequest = this.environment.load(servicesurl)
+                var hostsrequest = this.environment.load(hosturl, this.settings.username, this.settings.password)
+                var servicesrequest = this.environment.load(servicesurl, this.settings.username, this.settings.password)
 
                 Promise
                     .all([hostsrequest, servicesrequest])
