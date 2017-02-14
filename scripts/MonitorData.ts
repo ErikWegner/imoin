@@ -10,8 +10,8 @@ export namespace Monitor {
     }
 
     export class Host {
-        private state: Status = Status.RED
-        private services: Array<Service> = []
+        private state: Status = Status.RED;
+        private services: Array<Service> = [];
         constructor(readonly name: string) {}
         
         setState(state: Status) { this.state = state; }
@@ -23,9 +23,9 @@ export namespace Monitor {
     }
 
     export class MonitorData {
-        private hosts: Array<Host> = []
-        private state: Status
-        private message: string
+        private hosts: Array<Host> = [];
+        private state: Status;
+        private message: string;
 
         setState(state: Status) { this.state = state; }
         getState() { return this.state }
@@ -36,6 +36,8 @@ export namespace Monitor {
         addHost(host: Host) {
             this.hosts.push(host)
         }
+
+        getHosts() {return this.hosts; }
     }
 
     export function ErrorMonitorData(

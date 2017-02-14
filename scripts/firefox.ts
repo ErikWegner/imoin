@@ -8,9 +8,25 @@ declare var browser: any
  * Implementation for Firefox
  */
 export class Firefox extends AbstractWebExtensionsEnvironment {
+    private portFromPanel: any;
+    private dataBuffer: Monitor.MonitorData;
+
     constructor() {
         super();
-        browser.runtime.onMessage.addListener(this.handleMessage);
+        browser.runtime.onConnect.addListener(this.connected.bind(this));
+
+    }
+
+    connected(p:any) {
+        console.log("Firefox.connected (panel opened)")
+        var me = this;
+        this.portFromPanel = p;
+        this.portFromPanel.onMessage.addListener(this.handleMessage.bind(this));
+        this.portFromPanel.onDisconnect.addListener(function() {
+            console.log("Firefox.disconnected (panel closed)");
+            me.portFromPanel = null;
+        });
+        this.trySendDataToPopup();
     }
 
     handleMessage(request: any, sender: any, sendResponse: (message: any) => void) {
@@ -20,7 +36,10 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     }
 
     displayStatus(data: Monitor.MonitorData): void {
-        console.log(data)
+        console.log("Firefox.displayStatus");
+        this.dataBuffer = data;
+        this.updateIconAndBadgetext();
+        this.trySendDataToPopup();
     }
 
     loadSettings() : Promise<Settings> {
@@ -31,8 +50,8 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
                 var gettingItem = browser.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"]);
                 gettingItem.then(function (settings: Settings) {
                         console.log("Settings loaded");
-                        var clone = JSON.parse(JSON.stringify(settings))
-                        if (clone.password) clone.password = "*****"
+                        var clone = JSON.parse(JSON.stringify(settings));
+                        if (clone.password) clone.password = "*****";
                         console.log(clone);
                         // success
                         resolve(settings);
@@ -60,7 +79,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
             (resolve, reject) => {
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", url, true);
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(username+":"+password))
+                xhr.setRequestHeader("Authorization", "Basic " + btoa(username+":"+password));
                 xhr.withCredentials = true;
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState == 4) {
@@ -70,10 +89,25 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
                             reject(xhr.responseText);
                         }
                     }
-                }
+                };
                 xhr.send();                
             }
         );
     }
 
+    protected trySendDataToPopup() {
+        if (this.portFromPanel) {
+            this.portFromPanel.postMessage({command: "ProcessStatusUpdate", data: this.dataBuffer})
+        }
+    }
+
+    private updateIconAndBadgetext() {
+        browser.browserAction.setIcon({
+            path: {
+                "16": "icons/icon-16err.png",
+                "32": "icons/icon-32err.png"
+            }
+        })
+        browser.browserAction.setBadgeText({text: this.dataBuffer.getHosts().length + ""});
+    }
 }
