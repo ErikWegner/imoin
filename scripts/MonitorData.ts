@@ -22,10 +22,12 @@ export namespace Monitor {
         }
     }
 
+    /* This class must be serializable */
     export class MonitorData {
-        private hosts: Array<Host> = [];
-        private state: Status;
-        private message: string;
+        public hosts: Array<Host> = [];
+        public state: Status;
+        public message: string;
+        public hostgroupinfo: string
 
         setState(state: Status) { this.state = state; }
         getState() { return this.state }

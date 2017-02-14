@@ -1,10 +1,15 @@
-var myPort = browser.runtime.connect({name:"port-from-panel"});
-myPort.onMessage.addListener(function(m) {
-    console.log("In panel script, received message from background script: ");
-    console.log(m);
+const myPort = browser.runtime.connect({name: "port-from-panel"});
+myPort.onMessage.addListener(function(message) {
+    var command = message.command || "";
+    var data = message.data || {};
+
+    if (command == "ProcessStatusUpdate") {
+        showAndUpdatePanelContent(data);
+        return
+    }
+
 });
 
-/*
 var panelcontentstatus = {
     needs_processing: 0,
     error: 1,
@@ -23,37 +28,31 @@ var rendered_template = document.createTextNode("");
 
 var filtered_lists_templates = {};
 
-function showAndUpdatePanelContent() {
-    switch (panelcontent) {
-        case panelcontentstatus.needs_processing:
-            rendered_template = renderMainTemplate();
-            break;
+function showAndUpdatePanelContent(data) {
 
-        case panelcontentstatus.empty:
-            rendered_template = renderTemplateError({ message: "No data yet" });
-            break;
-
-        case panelcontentstatus.error:
-            rendered_template = renderTemplateError(statusdata);
-            break;
+    message = data.message;
+    if (message) {
+        rendered_template = renderTemplateError(message);
+    } else {
+        rendered_template = renderMainTemplate(data);
     }
 
-    if (panelcontent == panelcontentstatus.template_rendered) {
-        while (document.body.childNodes.length > 0) {
-            document.body.removeChild(document.body.childNodes[document.body.childNodes.length - 1]);
-        }
-        if (rendered_template.length > 0) {
-            for (var i in rendered_template) {
-                document.body.appendChild(rendered_template[i]);
-            }
-        } else {
-            document.body.appendChild(rendered_template);
-        }
-        registerMainEventHandlers();
+    while (document.body.childNodes.length > 0) {
+        document.body.removeChild(document.body.childNodes[document.body.childNodes.length - 1]);
     }
+    if (rendered_template.length > 0) {
+        for (var i in rendered_template) {
+            document.body.appendChild(rendered_template[i]);
+        }
+    } else {
+        document.body.appendChild(rendered_template);
+    }
+
+    registerMainEventHandlers();
+
 }
 
-function renderTemplateError(statusdata) {
+function renderTemplateError(message) {
     var r = document.createElement("div");
     r.setAttribute("style", "text-align:center");
     var img = document.createElement("img");
@@ -64,7 +63,7 @@ function renderTemplateError(statusdata) {
     var p = document.createElement("p");
     p.setAttribute("class", "errormessag");
     r.appendChild(p);
-    p.appendChild(document.createTextNode(statusdata.message));
+    p.appendChild(document.createTextNode(message));
 
     var a = document.createElement("a");
     a.setAttribute("class", "refresh");
@@ -74,7 +73,6 @@ function renderTemplateError(statusdata) {
     p.appendChild(a);
     r.appendChild(p);
 
-    panelcontent = panelcontentstatus.template_rendered;
     return r;
 }
 
@@ -148,7 +146,7 @@ function renderServiceTemplate(servicedata) {
 }
 
 var chkimg = document.createElement("img");
-chkimg.setAttribute("src", "rck.png");
+chkimg.setAttribute("src", "icons/rck.png");
 chkimg.setAttribute("style", "width:14px;height:14px");
 chkimg.setAttribute("title", "Recheck");
 chkimg.setAttribute("class", "recheck");
@@ -156,7 +154,7 @@ chkimg.setAttribute("data-command", "recheck");
 chkimg.setAttribute("alt", "Recheck");
 
 var ackimg = document.createElement("img");
-ackimg.setAttribute("src", "ack.png");
+ackimg.setAttribute("src", "icons/ack.png");
 ackimg.setAttribute("style", "width:14px;height:14px");
 ackimg.setAttribute("title", "Acknowledge");
 ackimg.setAttribute("class", "ack");
@@ -202,7 +200,7 @@ function registerDetailsEventHandlers() {
     registerEventHanderForClass(triggerCmdExec, 'ack');
 }
 
-function renderMainTemplate()  {
+function renderMainTemplate(statusdata)  {
     // render three lists
     // list 1: show a host, if any of its services is not ok, show service if it is not ok
     // list 2: show all hosts, show service if it is not ok
@@ -210,9 +208,10 @@ function renderMainTemplate()  {
 
     var html1 = document.createElement("div"), html2 = document.createElement("div"), html3 = document.createElement("div");
     var hostdetail;
+    var hosts = statusdata.hosts;
 
-    for (var hostindex in statusdata.details) {
-        hostdetail = statusdata.details[hostindex];
+    for (var hostindex in hosts) {
+        hostdetail = hosts[hostindex];
 
         var show_host_in_list1 = hostdetail.status !== "UP";
         var all_serviceshtml = [];
@@ -252,8 +251,6 @@ function renderMainTemplate()  {
         hostdetail.servicesdata = all_serviceshtml;
         html3.appendChild(renderHostTemplate(hostdetail));
     }
-
-    panelcontent = panelcontentstatus.template_rendered;
 
     filtered_lists_templates = {
         filter0: html1,
@@ -381,33 +378,8 @@ function renderTemplate(template, data) {
         }
     }
 
-    panelcontent = panelcontentstatus.template_rendered;
     return result;
 }
-*/
-
-browser.runtime.onMessage.addListener(function(message) {
-    console.log("Message received");
-    var command = message.command || "";
-    var data = message.data || {};
-    switch (command) {
-        case "ProcessStatusUpdate":
-            panelcontent = panelcontentstatus.needs_processing;
-            statusdata = data;
-            showAndUpdatePanelContent();
-            break;
-        case "GenericError":
-
-    }
-})
-
-/*
-
-
-self.port.on("GenericError", function (message) {
-    statusdata = { message: message };
-    panelcontent = panelcontentstatus.error;
-});
 
 var triggerRefresh = function () {
     self.port.emit("triggerRefresh");
@@ -432,4 +404,3 @@ var triggerOpenPage = function (e) {
     var url = e.target.getAttribute("data-url");
     self.port.emit("triggerOpenPage", url);
 }
-*/
