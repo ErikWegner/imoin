@@ -43,6 +43,10 @@ gulp.task('firefox', [
         
 })
 
+gulp.task('firefox-watch', ['firefox-setpaths', 'firefox-scripts'], function () {
+    gulp.watch('scripts/*.ts', ['firefox-scripts']);
+})
+
 gulp.task('clean-firefox', ['firefox-setpaths'], function() {
     return gulp.src(targetpaths.target, {read: false})
     .pipe(clean());

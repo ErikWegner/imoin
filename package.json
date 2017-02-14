@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:firefox": "gulp firefox",
+    "watch:firefox": "npm run build:firefox && gulp firefox-watch",
     "package:firefox": "npm run build:firefox && cd release/firefox && web-ext build",
     "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
     "clean": "gulp clean"

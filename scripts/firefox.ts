@@ -1,14 +1,14 @@
+/// <reference path="definitions/firefox-webextension/index.d.ts" />
+
 import {AbstractWebExtensionsEnvironment} from "./AbstractWebExtensionsEnvironment";
 import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
-
-declare var browser: any
 
 /**
  * Implementation for Firefox
  */
 export class Firefox extends AbstractWebExtensionsEnvironment {
-    private portFromPanel: any;
+    private portFromPanel: Browser.Port;
     private dataBuffer: Monitor.MonitorData;
 
     constructor() {
@@ -17,8 +17,8 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
 
     }
 
-    connected(p:any) {
-        console.log("Firefox.connected (panel opened)")
+    connected(p:Browser.Port) {
+        console.log("Firefox.connected (panel opened)");
         var me = this;
         this.portFromPanel = p;
         this.portFromPanel.onMessage.addListener(this.handleMessage.bind(this));
