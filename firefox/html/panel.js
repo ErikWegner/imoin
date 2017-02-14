@@ -1,3 +1,4 @@
+// This script runs at the moment that the popup is displayed
 const myPort = browser.runtime.connect({name: "port-from-panel"});
 myPort.onMessage.addListener(function(message) {
     var command = message.command || "";
@@ -10,19 +11,6 @@ myPort.onMessage.addListener(function(message) {
 
 });
 
-var panelcontentstatus = {
-    needs_processing: 0,
-    error: 1,
-    data: 2,
-    empty: 3,
-    template_rendered: 4
-}
-
-var panelcontent = panelcontentstatus.processing
-
-// store the incoming data object for later processing
-var statusdata = null;
-
 // store a rendered template for later display
 var rendered_template = document.createTextNode("");
 
@@ -32,8 +20,10 @@ function showAndUpdatePanelContent(data) {
 
     message = data.message;
     if (message) {
+        console.log("Message " + message)
         rendered_template = renderTemplateError(message);
     } else {
+        console.log("Rendering main template")
         rendered_template = renderMainTemplate(data);
     }
 
@@ -48,7 +38,7 @@ function showAndUpdatePanelContent(data) {
         document.body.appendChild(rendered_template);
     }
 
-    registerMainEventHandlers();
+    //registerMainEventHandlers();
 
 }
 
@@ -85,7 +75,7 @@ function renderHostTemplate(hostdata) {
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "hostname");
     span.setAttribute("data-url", hostdata.hostlink);
-    span.appendChild(document.createTextNode(hostdata.hostname));
+    span.appendChild(document.createTextNode(hostdata.name));
 
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "status " + hostdata.status);
@@ -93,7 +83,7 @@ function renderHostTemplate(hostdata) {
 
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "actions");
-    span.setAttribute("data-hostname", hostdata.hostname);
+    span.setAttribute("data-hostname", hostdata.name);
     span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
     span.appendChild(chkimg.cloneNode(true));
@@ -108,7 +98,7 @@ function renderHostTemplate(hostdata) {
     for (var i in hostdata.servicesdata) {
         div2.appendChild(hostdata.servicesdata[i]);
     }
-
+    
     return r;
 }
 
@@ -212,6 +202,7 @@ function renderMainTemplate(statusdata)  {
 
     for (var hostindex in hosts) {
         hostdetail = hosts[hostindex];
+        console.log("Processing host " + hostdetail.name)
 
         var show_host_in_list1 = hostdetail.status !== "UP";
         var all_serviceshtml = [];
@@ -240,7 +231,7 @@ function renderMainTemplate(statusdata)  {
         renderbuffer = renderHostTemplate(hostdetail);
 
         // list 1
-        if (show_host_in_list1) {
+        if (show_host_in_list1 || true) {
             html1.appendChild(renderbuffer.cloneNode(true));
         }
 

@@ -24,7 +24,7 @@ gulp.task('copy-icons', function() {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
 })
 
-gulp.task('firefox-copy-html', function () {
+gulp.task('firefox-copy-html', ['firefox-setpaths'], function () {
     return gulp
         .src(['firefox/html/**/*'])
         .pipe(gulp.dest(targetpaths.html))
@@ -34,7 +34,7 @@ gulp.task('firefox', [
     'firefox-setpaths', 
     'copy-icons', 
     'firefox-scripts',
-    'firefox-copy-html'
+    'firefox-copy-html',
     ], function () {
         return es.concat(
             gulp
@@ -47,7 +47,10 @@ gulp.task('firefox', [
         
 })
 
-gulp.task('firefox-watch', ['firefox-setpaths', 'firefox-scripts'], function () {
+gulp.task('firefox-watch', [
+    'firefox-setpaths',
+    'firefox-scripts',
+    ], function () {
 
         gulp.watch('scripts/*.ts', ['firefox-scripts'])
         gulp.watch('firefox/html/*', ['firefox-copy-html'])

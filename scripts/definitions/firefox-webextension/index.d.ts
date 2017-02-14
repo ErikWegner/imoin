@@ -9,6 +9,7 @@ declare namespace Browser {
 
     class Runtime {
         onConnect: RuntimeEvent
+        connect(o: any): Port
     }
 
     class MessageSender {

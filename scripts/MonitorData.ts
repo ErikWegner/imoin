@@ -1,4 +1,6 @@
 export namespace Monitor {
+    export type HostState = "UP" | "DOWN"
+
     export enum Status {
         GREEN,
         YELLOW,
@@ -10,12 +12,15 @@ export namespace Monitor {
     }
 
     export class Host {
-        private state: Status = Status.RED;
-        private services: Array<Service> = [];
+        public status: HostState = "DOWN";
+        public services: Array<Service> = [];
+        public hostlink: string
+        public has_been_acknowledged: boolean = false;
+
         constructor(readonly name: string) {}
         
-        setState(state: Status) { this.state = state; }
-        getState() { return this.state }
+        setState(state: HostState) { this.status = state; }
+        getState() { return this.status }
 
         addService(service: Service) {
             this.services.push(service);
@@ -28,6 +33,7 @@ export namespace Monitor {
         public state: Status;
         public message: string;
         public hostgroupinfo: string
+        public totalhosts: number
 
         setState(state: Status) { this.state = state; }
         getState() { return this.state }
@@ -37,6 +43,7 @@ export namespace Monitor {
 
         addHost(host: Host) {
             this.hosts.push(host)
+            this.totalhosts = this.hosts.length
         }
 
         getHosts() {return this.hosts; }

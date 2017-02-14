@@ -4,7 +4,7 @@ import { Monitor } from "./MonitorData";
 import Status = Monitor.Status;
 import { Settings } from "./Settings";
 
-interface IHostJsonData {
+export interface IHostJsonData {
     results: Array<{
         attrs: {
             display_name: string
@@ -17,7 +17,7 @@ interface IHostJsonData {
     }>
 }
 
-interface IServiceJsonData {
+export interface IServiceJsonData {
     results: Array<{
         attrs: {
             display_name: string
@@ -97,7 +97,7 @@ export class IcingaApi extends AbstractMonitor {
         hostdata.results.forEach(hostdatahost => {
             var host = new Monitor.Host(hostdatahost.name)
             hostByName[host.name] = host
-            host.setState(hostdatahost.attrs.last_check_result.state == 0 ? Status.GREEN : Status.RED)
+            host.setState(hostdatahost.attrs.last_check_result.state == 0 ? "UP" : "DOWN")
             m.addHost(host)
         });
 
