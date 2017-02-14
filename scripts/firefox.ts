@@ -59,13 +59,16 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         return new Promise<string>(
             (resolve, reject) => {
                 var xhr = new XMLHttpRequest();
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(username+":"+password))
                 xhr.open("GET", url, true);
+                xhr.setRequestHeader("Authorization", "Basic " + btoa(username+":"+password))
+                xhr.withCredentials = true;
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState == 4) {
-                        resolve(xhr.responseText);
-                    } else {
-                        reject(xhr.responseText);
+                        if (xhr.status == 200) {
+                            resolve(xhr.responseText);
+                        } else {
+                            reject(xhr.responseText);
+                        }
                     }
                 }
                 xhr.send();                
