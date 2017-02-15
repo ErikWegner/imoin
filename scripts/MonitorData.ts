@@ -1,5 +1,6 @@
 export namespace Monitor {
     export type HostState = "UP" | "DOWN"
+    export type ServiceState = "OK" | "WARNING" | "CRITICAL"
 
     export enum Status {
         GREEN,
@@ -8,14 +9,21 @@ export namespace Monitor {
     }
 
     export class Service {
+        public status : ServiceState = "CRITICAL";
+        public host: string;
+        public checkresult: string;
+
         constructor(readonly name: string) {}
+
+        setStatus(value: Monitor.ServiceState) { this.status = value; }
     }
 
     export class Host {
         public status: HostState = "DOWN";
         public services: Array<Service> = [];
-        public hostlink: string
+        public hostlink: string;
         public has_been_acknowledged: boolean = false;
+        public checkresult: string;
 
         constructor(readonly name: string) {}
         

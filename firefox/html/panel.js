@@ -90,7 +90,7 @@ function renderHostTemplate(hostdata) {
 
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "hostcheckinfo");
-    span.appendChild(document.createTextNode(hostdata.information));
+    span.appendChild(document.createTextNode(hostdata.checkresult));
 
     r.appendChild(div2 = document.createElement("div"));
     div2.setAttribute("class", "services");
@@ -110,7 +110,7 @@ function renderServiceTemplate(servicedata) {
     span = document.createElement("span");
     span.setAttribute("class", "servicename");
     span.setAttribute("data-url", servicedata.servicelink);
-    span.appendChild(document.createTextNode(servicedata.service_description));
+    span.appendChild(document.createTextNode(servicedata.name));
     r.appendChild(span);
 
     span = document.createElement("span");
@@ -120,8 +120,8 @@ function renderServiceTemplate(servicedata) {
 
     span = document.createElement("span");
     span.setAttribute("class", "actions");
-    span.setAttribute("data-hostname", servicedata.host_name);
-    span.setAttribute("data-servicename", servicedata.service_description);
+    span.setAttribute("data-hostname", servicedata.host);
+    span.setAttribute("data-servicename", servicedata.name);
     span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
     span.appendChild(chkimg.cloneNode(true));
@@ -129,7 +129,7 @@ function renderServiceTemplate(servicedata) {
 
     var divc = document.createElement("div");
     divc.setAttribute("class", "info");
-    divc.appendChild(document.createTextNode(servicedata.status_information));
+    divc.appendChild(document.createTextNode(servicedata.checkresult));
     r.appendChild(divc);
 
     return r;
@@ -221,7 +221,7 @@ function renderMainTemplate(statusdata)  {
 
             all_serviceshtml.push(renderbuffer.cloneNode(true));
 
-            if (servicedetail.status !== "OK") {
+            if (servicedetail.status !== "OK" || true) {
                 show_host_in_list1 = true;
                 not_ok_serviceshtml.push(renderbuffer.cloneNode(true));
             }
