@@ -2,10 +2,18 @@ import {AbstractMonitor} from "./AbstractMonitor";
 import {Monitor} from "./MonitorData";
 
 interface IIcingaCgiHostStatusJson {
-
+    host_name: string;
+    host_display_name: string;
+    status: Monitor.HostState;
+    status_information: string;
+    has_been_acknowledged: boolean;
 }
-interface IIcingaCgiServiceStatusJson {
 
+interface IIcingaCgiServiceStatusJson {
+    host_name: string;
+    service_description: string;
+    status: Monitor.ServiceState;
+    status_information: string;
 }
 
 interface IIcingaCgiJson {
@@ -22,7 +30,7 @@ export class IcingaCgi extends AbstractMonitor {
         console.log("fetchStatus");
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
-                let requesturl = this.settings.url + "/status.cgi?host=all&style=hostservicedetail&jsonoutput";
+                let requesturl = this.settings.urlNoTrailingSlash() + "/status.cgi?host=all&style=hostservicedetail&jsonoutput";
                 if (this.settings.hostgroup) {
                     requesturl += "&hostgroup=" + this.settings.hostgroup;
                 }
@@ -61,9 +69,6 @@ export class IcingaCgi extends AbstractMonitor {
                     if (minor_version >= 8) {
                         this.ProcessResponse_1_10(response, m);
                         processed = true;
-                    } else if (minor_version === 6) {
-                        this.ProcessResponse_1_6(response, m);
-                        processed = true;
                     }
                 }
             }
@@ -75,7 +80,9 @@ export class IcingaCgi extends AbstractMonitor {
                 this.ProcessResponse_1_10(response, m);
                 processed = true;
             } else {
-                this.ProcessResponse_1_6(response, m);
+                m = Monitor.ErrorMonitorData(
+                    "Icinga version not supported. Please open an issue on GitHub.",
+                    "https://github.com/ErikWegner/imoin/issues");
                 processed = true;
             }
         }
@@ -83,64 +90,33 @@ export class IcingaCgi extends AbstractMonitor {
         return m;
     }
 
-    private ProcessResponse_1_6(response: IIcingaCgiJson, status: Monitor.MonitorData) {
-        var servicestatus, hso, lasthostname = "";
-        if (response != null) {
-            if (response.status) {
-                if (response.status.host_status) {
-                    for (var index in response.status.host_status) {
-                        servicestatus = response.status.host_status[index];
-
-                        if (lasthostname !== servicestatus.host) {
-                            hso = this.Hoststatus_Fill_1_6(servicestatus);
-                            lasthostname = servicestatus.host;
-                            status.details[hso.hostname] = hso;
-                            if (hso.status !== "UP") {
-                                status.hosterrors++;
-                            } else {
-                                status.hostup++;
-                            }
-                            status.totalhosts++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private ProcessResponse_1_10(response, status) {
+    private ProcessResponse_1_10(response : IIcingaCgiJson, status : Monitor.MonitorData) {
         var hso;
 
-        function processHoststatus(hoststatus) {
-            hso = Hoststatus();
-            Hoststatus_Fill_1_10(hso, hoststatus);
-            status.details[hso.hostname] = hso;
-            if (hso.status !== "UP") {
-                status.hosterrors++;
-            } else {
-                status.hostup++;
-            }
+        function processHoststatus(hoststatus : IIcingaCgiHostStatusJson) : Monitor.Host {
+            hso = new Monitor.Host(hoststatus.host_display_name);
+            hso.status = hoststatus.status;
+            hso.checkresult = hoststatus.status_information;
+            hso.acknowledged = hoststatus.has_been_acknowledged;
+            hso.hostlink = this.settings.urlNoTrailingSlash() + "/extinfo.cgi?type=1&host=" + hoststatus.host_name;
+            return hso;
         }
 
-        function processServicestatus(servicestatus) {
-            var hoststatus = status.details[servicestatus.host_name];
-            Hoststatus_AddService_1_10(hoststatus, servicestatus);
-            if (servicestatus.status !== "OK") {
-                if (servicestatus.status === "WARNING") {
-                    status.servicewarnings++;
-                } else {
-                    status.serviceerrors++;
-                }
-            } else {
-                status.serviceok++;
-            }
+        function processServicestatus(servicestatus : IIcingaCgiServiceStatusJson) {
+            let hoststatus = status.getHostByName(servicestatus.host_name);
+            let service = new Monitor.Service(servicestatus.service_description);
+            hoststatus.addService(service);
+            service.checkresult = servicestatus.status_information;
+            service.status = servicestatus.status;
+            service.servicelink = this.settings.urlNoTrailingSlash() + 
+                "/extinfo.cgi?type=2&host=" + servicestatus.host_name +
+                "&service=" + servicestatus.service_description;
         }
 
         if (response != null) {
             if (response.status) {
                 if (response.status.host_status) {
-                    response.status.host_status.forEach(processHoststatus);
-                    status.totalhosts = response.status.host_status.length;
+                    response.status.host_status.forEach(h => status.addHost(processHoststatus(h)));
                 }
 
                 if (response.status.service_status) {
@@ -149,56 +125,5 @@ export class IcingaCgi extends AbstractMonitor {
                 }
             }
         }
-    }
-
-    private Hoststatus_Fill_1_6(icingahoststatus): Monitor.Host {
-        let h = new Monitor.Host(icingahoststatus.host_display_name)
-        // copy attributes from icinga
-        target.hostname = icingahoststatus.host_display_name;
-        target.status = icingahoststatus.status;
-        target.information = icingahoststatus.status_information;
-        target.acknowledged = icingahoststatus.has_been_acknowledged;
-        target.hostlink = cgipath + "extinfo.cgi?type=1&host=" + icingahoststatus.host_name;
-    }
-
-    private Hoststatus_Fill_1_10(target, icingahoststatus) {
-        // copy attributes from icinga
-        target.hostname = icingahoststatus.host_display_name;
-        target.status = icingahoststatus.status;
-        target.information = icingahoststatus.status_information;
-        target.acknowledged = icingahoststatus.has_been_acknowledged;
-        target.hostlink = cgipath + "extinfo.cgi?type=1&host=" + icingahoststatus.host_name;
-    }
-
-    private Hoststatus_AddService_1_10(target, icingaservicestatus) {
-        icingaservicestatus.servicelink = cgipath + "extinfo.cgi?type=2&host=" + icingaservicestatus.host_name + "&service=" + icingaservicestatus.service_description;
-        target.services.push(icingaservicestatus);
-    }
-
-}
-
-
-var TriggerCmdExec = function (data) {
-    var cmds = {'ack': 33, 'recheck': 96};
-    var url = cgipath;
-    url += "cmd.cgi";
-    var service_query = '';
-    var cmdType = "host";
-    var cmdFor = data.hostname;
-
-    if (data.servicename !== "") {
-        cmds = {'ack': 34, 'recheck': 7};
-        data.servicename = data.servicename.replace(/ /, "+");
-        service_query = '&service=' + data.servicename;
-        cmdType = "hostservice";
-        cmdFor += "^" + data.servicename;
-    }
-
-    if (data.command === "ack") {
-        emit(target, EventNames.OpenTab, (url + '?cmd_typ=' + cmds[data.command] + '&host=' + data.hostname + service_query));
-    }
-
-    if (data.command === "recheck") {
-        emit(target, EventNames.OpenTab, (url + '?cmd_typ=' + cmds[data.command] + '&host=' + data.hostname + service_query + '&force_check'));
     }
 }

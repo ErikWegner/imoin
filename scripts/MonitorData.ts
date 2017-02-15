@@ -12,6 +12,7 @@ export namespace Monitor {
         public status : ServiceState = "CRITICAL";
         public host: string;
         public checkresult: string;
+        public servicelink: string;
 
         constructor(readonly name: string) {}
 
@@ -40,6 +41,7 @@ export namespace Monitor {
         public hosts: Array<Host> = [];
         public state: Status;
         public message: string;
+        public url: string;
         public hostgroupinfo: string = null;
         public totalhosts: number;
         public hostup: number;
@@ -61,6 +63,18 @@ export namespace Monitor {
         }
 
         getHosts() {return this.hosts; }
+
+        getHostByName(name: string) : Host {
+            let a = this.hosts.filter(h => h.name == name);
+            if (a.length > 0) {
+                return a[0];
+            }
+
+            let b = new Host(name);
+            this.addHost(b);
+
+            return b;
+        }
 
         updateCounters() {
             this.totalservices = this.hosts.map(host => host.services.length).reduce((acc, val) => acc += val, 0);
@@ -103,11 +117,13 @@ export namespace Monitor {
     }
 
     export function ErrorMonitorData(
-        message: string
+        message: string,
+        url?: string
     ): MonitorData {
         let m = new MonitorData();
         m.setState(Status.RED);
         m.setMessage(message);
+        m.url = url;
         return m
     }
 }

@@ -8,4 +8,12 @@ export class Settings {
         public hostgroup?: string
     ) {
     }
+
+    urlNoTrailingSlash(): string {
+        let l = this.url.length;
+        if (this.url[l-1] == "/") {
+            l = l - 1;
+        }
+        return this.url.substr(0, l);
+    }
 }
