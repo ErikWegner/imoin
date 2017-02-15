@@ -37,6 +37,7 @@ declare namespace Browser {
     class BrowserAction {
         setIcon(icon: {path: {32: string, 16: string}}): void
         setBadgeText(badge: {text: string}): void
+        setBadgeBackgroundColor(details: {color: string}): void
     }
 }
 

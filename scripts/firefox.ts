@@ -3,6 +3,7 @@
 import {AbstractWebExtensionsEnvironment} from "./AbstractWebExtensionsEnvironment";
 import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
+import Status = Monitor.Status;
 
 /**
  * Implementation for Firefox
@@ -102,12 +103,31 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     }
 
     private updateIconAndBadgetext() {
+        let path = "";
+        let badgeText: string = "";
+        let badgeColor = "";
+        switch (this.dataBuffer.state) {
+            case Status.GREEN:
+                path = "ok";
+                /*badgeText = "" + this.dataBuffer.hostup;
+                badgeColor = "#83b225";*/
+                break;
+            case Status.YELLOW:
+                path = "warn";
+                badgeText = "" + this.dataBuffer.servicewarnings;
+                badgeColor = "#b29a25";
+            case Status.RED:
+                path = "err";
+                badgeText = "" + (this.dataBuffer.hosterrors + this.dataBuffer.servicewarnings + this.dataBuffer.serviceerrors);
+                badgeColor = "#b25425";
+        }
         browser.browserAction.setIcon({
             path: {
-                "16": "icons/icon-16err.png",
-                "32": "icons/icon-32err.png"
+                "16": "icons/icon-16" + path + ".png",
+                "32": "icons/icon-32" + path + ".png"
             }
         });
-        browser.browserAction.setBadgeText({text: this.dataBuffer.getHosts().length + ""});
+        browser.browserAction.setBadgeText({text: badgeText});
+        browser.browserAction.setBadgeBackgroundColor({color: badgeColor});
     }
 }

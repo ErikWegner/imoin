@@ -187,6 +187,7 @@ tr.service td.OK {
     min-height: 14px;
 }
 
+/* https://bugzilla.mozilla.org/show_bug.cgi?id=893113 */
 .recheck {
     width: 14px;
     height: 14px;

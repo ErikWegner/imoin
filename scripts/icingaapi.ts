@@ -117,6 +117,8 @@ export class IcingaApi extends AbstractMonitor {
             }
         });
 
+        m.updateCounters();
+
         return m
     }
 }
