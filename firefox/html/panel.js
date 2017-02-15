@@ -1,6 +1,6 @@
 // This script runs at the moment that the popup is displayed
 const myPort = browser.runtime.connect({name: "port-from-panel"});
-myPort.onMessage.addListener(function(message) {
+myPort.onMessage.addListener(function (message) {
     var command = message.command || "";
     var data = message.data || {};
 
@@ -136,7 +136,7 @@ function renderServiceTemplate(servicedata) {
 }
 
 var chkimg = document.createElement("img");
-chkimg.setAttribute("src", "icons/rck.png");
+chkimg.setAttribute("src", "../icons/rck.png");
 chkimg.setAttribute("style", "width:14px;height:14px");
 chkimg.setAttribute("title", "Recheck");
 chkimg.setAttribute("class", "recheck");
@@ -144,7 +144,7 @@ chkimg.setAttribute("data-command", "recheck");
 chkimg.setAttribute("alt", "Recheck");
 
 var ackimg = document.createElement("img");
-ackimg.setAttribute("src", "icons/ack.png");
+ackimg.setAttribute("src", "../icons/ack.png");
 ackimg.setAttribute("style", "width:14px;height:14px");
 ackimg.setAttribute("title", "Acknowledge");
 ackimg.setAttribute("class", "ack");

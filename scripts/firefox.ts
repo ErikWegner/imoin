@@ -19,7 +19,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
 
     connected(p:Browser.Port) {
         console.log("Firefox.connected (panel opened)");
-        var me = this;
+        const me = this;
         this.portFromPanel = p;
         this.portFromPanel.onMessage.addListener(this.handleMessage.bind(this));
         this.portFromPanel.onDisconnect.addListener(function() {
@@ -47,7 +47,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         return new Promise<Settings>(
             (resolve, reject) => {
                 /* Change the array of keys to match the options.js */
-                var gettingItem = browser.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"]);
+                let gettingItem = browser.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"]);
                 gettingItem.then(function (settings: Settings) {
                         console.log("Settings loaded");
                         var clone = JSON.parse(JSON.stringify(settings));
@@ -77,7 +77,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     load(url: string, username: string, password: string): Promise<string> {
         return new Promise<string>(
             (resolve, reject) => {
-                var xhr = new XMLHttpRequest();
+                let xhr = new XMLHttpRequest();
                 xhr.open("GET", url, true);
                 xhr.setRequestHeader("Authorization", "Basic " + btoa(username+":"+password));
                 xhr.withCredentials = true;
@@ -107,7 +107,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
                 "16": "icons/icon-16err.png",
                 "32": "icons/icon-32err.png"
             }
-        })
+        });
         browser.browserAction.setBadgeText({text: this.dataBuffer.getHosts().length + ""});
     }
 }
