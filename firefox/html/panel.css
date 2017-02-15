@@ -178,10 +178,26 @@ tr.service td.OK {
 }
 .content
 {
-    position:absolute;
+    /*position:absolute;*/
     top: 160px;
     left:0px;
     right:0px;
     bottom:0px;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
+    min-height: 14px;
+}
+
+/* https://bugzilla.mozilla.org/show_bug.cgi?id=893113 */
+.recheck {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    background: url('../icons/rck.png');
+}
+
+.ack {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    background: url('../icons/ack.png');
 }

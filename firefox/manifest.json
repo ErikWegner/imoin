@@ -11,7 +11,10 @@
   },
 
   "background": {
-    "scripts": ["scripts/main.js"]
+    "scripts": [
+      "require.js",
+      "mainall.js"
+    ]
   },
 
   "browser_action": {
@@ -23,10 +26,15 @@
     }
   },
 
+  "options_ui": {
+    "page": "html/options.html"
+  },
+
   "permissions": [
     "alarms",
     "storage",
-    "webRequest"
+    "https://*/",
+    "http://*/"
   ],
 
   "applications": {

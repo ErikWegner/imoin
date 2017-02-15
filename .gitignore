@@ -3,3 +3,8 @@
 *.xpi
 *.iml
 .idea
+scripts/*.js.map
+scripts/*.js
+node_modules
+npm-debug.log
+release
