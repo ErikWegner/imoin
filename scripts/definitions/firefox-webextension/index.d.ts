@@ -9,7 +9,7 @@ declare namespace Browser {
 
     class Runtime {
         onConnect: RuntimeEvent
-        connect(o: any): Port
+        connect(extensionId?: string, connectInfo? : {name?: string, includeTlsChannelId?: boolean}): Port
     }
 
     class MessageSender {

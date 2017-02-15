@@ -1,5 +1,5 @@
 // This script runs at the moment that the popup is displayed
-const myPort = browser.runtime.connect({name: "port-from-panel"});
+const myPort = browser.runtime.connect({name: "port-from-panel", includeTlsChannelId: false});
 myPort.onMessage.addListener(function (message) {
     var command = message.command || "";
     var data = message.data || {};
@@ -17,7 +17,6 @@ var rendered_template = document.createTextNode("");
 var filtered_lists_templates = {};
 
 function showAndUpdatePanelContent(data) {
-
     message = data.message;
     if (message) {
         console.log("Message " + message)
@@ -27,9 +26,12 @@ function showAndUpdatePanelContent(data) {
         rendered_template = renderMainTemplate(data);
     }
 
+    console.log("Render prep done");
+    console.log("Removing");
     while (document.body.childNodes.length > 0) {
         document.body.removeChild(document.body.childNodes[document.body.childNodes.length - 1]);
     }
+    console.log("Adding");
     if (rendered_template.length > 0) {
         for (var i in rendered_template) {
             document.body.appendChild(rendered_template[i]);
@@ -37,8 +39,9 @@ function showAndUpdatePanelContent(data) {
     } else {
         document.body.appendChild(rendered_template);
     }
+    console.log("Done")
 
-    //registerMainEventHandlers();
+    registerMainEventHandlers();
 
 }
 
@@ -135,21 +138,15 @@ function renderServiceTemplate(servicedata) {
     return r;
 }
 
-var chkimg = document.createElement("img");
-chkimg.setAttribute("src", "../icons/rck.png");
-chkimg.setAttribute("style", "width:14px;height:14px");
+var chkimg = document.createElement("span");
 chkimg.setAttribute("title", "Recheck");
 chkimg.setAttribute("class", "recheck");
 chkimg.setAttribute("data-command", "recheck");
-chkimg.setAttribute("alt", "Recheck");
 
-var ackimg = document.createElement("img");
-ackimg.setAttribute("src", "../icons/ack.png");
-ackimg.setAttribute("style", "width:14px;height:14px");
+var ackimg = document.createElement("span");
 ackimg.setAttribute("title", "Acknowledge");
 ackimg.setAttribute("class", "ack");
 ackimg.setAttribute("data-command", "ack");
-ackimg.setAttribute("alt", "Acknowledge");
 
 
 // switch between the filtered details lists
@@ -221,7 +218,7 @@ function renderMainTemplate(statusdata)  {
 
             all_serviceshtml.push(renderbuffer.cloneNode(true));
 
-            if (servicedetail.status !== "OK" || true) {
+            if (servicedetail.status !== "OK") {
                 show_host_in_list1 = true;
                 not_ok_serviceshtml.push(renderbuffer.cloneNode(true));
             }
@@ -231,7 +228,7 @@ function renderMainTemplate(statusdata)  {
         renderbuffer = renderHostTemplate(hostdetail);
 
         // list 1
-        if (show_host_in_list1 || true) {
+        if (show_host_in_list1) {
             html1.appendChild(renderbuffer.cloneNode(true));
         }
 
@@ -358,19 +355,7 @@ function AddCellToTr(tr, text, tdclass) {
     tr.appendChild(td);
     return tr;
 }
-
-function renderTemplate(template, data) {
-    var result = template;
-    if ("object" === typeof (data)) {
-        var keys = Object.keys(data);
-        for (var key_index in keys) {
-            var okey = keys[key_index];
-            result = result.replace(new RegExp('{' + okey + '}', "g"), data[okey]);
-        }
-    }
-
-    return result;
-}
+/*
 
 var triggerRefresh = function () {
     self.port.emit("triggerRefresh");
@@ -395,3 +380,4 @@ var triggerOpenPage = function (e) {
     var url = e.target.getAttribute("data-url");
     self.port.emit("triggerOpenPage", url);
 }
+*/

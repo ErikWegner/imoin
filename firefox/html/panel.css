@@ -186,3 +186,17 @@ tr.service td.OK {
     /*overflow-y: auto;*/
     min-height: 14px;
 }
+
+.recheck {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    background: url('../icons/rck.png');
+}
+
+.ack {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    background: url('../icons/ack.png');
+}
