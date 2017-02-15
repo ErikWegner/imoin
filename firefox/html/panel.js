@@ -355,13 +355,12 @@ function AddCellToTr(tr, text, tdclass) {
     tr.appendChild(td);
     return tr;
 }
-/*
 
 var triggerRefresh = function () {
-    self.port.emit("triggerRefresh");
+    myPort.postMessage({command: "triggerRefresh"});
 }
 
-var triggerCmdExec = function (e) {
+/*var triggerCmdExec = function (e) {
     var el = e.target
     if (el == null) return;
 

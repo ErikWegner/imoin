@@ -31,6 +31,15 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     }
 
     handleMessage(request: any, sender: any, sendResponse: (message: any) => void) {
+        //console.log("Firefox.handleMessage");
+        //console.log(request);
+
+        var command = request.command || "";
+
+        if (command == "triggerRefresh") {
+            this.handleAlarm();
+        }
+
         if (request.message == "SettingsChanged") {
             this.notifySettingsChanged();
         }
