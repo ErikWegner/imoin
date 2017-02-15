@@ -32,9 +32,6 @@ export interface IServiceJsonData {
 }
 
 export class IcingaApi extends AbstractMonitor {
-    private environment: IEnvironment;
-    private settings: Settings;
-
     fetchStatus(): Promise<Monitor.MonitorData> {
         console.log("fetchStatus");
         return new Promise<Monitor.MonitorData>(
@@ -57,29 +54,6 @@ export class IcingaApi extends AbstractMonitor {
                     })
             }
         );
-    }
-
-    init(environment: IEnvironment, settings: Settings) {
-        this.environment = environment;
-        this.settings = settings;
-    }
-
-    startTimer() {
-        var fetchfunc = this.fetchStatus.bind(this)
-        var e = this.environment
-        this.environment.initTimer(
-            this.settings.timerPeriod,
-            function () {
-                fetchfunc().then(
-                    (status : Monitor.MonitorData) => {
-                        e.displayStatus(status);
-                    }
-                )
-            });
-    }
-
-    shutdown() {
-        this.environment.stopTimer();
     }
 
     processData(hostdata: IHostJsonData, servicedata: IServiceJsonData): Monitor.MonitorData {

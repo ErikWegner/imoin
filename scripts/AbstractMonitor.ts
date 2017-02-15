@@ -4,7 +4,31 @@ import {IEnvironment} from "./IEnvironment";
 import {Settings} from "./Settings";
 
 export abstract class AbstractMonitor implements IMonitor {
-    abstract init(environment: IEnvironment, settings: Settings): void
-    abstract startTimer(): void
-    abstract shutdown(): void
+    protected environment: IEnvironment;
+    protected settings: Settings;
+
+    init(environment: IEnvironment, settings: Settings) {
+        this.environment = environment;
+        this.settings = settings;
+    }
+
+    startTimer() {
+        var fetchfunc = this.fetchStatus.bind(this)
+        var e = this.environment
+        this.environment.initTimer(
+            this.settings.timerPeriod,
+            function () {
+                fetchfunc().then(
+                    (status: Monitor.MonitorData) => {
+                        e.displayStatus(status);
+                    }
+                )
+            });
+    }
+
+    shutdown() {
+        this.environment.stopTimer();
+    }
+
+    abstract fetchStatus(): Promise<Monitor.MonitorData>;
 }

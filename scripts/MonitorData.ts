@@ -76,11 +76,19 @@ export namespace Monitor {
             this.updateState();
         }
 
+        renderDate(indate: Date) {
+            let s = "";
+            let s00 = function (s) {
+                let r = s.toString();
+                return (r.length < 2 ? "0" + r : r);
+            };
+
+            return indate.getFullYear() + "-" + s00(indate.getMonth() + 1) + "-" + s00(indate.getDate()) + " " + s00(indate.getHours()) + ":" + s00(indate.getMinutes()) + ":" + s00(indate.getSeconds());
+        }
+
         private setUpdatetime() {
-            let s00 = function(n: number) { return n > 9 ? n : "0" + n};
             let d = new Date;
-            this.updatetime = d.getFullYear() + "-" + s00(d.getMonth()) + "-" + s00(d.getDate()) + " " +
-             s00(d.getHours()) + ":" + s00(d.getMinutes()) + ":" + s00(d.getSeconds());
+            this.updatetime = this.renderDate(d);
         }
 
         private updateState() {
