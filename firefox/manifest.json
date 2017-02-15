@@ -1,0 +1,47 @@
+{
+
+  "manifest_version": 2,
+  "name": "imoin",
+  "version": "16.0.0",
+
+  "description": "Monitor your icinga or nagios instance.",
+
+  "icons": {
+    "48": "icons/icon-48.png"
+  },
+
+  "background": {
+    "scripts": [
+      "require.js",
+      "mainall.js"
+    ]
+  },
+
+  "browser_action": {
+    "browser_style": true,
+    "default_popup": "html/panel.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+
+  "options_ui": {
+    "page": "html/options.html"
+  },
+
+  "permissions": [
+    "alarms",
+    "storage",
+    "https://*/",
+    "http://*/"
+  ],
+
+  "applications": {
+    "gecko": {
+      "id": "jid1-4gPoRFTL1bn7nA@jetpack",
+      "strict_min_version": "45.0"
+    }
+  }
+
+}
