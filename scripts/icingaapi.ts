@@ -3,6 +3,7 @@ import { AbstractMonitor } from "./AbstractMonitor";
 import { Monitor } from "./MonitorData";
 import Status = Monitor.Status;
 import { Settings } from "./Settings";
+import {UICommand} from "./UICommand";
 
 export interface IHostJsonData {
     results: Array<{
@@ -32,6 +33,23 @@ export interface IServiceJsonData {
 }
 
 export class IcingaApi extends AbstractMonitor {
+    handleUICommand(param: UICommand): void {
+        if (param.command == "recheck") {
+            let url = this.settings.url + "/api/v1/actions/reschedule-check";
+            let data = {
+                type: "Host",
+                force_check: true,
+                filter: "host.name==\"" + param.hostname + "\""
+            };
+            if (param.servicename) {
+                data.type = "Service";
+                data.filter = "service.name==\"" + param.servicename + "\"";
+            }
+
+            this.environment.post(url, data, this.settings.username, this.settings.password);
+        }
+    }
+
     fetchStatus(): Promise<Monitor.MonitorData> {
         console.log("fetchStatus");
         return new Promise<Monitor.MonitorData>(

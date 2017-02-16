@@ -360,7 +360,7 @@ var triggerRefresh = function () {
     myPort.postMessage({command: "triggerRefresh"});
 }
 
-/*var triggerCmdExec = function (e) {
+var triggerCmdExec = function (e) {
     var el = e.target
     if (el == null) return;
 
@@ -372,11 +372,15 @@ var triggerRefresh = function () {
     var hostname = el.getAttribute("data-hostname");
     var servicename = el.getAttribute("data-servicename") || "";
 
-    self.port.emit("triggerCmdExec", { hostname: hostname, servicename: servicename, command: command });
+    myPort.postMessage({
+        command: "triggerCmdExec",
+        hostname: hostname,
+        servicename: servicename,
+        remoteCommand: command });
 }
 
 var triggerOpenPage = function (e) {
     var url = e.target.getAttribute("data-url");
-    self.port.emit("triggerOpenPage", url);
+    myPort.postMessage({command:"triggerOpenPage", url: url});
 }
-*/
+

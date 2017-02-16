@@ -90,9 +90,8 @@ export namespace Monitor {
             this.updateState();
         }
 
-        renderDate(indate: Date) {
-            let s = "";
-            let s00 = function (s) {
+        static renderDate(indate: Date) {
+            let s00 = function (s: number) {
                 let r = s.toString();
                 return (r.length < 2 ? "0" + r : r);
             };
@@ -102,7 +101,7 @@ export namespace Monitor {
 
         private setUpdatetime() {
             let d = new Date;
-            this.updatetime = this.renderDate(d);
+            this.updatetime = Monitor.MonitorData.renderDate(d);
         }
 
         private updateState() {

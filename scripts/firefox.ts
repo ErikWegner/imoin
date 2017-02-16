@@ -4,6 +4,7 @@ import {AbstractWebExtensionsEnvironment} from "./AbstractWebExtensionsEnvironme
 import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
 import Status = Monitor.Status;
+import {UICommand} from "./UICommand";
 
 /**
  * Implementation for Firefox
@@ -18,12 +19,12 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
 
     }
 
-    connected(p:Browser.Port) {
+    connected(p: Browser.Port) {
         console.log("Firefox.connected (panel opened)");
         const me = this;
         this.portFromPanel = p;
         this.portFromPanel.onMessage.addListener(this.handleMessage.bind(this));
-        this.portFromPanel.onDisconnect.addListener(function() {
+        this.portFromPanel.onDisconnect.addListener(function () {
             console.log("Firefox.disconnected (panel closed)");
             me.portFromPanel = null;
         });
@@ -31,13 +32,25 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     }
 
     handleMessage(request: any, sender: any, sendResponse: (message: any) => void) {
-        //console.log("Firefox.handleMessage");
-        //console.log(request);
-
-        var command = request.command || "";
+        const command = request.command || "";
 
         if (command == "triggerRefresh") {
             this.handleAlarm();
+        }
+
+        if (command == "triggerOpenPage") {
+            if (typeof (command.url) !== "undefined" && command.url != "") {
+                browser.tabs.create({
+                    url: request.url
+                });
+            }
+        }
+
+        if (command == "triggerCmdExec") {
+            let c = new UICommand;
+            c.command = request.remoteCommand;
+            c.hostname = request.hostname;
+            c.servicename = request.servicename;
         }
 
         if (request.message == "SettingsChanged") {
@@ -52,7 +65,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         this.trySendDataToPopup();
     }
 
-    loadSettings() : Promise<Settings> {
+    loadSettings(): Promise<Settings> {
         console.log("Loading settings");
         return new Promise<Settings>(
             (resolve, reject) => {
@@ -60,7 +73,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
                 let gettingItem = browser.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"]);
                 gettingItem.then(function (settings: Settings) {
                         console.log("Settings loaded");
-                        var clone = JSON.parse(JSON.stringify(settings));
+                        let clone = JSON.parse(JSON.stringify(settings));
                         if (clone.password) clone.password = "*****";
                         console.log(clone);
                         // success
@@ -89,9 +102,9 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
             (resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 xhr.open("GET", url, true);
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(username+":"+password));
+                xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
                 xhr.withCredentials = true;
-                xhr.onreadystatechange = function() {
+                xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
                         if (xhr.status == 200) {
                             resolve(xhr.responseText);
@@ -100,10 +113,33 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
                         }
                     }
                 };
-                xhr.send();                
+                xhr.send();
             }
         );
     }
+
+    post(url: string, data: any, username: string, password: string): Promise<string> {
+        return new Promise<string>(
+            (resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+                xhr.withCredentials = true;
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            resolve(xhr.responseText);
+                        } else {
+                            reject(xhr.responseText);
+                        }
+                    }
+                };
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify(data));
+            }
+        )
+    }
+
 
     protected trySendDataToPopup() {
         if (this.portFromPanel) {
@@ -119,16 +155,18 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
             case Status.GREEN:
                 path = "ok";
                 /*badgeText = "" + this.dataBuffer.hostup;
-                badgeColor = "#83b225";*/
+                 badgeColor = "#83b225";*/
                 break;
             case Status.YELLOW:
                 path = "warn";
                 badgeText = "" + this.dataBuffer.servicewarnings;
                 badgeColor = "#b29a25";
+                break;
             case Status.RED:
                 path = "err";
                 badgeText = "" + (this.dataBuffer.hosterrors + this.dataBuffer.servicewarnings + this.dataBuffer.serviceerrors);
                 badgeColor = "#b25425";
+                break;
         }
         browser.browserAction.setIcon({
             path: {

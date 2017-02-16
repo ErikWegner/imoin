@@ -1,13 +1,15 @@
 import {IEnvironment} from "./IEnvironment";
 import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
+import {UICommand} from "./UICommand";
 
 /**
  * A common implementation
  */
 export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
-    protected onSettingsChangedCallback: () => void
-    private onAlarmCallback: () => void
+    protected onSettingsChangedCallback: () => void;
+    private onAlarmCallback: () => void;
+    private onUICommandCallback: (param: UICommand) => void;
 
     abstract loadSettings(): Promise<Settings>
 
@@ -30,13 +32,13 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
             {
                 periodInMinutes: delay
             }
-        )
-        console.log("Adding alarm listener")
-        var me = this
-        webExtension.alarms.onAlarm.addListener(function() {
+        );
+        console.log("Adding alarm listener");
+        const me = this;
+        webExtension.alarms.onAlarm.addListener(function () {
             me.handleAlarm()
-        })
-        console.log("Triggering immediate update")
+        });
+        console.log("Triggering immediate update");
         callback();
     }
 
@@ -49,6 +51,16 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
         this.onSettingsChangedCallback = callback
     }
 
+    onUICommand(callback: (param: UICommand) => void): void {
+        this.onUICommandCallback = callback;
+    }
+
+    emitUICommand(param: UICommand) {
+        if (this.onUICommandCallback != null) {
+            this.onUICommandCallback(param);
+        }
+    }
+
     notifySettingsChanged() {
         if (this.onSettingsChangedCallback != null) {
             this.onSettingsChangedCallback();
@@ -58,5 +70,6 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
     abstract displayStatus(data: Monitor.MonitorData): void
 
     abstract load(url: string, username: string, password: string): Promise<string>
-}
 
+    abstract post(url: string, data: any, username: string, password: string): Promise<string>
+}
