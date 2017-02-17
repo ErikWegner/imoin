@@ -3,133 +3,145 @@
   we will use just the label to create pushbutton effect
 */
 input[type=radio] {
-    display:none;
-    margin:10px;
+    display: none;
+    margin: 10px;
 }
- 
+
 /*
   Change the look'n'feel of labels (which are adjacent to radiobuttons).
   Add some margin, padding to label
 */
 input[type=radio] + label {
-    display:inline-block;
-    margin:-2px;
+    display: inline-block;
+    margin: -2px;
     padding: 1ex 2em;
     background-color: #e7e7e7;
     border-color: #ddd;
+    cursor: pointer;
 }
+
 /*
  Change background color for label next to checked radio button
  to make it look like highlighted button
 */
 input[type=radio]:checked + label {
-   background-image: none;
-    background-color:#a0a0a0;
+    background-image: none;
+    background-color: #a0a0a0;
 }
 
-
 .host {
-padding: 0.5ex;
+    padding: 0.5ex;
 }
 
 .host:hover {
-background-color: #eef;
-border-radius: 1ex;
+    background-color: #eef;
+    border-radius: 1ex;
 }
 
 .hostname {
-font-size: 160%;
+    font-size: 160%;
 }
 
 .hostcheckinfo,
 .service .info {
-color: #888;
-padding-left: 1ex;
+    color: #888;
+    padding-left: 1ex;
 }
+
 .service:hover {
-background-color: #ffe;
-border-radius: 0.5ex;
+    background-color: #ffe;
+    border-radius: 0.5ex;
 }
 
 .services {
-padding-left: 2em;
+    padding-left: 2em;
 }
 
 .service {
-margin-bottom: 1ex;
-border-top: 1px dotted #ddd;
+    margin-bottom: 1ex;
+    border-top: 1px dotted #ddd;
 }
+
 .service:last-child {
-border-bottom: 1px dotted #ddd;
+    border-bottom: 1px dotted #ddd;
 }
 
 .servicename {
-font-size: 120%;
+    font-size: 120%;
 }
 
 .actions {
-float: right;
-width: 6em;
-text-align: right;
-display: inline-block;
-margin-top: 0.5ex;
-padding-right: 1ex;
+    float: right;
+    width: 6em;
+    text-align: right;
+    display: inline-block;
+    margin-top: 0.5ex;
+    padding-right: 1ex;
 }
 
 .status {
-float: right;
-width: 6em;
-display: inline-block;
-text-align: center;
-margin-top: 0.5ex;
+    float: right;
+    width: 6em;
+    display: inline-block;
+    text-align: center;
+    margin-top: 0.5ex;
 }
 
-.status.OK, 
+.status.OK,
 .status.UP {
-background-color: #3f3;
+    background-color: #3f3;
 }
 
 .status.WARNING {
-background-color: #ffa500;
+    background-color: #ffa500;
 }
 
 .status.CRITICAL,
 .status.DOWN {
-background-color: #f33;
+    background-color: #f33;
 }
 
 * body {
     font-family: sans-serif;
 }
+
 .main th {
     font-size: 110%;
 }
+
 .main td {
     font-size: 100%;
     color: black;
     text-shadow: white 1px 1px 1px;
 }
+
 .main th {
     color: black;
     background-color: #bbb;
     text-shadow: white 1px 1px 1px;
 }
+
 .main .OK, .main .UP {
     background-color: #3f3;
 }
+
 .main .CRIT, .main .DOWN {
     background-color: #f33;
 }
+
 .main .WARN {
     background-color: #ffa500;
 }
+
 .main .num {
     text-align: right;
 }
+
 .main .updatetime {
     font-size: 75%;
     text-align: center;
 }
+
 .main .space {
     height: 1ex;
 }
@@ -168,24 +180,21 @@ tr.service td.OK {
 }
 
 #details {
-  border: 1px #e7e7e7 solid;
-  margin-top: 1px;
+    border: 1px #e7e7e7 solid;
+    margin-top: 1px;
 }
 
-.header
+/*.header
 {
     height:160px;
 }
 .content
 {
-    /*position:absolute;*/
     top: 160px;
     left:0px;
     right:0px;
     bottom:0px;
-    /*overflow-y: auto;*/
-    min-height: 14px;
-}
+}*/
 
 /* https://bugzilla.mozilla.org/show_bug.cgi?id=893113 */
 .recheck {

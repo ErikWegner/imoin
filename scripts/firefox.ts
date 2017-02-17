@@ -53,7 +53,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
             c.servicename = request.servicename;
         }
 
-        if (request.message == "SettingsChanged") {
+        if (command == "SettingsChanged") {
             this.notifySettingsChanged();
         }
     }
