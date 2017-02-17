@@ -9,14 +9,17 @@ export namespace Monitor {
     }
 
     export class Service {
-        public status : ServiceState = "CRITICAL";
+        public status: ServiceState = "CRITICAL";
         public host: string;
         public checkresult: string;
         public servicelink: string;
 
-        constructor(readonly name: string) {}
+        constructor(readonly name: string) {
+        }
 
-        setStatus(value: Monitor.ServiceState) { this.status = value; }
+        setStatus(value: Monitor.ServiceState) {
+            this.status = value;
+        }
     }
 
     export class Host {
@@ -26,10 +29,16 @@ export namespace Monitor {
         public has_been_acknowledged: boolean = false;
         public checkresult: string;
 
-        constructor(readonly name: string) {}
-        
-        setState(state: HostState) { this.status = state; }
-        getState() { return this.status }
+        constructor(readonly name: string) {
+        }
+
+        setState(state: HostState) {
+            this.status = state;
+        }
+
+        getState() {
+            return this.status
+        }
 
         addService(service: Service) {
             this.services.push(service);
@@ -52,19 +61,31 @@ export namespace Monitor {
         public serviceerrors: number;
         public updatetime: string;
 
-        setState(state: Status) { this.state = state; }
-        getState() { return this.state }
+        setState(state: Status) {
+            this.state = state;
+        }
 
-        setMessage(message: string) { this.message = message }
-        getMessage() { return this.message }
+        getState() {
+            return this.state
+        }
+
+        setMessage(message: string) {
+            this.message = message
+        }
+
+        getMessage() {
+            return this.message
+        }
 
         addHost(host: Host) {
             this.hosts.push(host)
         }
 
-        getHosts() {return this.hosts; }
+        getHosts() {
+            return this.hosts;
+        }
 
-        getHostByName(name: string) : Host {
+        getHostByName(name: string): Host {
             let a = this.hosts.filter(h => h.name == name);
             if (a.length > 0) {
                 return a[0];
@@ -90,9 +111,8 @@ export namespace Monitor {
             this.updateState();
         }
 
-        renderDate(indate: Date) {
-            let s = "";
-            let s00 = function (s) {
+        static renderDate(indate: Date) {
+            let s00 = function (s: number) {
                 let r = s.toString();
                 return (r.length < 2 ? "0" + r : r);
             };
@@ -102,7 +122,7 @@ export namespace Monitor {
 
         private setUpdatetime() {
             let d = new Date;
-            this.updatetime = this.renderDate(d);
+            this.updatetime = Monitor.MonitorData.renderDate(d);
         }
 
         private updateState() {
@@ -110,16 +130,14 @@ export namespace Monitor {
             if (this.servicewarnings > 0) {
                 this.state = Status.YELLOW;
             }
-            if (this.serviceerrors > 0 ||this.hosterrors > 0) {
+            if (this.serviceerrors > 0 || this.hosterrors > 0 || this.message) {
                 this.state = Status.RED;
             }
         }
     }
 
-    export function ErrorMonitorData(
-        message: string,
-        url?: string
-    ): MonitorData {
+    export function ErrorMonitorData(message: string,
+                                     url?: string): MonitorData {
         let m = new MonitorData();
         m.setState(Status.RED);
         m.setMessage(message);

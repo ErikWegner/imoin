@@ -1,0 +1,3 @@
+# copy this file to ~/.npmrc
+AMO_JWT_ISSUER = user:nnnnnnnn:mm
+AMO_JWT_SECRET = dfkjfhsdiufwiecknxkjhdsdskjfhdskjhfkjdnbckjndskjnbcdcskjdskjfhiu

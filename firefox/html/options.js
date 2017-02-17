@@ -7,6 +7,9 @@ function saveOptions(e) {
     username: document.querySelector("#username").value,
     password: document.querySelector("#password").value,
   });
+  var myPort = browser.runtime.connect({name:"port-from-options"});
+  myPort.postMessage({command: "SettingsChanged"});
+  myPort.disconnect();
 }
 
 function restoreOptions() {

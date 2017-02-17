@@ -1,5 +1,7 @@
 import {AbstractMonitor} from "./AbstractMonitor";
 import {Monitor} from "./MonitorData";
+import {UICommand} from "./UICommand";
+import {Settings} from "./Settings";
 
 interface IIcingaCgiHostStatusJson {
     host_name: string;
@@ -26,11 +28,15 @@ interface IIcingaCgiJson {
 }
 
 export class IcingaCgi extends AbstractMonitor {
+    handleUICommand(param: UICommand): void {
+    }
+
     fetchStatus(): Promise<Monitor.MonitorData> {
         console.log("fetchStatus");
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
-                let requesturl = this.settings.urlNoTrailingSlash() + "/status.cgi?host=all&style=hostservicedetail&jsonoutput";
+                let requesturl = Settings.urlNoTrailingSlash(this.settings) + "/status.cgi?host=all&style=hostservicedetail&jsonoutput";
+                console.log("Loading " + requesturl);
                 if (this.settings.hostgroup) {
                     requesturl += "&hostgroup=" + this.settings.hostgroup;
                 }
@@ -42,7 +48,7 @@ export class IcingaCgi extends AbstractMonitor {
                         resolve(this.processData(JSON.parse(a)));
                     })
                     .catch(a => {
-                        resolve(Monitor.ErrorMonitorData(a));
+                        resolve(Monitor.ErrorMonitorData("Connection error. Check settings. " + a));
                     })
             }
         );
@@ -90,37 +96,38 @@ export class IcingaCgi extends AbstractMonitor {
         return m;
     }
 
-    private ProcessResponse_1_10(response : IIcingaCgiJson, status : Monitor.MonitorData) {
+    private ProcessResponse_1_10(response: IIcingaCgiJson, status: Monitor.MonitorData) {
         var hso;
 
-        function processHoststatus(hoststatus : IIcingaCgiHostStatusJson) : Monitor.Host {
+        function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, settings: Settings): Monitor.Host {
             hso = new Monitor.Host(hoststatus.host_display_name);
             hso.status = hoststatus.status;
             hso.checkresult = hoststatus.status_information;
-            hso.acknowledged = hoststatus.has_been_acknowledged;
-            hso.hostlink = this.settings.urlNoTrailingSlash() + "/extinfo.cgi?type=1&host=" + hoststatus.host_name;
+            hso.has_been_acknowledged = hoststatus.has_been_acknowledged;
+            hso.hostlink = Settings.urlNoTrailingSlash(settings) + "/extinfo.cgi?type=1&host=" + hoststatus.host_name;
             return hso;
         }
 
-        function processServicestatus(servicestatus : IIcingaCgiServiceStatusJson) {
+        function processServicestatus(servicestatus: IIcingaCgiServiceStatusJson, settings: Settings) {
             let hoststatus = status.getHostByName(servicestatus.host_name);
             let service = new Monitor.Service(servicestatus.service_description);
             hoststatus.addService(service);
             service.checkresult = servicestatus.status_information;
             service.status = servicestatus.status;
-            service.servicelink = this.settings.urlNoTrailingSlash() + 
+            service.servicelink = Settings.urlNoTrailingSlash(settings) +
                 "/extinfo.cgi?type=2&host=" + servicestatus.host_name +
                 "&service=" + servicestatus.service_description;
         }
 
+        const settings = this.settings;
         if (response != null) {
             if (response.status) {
                 if (response.status.host_status) {
-                    response.status.host_status.forEach(h => status.addHost(processHoststatus(h)));
+                    response.status.host_status.forEach(h => status.addHost(processHoststatus(h, settings)), this);
                 }
 
                 if (response.status.service_status) {
-                    response.status.service_status.forEach(processServicestatus);
+                    response.status.service_status.forEach(s => processServicestatus(s, settings));
                     status.totalservices = response.status.service_status.length;
                 }
             }

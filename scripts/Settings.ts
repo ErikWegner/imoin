@@ -1,7 +1,9 @@
+export type IcingaOptionsVersion = "cgi" | "api1";
+
 export class Settings {
     constructor(
         public timerPeriod = 5,
-        public icingaversion: string,
+        public icingaversion: IcingaOptionsVersion,
         public url: string,
         public username: string,
         public password: string,
@@ -9,11 +11,12 @@ export class Settings {
     ) {
     }
 
-    urlNoTrailingSlash(): string {
-        let l = this.url.length;
-        if (this.url[l-1] == "/") {
+    static urlNoTrailingSlash(settings: Settings): string {
+        let url = settings.url;
+        let l = url.length;
+        if (url[l-1] == "/") {
             l = l - 1;
         }
-        return this.url.substr(0, l);
+        return url.substr(0, l);
     }
 }

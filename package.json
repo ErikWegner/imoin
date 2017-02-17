@@ -8,6 +8,7 @@
     "build:firefox": "gulp firefox",
     "watch:firefox": "npm run build:firefox && gulp firefox-watch",
     "package:firefox": "npm run build:firefox && cd release/firefox && web-ext build",
+    "sign:firefox": "npm run package:firefox && web-ext sign --source-dir release/firefox --api-key=${npm_config_AMO_JWT_ISSUER} --api-secret=${npm_config_AMO_JWT_SECRET}",
     "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
     "clean": "gulp clean"
   },

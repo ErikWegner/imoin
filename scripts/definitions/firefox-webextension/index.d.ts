@@ -2,14 +2,30 @@
 
 declare namespace Browser {
     class Browser {
-        runtime: Runtime
-        storage: BrowserStorage
-        browserAction: BrowserAction
+        tabs: Tabs;
+        runtime: Runtime;
+        storage: BrowserStorage;
+        browserAction: BrowserAction;
+        windows: Windows;
+    }
+
+    type WindowsCreateOptions = {
+        url?: string
+    }
+
+    class Windows {
+        create(options: WindowsCreateOptions): void
+    }
+
+    class Tabs {
+        create(params: {url?: string}): void
     }
 
     class Runtime {
-        onConnect: RuntimeEvent
-        connect(extensionId?: string, connectInfo? : {name?: string, includeTlsChannelId?: boolean}): Port
+        onConnect: RuntimeEvent;
+        connect(extensionId?: string, connectInfo? : {name?: string, includeTlsChannelId?: boolean}): Port;
+        openOptionsPage(): void;
+        getURL(url: string): string;
     }
 
     class MessageSender {
@@ -21,9 +37,9 @@ declare namespace Browser {
     }
 
     export class Port {
-        onMessage: RuntimeEvent
-        onDisconnect: RuntimeEvent
-        postMessage(message: any): void
+        onMessage: RuntimeEvent;
+        onDisconnect: RuntimeEvent;
+        postMessage(message: any): void;
     }
 
     class BrowserStorage {
@@ -41,4 +57,4 @@ declare namespace Browser {
     }
 }
 
-declare var browser: Browser.Browser;
+declare const browser: Browser.Browser;
