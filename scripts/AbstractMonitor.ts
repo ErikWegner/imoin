@@ -23,6 +23,7 @@ export abstract class AbstractMonitor implements IMonitor {
             function () {
                 fetchfunc().then(
                     (status: Monitor.MonitorData) => {
+                        status.updateCounters();
                         e.displayStatus(status);
                     }
                 )
