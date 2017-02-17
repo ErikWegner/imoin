@@ -6,6 +6,15 @@ declare namespace Browser {
         runtime: Runtime;
         storage: BrowserStorage;
         browserAction: BrowserAction;
+        windows: Windows;
+    }
+
+    type WindowsCreateOptions = {
+        url?: string
+    }
+
+    class Windows {
+        create(options: WindowsCreateOptions): void
     }
 
     class Tabs {
@@ -14,7 +23,9 @@ declare namespace Browser {
 
     class Runtime {
         onConnect: RuntimeEvent;
-        connect(extensionId?: string, connectInfo? : {name?: string, includeTlsChannelId?: boolean}): Port
+        connect(extensionId?: string, connectInfo? : {name?: string, includeTlsChannelId?: boolean}): Port;
+        openOptionsPage(): void;
+        getURL(url: string): string;
     }
 
     class MessageSender {

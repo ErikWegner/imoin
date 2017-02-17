@@ -1,8 +1,8 @@
 {
 
   "manifest_version": 2,
-  "name": "imoin",
-  "version": "16.0.0",
+  "name": "imoin WebExtensions",
+  "version": "16.0.1",
 
   "description": "Monitor your icinga or nagios instance.",
 
@@ -39,7 +39,7 @@
 
   "applications": {
     "gecko": {
-      "id": "jid1-4gPoRFTL1bn7nA@jetpack",
+      "id": "imoin_we@ewus.de",
       "strict_min_version": "45.0"
     }
   }

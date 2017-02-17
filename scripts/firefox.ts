@@ -71,19 +71,23 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
             (resolve, reject) => {
                 /* Change the array of keys to match the options.js */
                 let gettingItem = browser.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"]);
-                gettingItem.then(function (settings: Settings) {
-                        console.log("Settings loaded");
-                        let clone = JSON.parse(JSON.stringify(settings));
-                        if (clone.password) clone.password = "*****";
-                        console.log(clone);
-                        // success
-                        resolve(settings);
-                    }, function (error: any) {
-                        console.error("Loading settings failed");
-                        console.error(error);
-                        reject(error)
-                    }
-                )
+                if (gettingItem) {
+                    gettingItem.then(function (settings: Settings) {
+                            console.log("Settings loaded");
+                            let clone = JSON.parse(JSON.stringify(settings));
+                            if (clone.password) clone.password = "*****";
+                            console.log(clone);
+                            // success
+                            resolve(settings);
+                        }, function (error: any) {
+                            console.error("Loading settings failed");
+                            console.error(error);
+                            reject(error)
+                        }
+                    )
+                } else {
+                    console.error("Storage not available");
+                }
             }
         );
 
