@@ -102,8 +102,10 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
             (resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 xhr.open("GET", url, true);
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
-                xhr.withCredentials = true;
+                if (username) {
+                    xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+                    xhr.withCredentials = true;
+                }
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
                         if (xhr.status == 200) {
@@ -123,8 +125,10 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
             (resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 xhr.open("POST", url, true);
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
-                xhr.withCredentials = true;
+                if (username) {
+                    xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+                    xhr.withCredentials = true;
+                }
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
                         if (xhr.status == 200) {

@@ -3,6 +3,7 @@ import {Firefox} from "./firefox";
 import {Settings} from "./Settings";
 import {IMonitor} from "./IMonitor";
 import {IcingaApi} from "./icingaapi";
+import {IcingaCgi} from "./icingacgi";
 
 /**
  * Connecting all pieces together
@@ -11,6 +12,10 @@ import {IcingaApi} from "./icingaapi";
 function resolveMonitor(settings: Settings): IMonitor {
     if (settings.icingaversion == "api1") {
         return new IcingaApi();
+    }
+
+    if (settings.icingaversion == "cgi") {
+        return new IcingaCgi();
     }
 
     return null;
