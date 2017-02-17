@@ -68,7 +68,7 @@ export class IcingaApi extends AbstractMonitor {
                         resolve(this.processData(hostdata, servicedata));
                     })
                     .catch(a => {
-                        resolve(Monitor.ErrorMonitorData(a[0] + "|" + a[1]));
+                        resolve(Monitor.ErrorMonitorData("Connection error. Check settings. " + a[0] + "|" + a[1]));
                     })
             }
         );

@@ -48,7 +48,7 @@ export class IcingaCgi extends AbstractMonitor {
                         resolve(this.processData(JSON.parse(a)));
                     })
                     .catch(a => {
-                        resolve(Monitor.ErrorMonitorData(a));
+                        resolve(Monitor.ErrorMonitorData("Connection error. Check settings. " + a));
                     })
             }
         );
@@ -96,10 +96,10 @@ export class IcingaCgi extends AbstractMonitor {
         return m;
     }
 
-    private ProcessResponse_1_10(response : IIcingaCgiJson, status : Monitor.MonitorData) {
+    private ProcessResponse_1_10(response: IIcingaCgiJson, status: Monitor.MonitorData) {
         var hso;
 
-        function processHoststatus(hoststatus : IIcingaCgiHostStatusJson, settings: Settings) : Monitor.Host {
+        function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, settings: Settings): Monitor.Host {
             hso = new Monitor.Host(hoststatus.host_display_name);
             hso.status = hoststatus.status;
             hso.checkresult = hoststatus.status_information;
@@ -108,7 +108,7 @@ export class IcingaCgi extends AbstractMonitor {
             return hso;
         }
 
-        function processServicestatus(servicestatus : IIcingaCgiServiceStatusJson, settings: Settings) {
+        function processServicestatus(servicestatus: IIcingaCgiServiceStatusJson, settings: Settings) {
             let hoststatus = status.getHostByName(servicestatus.host_name);
             let service = new Monitor.Service(servicestatus.service_description);
             hoststatus.addService(service);
