@@ -4,6 +4,5 @@ requirejs.config({
     skipDataMain: true
 });
 
-require(['main'], function (main: any) {
-    console.log("all js loaded");
+require(['firefox', 'main'], function () {
 });

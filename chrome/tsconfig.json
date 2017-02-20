@@ -8,9 +8,9 @@
     "outFile": "mainall.js"
   },
   "include": [
-    "../scripts/firefox.ts",
+    "../scripts/chrome.ts",
     "../scripts/main.ts",
-    "../scripts/requireInitFirefox.ts"
+    "../scripts/requireInitChrome.ts"
   ],
   "exclude": [
     "node_modules",

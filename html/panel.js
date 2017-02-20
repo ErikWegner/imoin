@@ -1,5 +1,7 @@
+var host = chrome || browser;
+
 // This script runs at the moment that the popup is displayed
-const myPort = browser.runtime.connect({name: "port-from-panel", includeTlsChannelId: false});
+const myPort = host.runtime.connect({name: "port-from-panel", includeTlsChannelId: false});
 myPort.onMessage.addListener(function (message) {
     var command = message.command || "";
     var data = message.data || {};

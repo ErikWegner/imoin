@@ -1,5 +1,4 @@
-import {IEnvironment} from "./IEnvironment";
-import {Firefox} from "./firefox";
+import {EnvironmentFactory} from "./IEnvironment";
 import {Settings} from "./Settings";
 import {IMonitor} from "./IMonitor";
 import {IcingaApi} from "./icingaapi";
@@ -21,11 +20,10 @@ function resolveMonitor(settings: Settings): IMonitor {
     return null;
 }
 
-var e: IEnvironment = new Firefox();
+var e = EnvironmentFactory.get();
 var monitor: IMonitor = null;
 
 function start() {
-    console.log("start");
     if (monitor != null) {
         monitor.shutdown();
     }
