@@ -10,7 +10,7 @@ import {UICommand} from "./UICommand";
  * Implementation for Firefox
  */
 export class Firefox extends AbstractWebExtensionsEnvironment {
-    private portFromPanel: Browser.Port;
+    private portFromPanel: WebExtension.Port;
     private dataBuffer: Monitor.MonitorData;
 
     constructor() {
@@ -19,7 +19,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
 
     }
 
-    connected(p: Browser.Port) {
+    connected(p: WebExtension.Port) {
         console.log("Firefox.connected (panel opened)");
         const me = this;
         this.portFromPanel = p;

@@ -9,7 +9,7 @@
   },
   "include": [
     "../scripts/main.ts",
-    "../scripts/requireInitFirefox.ts"
+    "../scripts/requireInitChrome.ts"
   ],
   "exclude": [
     "node_modules",

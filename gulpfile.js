@@ -13,6 +13,13 @@ gulp.task('firefox-scripts', function () {
     return tsResult.js.pipe(gulp.dest(targetpaths.target));
 });
 
+gulp.task('chrome-scripts', function () {
+    var tsResult = tsProject.src()
+        .pipe(tsProject());
+
+    return tsResult.js.pipe(gulp.dest(targetpaths.target));
+});
+
 gulp.task('firefox-setpaths', function() {
   tsProject = ts.createProject('firefox/tsconfig.json');
   targetpaths.target = 'release/firefox';
@@ -20,21 +27,45 @@ gulp.task('firefox-setpaths', function() {
   targetpaths.html = targetpaths.target + '/html'
 });
 
+gulp.task('chrome-setpaths', function() {
+    tsProject = ts.createProject('chrome/tsconfig.json');
+    targetpaths.target = 'release/chrome';
+    targetpaths.icons = targetpaths.target + '/icons'
+    targetpaths.html = targetpaths.target + '/html'
+});
+
 gulp.task('copy-icons', function() {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
 })
 
-gulp.task('firefox-copy-html', ['firefox-setpaths'], function () {
+gulp.task('copy-html', function () {
     return gulp
-        .src(['firefox/html/**/*'])
+        .src(['html/**/*'])
         .pipe(gulp.dest(targetpaths.html))
+})
+
+gulp.task('chrome', [
+    'chrome-setpaths',
+    'copy-icons',
+    'chrome-scripts',
+    'copy-html',
+], function () {
+    return es.concat(
+        gulp
+            .src([
+                'chrome/manifest.json',
+                'chrome/manifest.json',
+                'vendor/require.js'
+            ])
+            .pipe(gulp.dest(targetpaths.target))
+    )
 })
 
 gulp.task('firefox', [
     'firefox-setpaths', 
     'copy-icons', 
     'firefox-scripts',
-    'firefox-copy-html',
+    'copy-html',
     ], function () {
         return es.concat(
             gulp
@@ -53,7 +84,17 @@ gulp.task('firefox-watch', [
     ], function () {
 
         gulp.watch('scripts/*.ts', ['firefox-scripts'])
-        gulp.watch('firefox/html/*', ['firefox-copy-html'])
+        gulp.watch('html/*', ['copy-html'])
+
+})
+
+gulp.task('chrome-watch', [
+    'chrome-setpaths',
+    'chrome-scripts',
+    ], function () {
+
+        gulp.watch('scripts/*.ts', ['chrome-scripts'])
+        gulp.watch('html/*', ['copy-html'])
 
 })
 
@@ -62,6 +103,11 @@ gulp.task('clean-firefox', ['firefox-setpaths'], function() {
     .pipe(clean());
 })
 
-gulp.task('clean', ['clean-firefox'], function() {
+gulp.task('clean-chrome', ['chrome-setpaths'], function() {
+    return gulp.src(targetpaths.target, {read: false})
+    .pipe(clean());
+})
+
+gulp.task('clean', ['clean-firefox', 'clean-chrome'], function() {
     
 })

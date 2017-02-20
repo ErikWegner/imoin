@@ -1,0 +1,40 @@
+{
+
+  "manifest_version": 2,
+  "name": "imoin WebExtensions",
+  "version": "16.0.2",
+
+  "description": "Monitor your icinga or nagios instance.",
+
+  "icons": {
+    "48": "icons/icon-48.png"
+  },
+
+  "background": {
+    "scripts": [
+      "require.js",
+      "mainall.js"
+    ]
+  },
+
+  "browser_action": {
+    "browser_style": false,
+    "default_popup": "html/panel.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+
+  "options_ui": {
+    "page": "html/options.html"
+  },
+
+  "permissions": [
+    "alarms",
+    "storage",
+    "https://*/",
+    "http://*/"
+  ]
+
+}
