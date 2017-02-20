@@ -3,6 +3,7 @@ var ts = require('gulp-typescript');
 var tsProject;
 var clean = require('gulp-clean');
 var es = require('event-stream');
+const zip = require('gulp-zip');
 
 var targetpaths = {};
 
@@ -97,6 +98,14 @@ gulp.task('chrome-watch', [
         gulp.watch('html/*', ['copy-html'])
 
 })
+
+gulp.task('chrome-package', [
+    'chrome'
+    ], function() {
+        return gulp.src(targetpaths.target + '/**/*')
+            .pipe(zip('imoin.zip'))
+            .pipe(gulp.dest(targetpaths.target + '/artifacts/'));
+    });
 
 gulp.task('clean-firefox', ['firefox-setpaths'], function() {
     return gulp.src(targetpaths.target, {read: false})
