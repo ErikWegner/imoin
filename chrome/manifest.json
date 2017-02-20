@@ -35,13 +35,6 @@
     "storage",
     "https://*/",
     "http://*/"
-  ],
-
-  "applications": {
-    "gecko": {
-      "id": "imoin_we@ewus.de",
-      "strict_min_version": "45.0"
-    }
-  }
+  ]
 
 }

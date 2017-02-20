@@ -31,3 +31,20 @@ export interface IEnvironment {
     onUICommand(callback: (param: UICommand) => void): void;
 
 }
+
+export class EnvironmentFactory {
+    private static callback: () => IEnvironment = null;
+    private static environment: IEnvironment = null;
+
+    static registerFactory(callback:() => IEnvironment) {
+        callback = callback;
+    }
+
+    static get() : IEnvironment {
+       if (EnvironmentFactory.environment == null && EnvironmentFactory.callback != null) {
+           EnvironmentFactory.environment = EnvironmentFactory.callback();
+       }
+
+       return EnvironmentFactory.environment;
+    }
+}
