@@ -57,7 +57,7 @@ declare namespace WebExtension {
     }
 
     class BrowserAction {
-        setIcon(icon: {path: {32: string, 16: string}}): void
+        setIcon(icon: {path: {32: string, 24?: string, 16: string}}): void
         setBadgeText(badge: {text: string}): void
         setBadgeBackgroundColor(details: {color: string}): void
     }

@@ -11,6 +11,15 @@ import {EnvironmentFactory} from "./IEnvironment";
  */
 export class Chrome extends AbstractWebExtensionsEnvironment {
 
+    protected host = chrome
+
+    protected console = chrome.extension.getBackgroundPage().console;
+
+    constructor() {
+        super();
+        chrome.runtime.onConnect.addListener(this.connected.bind(this));
+    }
+    
     loadSettings(): Promise<Settings> {
         return new Promise<Settings>(
             (resolve, reject) => {
@@ -41,12 +50,10 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
     displayStatus(data: Monitor.MonitorData): void {
         console.log("Chrome.displayStatus");
-        console.log(data);
-    }
-
-    console() {
-        return chrome.extension.getBackgroundPage().console;
-    }
+        this.dataBuffer = data;
+        this.updateIconAndBadgetext();
+        this.trySendDataToPopup();
+    }    
 }
 
 EnvironmentFactory.registerFactory(() => new Chrome());

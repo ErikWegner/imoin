@@ -210,3 +210,7 @@ tr.service td.OK {
     display: inline-block;
     background: url('../icons/ack.png');
 }
+
+body {
+    min-width: 400px;
+}
