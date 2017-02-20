@@ -5,6 +5,7 @@ import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
 import Status = Monitor.Status;
 import {UICommand} from "./UICommand";
+import {EnvironmentFactory} from "./IEnvironment";
 
 /**
  * Implementation for Firefox
@@ -101,54 +102,6 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         this.removeAlarm(browser);
     }
 
-    load(url: string, username: string, password: string): Promise<string> {
-        return new Promise<string>(
-            (resolve, reject) => {
-                let xhr = new XMLHttpRequest();
-                xhr.open("GET", url, true);
-                if (username) {
-                    xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
-                    xhr.withCredentials = true;
-                }
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            resolve(xhr.responseText);
-                        } else {
-                            reject(xhr.responseText);
-                        }
-                    }
-                };
-                xhr.send();
-            }
-        );
-    }
-
-    post(url: string, data: any, username: string, password: string): Promise<string> {
-        return new Promise<string>(
-            (resolve, reject) => {
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", url, true);
-                if (username) {
-                    xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
-                    xhr.withCredentials = true;
-                }
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            resolve(xhr.responseText);
-                        } else {
-                            reject(xhr.responseText);
-                        }
-                    }
-                };
-                xhr.setRequestHeader("Content-Type", "application/json");
-                xhr.send(JSON.stringify(data));
-            }
-        )
-    }
-
-
     protected trySendDataToPopup() {
         if (this.portFromPanel) {
             this.portFromPanel.postMessage({command: "ProcessStatusUpdate", data: this.dataBuffer})
@@ -186,3 +139,5 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         browser.browserAction.setBadgeBackgroundColor({color: badgeColor});
     }
 }
+
+EnvironmentFactory.registerFactory(() => new Firefox());

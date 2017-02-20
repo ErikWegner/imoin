@@ -8,6 +8,7 @@
     "outFile": "mainall.js"
   },
   "include": [
+    "../scripts/firefox.ts",
     "../scripts/main.ts",
     "../scripts/requireInitFirefox.ts"
   ],

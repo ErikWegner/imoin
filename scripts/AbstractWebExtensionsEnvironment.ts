@@ -17,15 +17,17 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
 
     abstract stopTimer(): void
 
+    abstract console(): Console
+
     handleAlarm() {
-        console.log("Periodic alarm");
+        this.debug("Periodic alarm");
         if (this.onAlarmCallback != null) {
             this.onAlarmCallback();
         }
     }
 
     addAlarm(webExtension: any, delay: number, callback: () => void): void {
-        console.log("Adding alarm every " + delay + " minutes");
+        this.debug("Adding alarm every " + delay + " minutes");
         this.onAlarmCallback = callback;
         webExtension.alarms.create(
             "imoin",
@@ -33,12 +35,12 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
                 periodInMinutes: delay
             }
         );
-        console.log("Adding alarm listener");
+        this.debug("Adding alarm listener");
         const me = this;
         webExtension.alarms.onAlarm.addListener(function () {
             me.handleAlarm()
         });
-        console.log("Triggering immediate update");
+        this.debug("Triggering immediate update");
         callback();
     }
 
@@ -69,7 +71,62 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
 
     abstract displayStatus(data: Monitor.MonitorData): void
 
-    abstract load(url: string, username: string, password: string): Promise<string>
+    load(url: string, username: string, password: string): Promise<string> {
+        return new Promise<string>(
+            (resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                if (username) {
+                    xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+                    xhr.withCredentials = true;
+                }
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            resolve(xhr.responseText);
+                        } else {
+                            reject(xhr.responseText);
+                        }
+                    }
+                };
+                xhr.send();
+            }
+        );
+    }
 
-    abstract post(url: string, data: any, username: string, password: string): Promise<string>
+    post(url: string, data: any, username: string, password: string): Promise<string> {
+        return new Promise<string>(
+            (resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                if (username) {
+                    xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+                    xhr.withCredentials = true;
+                }
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            resolve(xhr.responseText);
+                        } else {
+                            reject(xhr.responseText);
+                        }
+                    }
+                };
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify(data));
+            }
+        )
+    }
+
+    debug(o: any) {
+        this.console().debug(o);
+    }
+
+    log(o: any) {
+        this.console().log(o);
+    }
+
+    error(o: any) {
+        this.console().error(o);
+    }
 }

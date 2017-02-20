@@ -1,4 +1,4 @@
-/// <reference path="definitions/firefox-webextension/index.d.ts" />
+/// <reference path="definitions/chrome-webextension/index.d.ts" />
 
 import {AbstractWebExtensionsEnvironment} from "./AbstractWebExtensionsEnvironment";
 import {Settings} from "./Settings";
@@ -12,24 +12,40 @@ import {EnvironmentFactory} from "./IEnvironment";
 export class Chrome extends AbstractWebExtensionsEnvironment {
 
     loadSettings(): Promise<Settings> {
-        return null;
+        return new Promise<Settings>(
+            (resolve, reject) => {
+                chrome.storage.local.get(
+                    ["timerPeriod", "icingaversion", "url", "username", "password", "hostgroup"],
+                    items => {
+                        let settings = new Settings(
+                            items["timerPeriod"],
+                            items["icingaversion"],
+                            items["url"],
+                            items["username"],
+                            items["password"],
+                            items["hostgroup"]
+                        );
+                        resolve(settings);
+                    })
+            }
+        )
     }
 
     initTimer(delay: number, callback: () => void): void {
+        this.addAlarm(chrome, delay, callback);
     }
 
     stopTimer(): void {
+        this.removeAlarm(chrome);
     }
 
     displayStatus(data: Monitor.MonitorData): void {
+        console.log("Chrome.displayStatus");
+        console.log(data);
     }
 
-    load(url: string, username: string, password: string): Promise<string> {
-        return null;
-    }
-
-    post(url: string, data: any, username: string, password: string): Promise<string> {
-        return null;
+    console() {
+        return chrome.extension.getBackgroundPage().console;
     }
 }
 

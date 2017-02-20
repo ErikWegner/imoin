@@ -8,6 +8,7 @@
     "outFile": "mainall.js"
   },
   "include": [
+    "../scripts/chrome.ts",
     "../scripts/main.ts",
     "../scripts/requireInitChrome.ts"
   ],

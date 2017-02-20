@@ -30,6 +30,9 @@ export interface IEnvironment {
     /* UICommand for the monitor instance */
     onUICommand(callback: (param: UICommand) => void): void;
 
+    debug(o: any): void;
+    log(o: any): void;
+    error(o: any): void;
 }
 
 export class EnvironmentFactory {
@@ -37,7 +40,7 @@ export class EnvironmentFactory {
     private static environment: IEnvironment = null;
 
     static registerFactory(callback:() => IEnvironment) {
-        callback = callback;
+        EnvironmentFactory.callback = callback;
     }
 
     static get() : IEnvironment {

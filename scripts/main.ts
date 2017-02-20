@@ -24,7 +24,6 @@ var e = EnvironmentFactory.get();
 var monitor: IMonitor = null;
 
 function start() {
-    console.log("start");
     if (monitor != null) {
         monitor.shutdown();
     }

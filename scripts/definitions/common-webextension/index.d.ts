@@ -7,10 +7,15 @@ declare namespace WebExtension {
         storage: BrowserStorage;
         browserAction: BrowserAction;
         windows: Windows;
+        extension: Extension;
     }
 
     type WindowsCreateOptions = {
         url?: string
+    }
+
+    class Extension {
+        getBackgroundPage(): Window;
     }
 
     class Windows {
@@ -47,7 +52,8 @@ declare namespace WebExtension {
     }
 
     class StorageArea {
-        get(keys: string | Array<string>): Promise<any>
+        get(keys: string | Array<string>): Promise<any>;
+        get(keys: string | Array<string>, callback: (items: any) => void): void;
     }
 
     class BrowserAction {
