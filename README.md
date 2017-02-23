@@ -7,7 +7,7 @@ This is the branch for the WebExtenions version, which is currently under develo
 
 Homepage is at https://ewus.de/en/sw/imoin
 
-!Screenshot(docs/photo1.png)
+![Screenshot](docs/photo1.png)
 
 Use one of these browsers:
 
