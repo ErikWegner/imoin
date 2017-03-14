@@ -3,7 +3,7 @@ var ts = require('gulp-typescript');
 var tsProject;
 var clean = require('gulp-clean');
 var es = require('event-stream');
-//const zip = require('gulp-zip');
+const zip = require('gulp-zip');
 
 var targetpaths = {};
 
