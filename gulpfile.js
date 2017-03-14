@@ -3,18 +3,11 @@ var ts = require('gulp-typescript');
 var tsProject;
 var clean = require('gulp-clean');
 var es = require('event-stream');
-const zip = require('gulp-zip');
+//const zip = require('gulp-zip');
 
 var targetpaths = {};
 
-gulp.task('firefox-scripts', function () {
-    var tsResult = tsProject.src()
-        .pipe(tsProject());
-
-    return tsResult.js.pipe(gulp.dest(targetpaths.target));
-});
-
-gulp.task('chrome-scripts', function () {
+gulp.task('ts-scripts', function () {
     var tsResult = tsProject.src()
         .pipe(tsProject());
 
@@ -35,6 +28,13 @@ gulp.task('chrome-setpaths', function() {
     targetpaths.html = targetpaths.target + '/html'
 });
 
+gulp.task('electron-setpaths', function() {
+  tsProject = ts.createProject('electron/tsconfig.json');
+  targetpaths.target = 'release/electron';
+  targetpaths.icons = targetpaths.target + '/icons'
+  targetpaths.html = targetpaths.target + '/html'
+});
+
 gulp.task('copy-icons', function() {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
 })
@@ -48,7 +48,7 @@ gulp.task('copy-html', function () {
 gulp.task('chrome', [
     'chrome-setpaths',
     'copy-icons',
-    'chrome-scripts',
+    'ts-scripts',
     'copy-html',
 ], function () {
     return es.concat(
@@ -65,7 +65,7 @@ gulp.task('chrome', [
 gulp.task('firefox', [
     'firefox-setpaths', 
     'copy-icons', 
-    'firefox-scripts',
+    'ts-scripts',
     'copy-html',
     ], function () {
         return es.concat(
@@ -79,22 +79,49 @@ gulp.task('firefox', [
         
 })
 
+
+gulp.task('electron', [
+    'electron-setpaths', 
+    'copy-icons', 
+    'ts-scripts',
+    'copy-html',
+    ], function () {
+        return es.concat(
+            gulp
+                .src([
+                    'electron/package.json'
+                    ])
+                .pipe(gulp.dest(targetpaths.target))
+        )
+        
+})
+
 gulp.task('firefox-watch', [
     'firefox-setpaths',
-    'firefox-scripts',
+    'ts-scripts',
     ], function () {
 
-        gulp.watch('scripts/*.ts', ['firefox-scripts'])
+        gulp.watch('scripts/*.ts', ['ts-scripts'])
         gulp.watch('html/*', ['copy-html'])
 
 })
 
 gulp.task('chrome-watch', [
     'chrome-setpaths',
-    'chrome-scripts',
+    'ts-scripts',
     ], function () {
 
-        gulp.watch('scripts/*.ts', ['chrome-scripts'])
+        gulp.watch('scripts/*.ts', ['ts-scripts'])
+        gulp.watch('html/*', ['copy-html'])
+
+})
+
+gulp.task('electron-watch', [
+    'electron-setpaths',
+    'ts-scripts',
+    ], function () {
+
+        gulp.watch('scripts/*.ts', ['ts-scripts'])
         gulp.watch('html/*', ['copy-html'])
 
 })
@@ -117,6 +144,15 @@ gulp.task('clean-chrome', ['chrome-setpaths'], function() {
     .pipe(clean());
 })
 
-gulp.task('clean', ['clean-firefox', 'clean-chrome'], function() {
+gulp.task('clean-electron', ['electron-setpaths'], function() {
+    return gulp.src(targetpaths.target, {read: false})
+    .pipe(clean());
+})
+
+gulp.task('clean', [
+    'clean-firefox', 
+    'clean-chrome', 
+    'clean-electron'
+    ], function() {
     
 })

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": false,
+    "moduleResolution": "node"
+  },
+  "include": [
+    "../scripts/Settings.ts",
+    "../scripts/MonitorData.ts",
+    "../scripts/AbstractMonitor.ts",
+    "../scripts/icingacgi.ts",
+    "../scripts/icingaapi.ts",
+    "../scripts/IEnvironment.ts",
+    "../scripts/electron.ts",
+    "../scripts/main.ts",
+    "../scripts/requireInitElectron.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
+}
