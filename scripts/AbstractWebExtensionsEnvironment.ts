@@ -1,3 +1,5 @@
+/// <reference path="definitions/firefox-webextension/index.d.ts" />
+
 import {IEnvironment} from "./IEnvironment";
 import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";

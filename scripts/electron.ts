@@ -17,7 +17,12 @@ export class Electron implements IEnvironment {
         throw new Error('Method not implemented.');
     }
     loadSettings(): Promise<Settings> {
-        throw new Error('Method not implemented.');
+        return new Promise<Settings>(
+            (resolve, reject) => {
+                //resolve(new Settings(5, "api1", "", "user", "pass"));
+                reject("Not implemented");
+            }
+        );
     }
     displayStatus(data: Monitor.MonitorData): void {
         throw new Error('Method not implemented.');
