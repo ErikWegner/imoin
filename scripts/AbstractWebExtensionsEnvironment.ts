@@ -31,8 +31,8 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
         switch (this.dataBuffer.state) {
             case Status.GREEN:
                 path = "ok";
-                /*badgeText = "" + this.dataBuffer.hostup;
-                 badgeColor = "#83b225";*/
+                /*badgeText = "" + this.dataBuffer.hostup;*/
+                 badgeColor = "#83b225";
                 break;
             case Status.YELLOW:
                 path = "warn";
@@ -52,12 +52,8 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
                 "32": "icons/icon-32" + path + ".png"
             }
         });
-        if (badgeText) {
-            this.host.browserAction.setBadgeText({text: badgeText});
-        }
-        if (badgeColor) {
-            this.host.browserAction.setBadgeBackgroundColor({color: badgeColor});
-        }
+        this.host.browserAction.setBadgeText({text: badgeText});
+        this.host.browserAction.setBadgeBackgroundColor({color: badgeColor});
     }
 
     
