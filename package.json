@@ -13,6 +13,7 @@
     "package:chrome": "gulp clean-chrome && gulp chrome-package",
     "sign:firefox": "npm run package:firefox && web-ext sign --source-dir release/firefox --api-key=${npm_config_AMO_JWT_ISSUER} --api-secret=${npm_config_AMO_JWT_SECRET}",
     "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
+    "run:desktop": "cd desktop && electron .",
     "clean": "gulp clean"
   },
   "repository": {
@@ -26,6 +27,7 @@
   "author": "Erik Wegner",
   "license": "ISC",
   "dependencies": {
+    "electron": "^1.6.1",
     "event-stream": "^3.3.4",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
