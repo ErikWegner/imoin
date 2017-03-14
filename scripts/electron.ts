@@ -14,6 +14,7 @@ import path = require('path')
 export class ElectronApp implements IEnvironment {
     private app = Electron.app
     private tray: Electron.Tray
+    private mainWindow: Electron.BrowserWindow
 
     constructor() {
         let i = this;
@@ -81,6 +82,25 @@ export class ElectronApp implements IEnvironment {
         ]);
         this.tray.setToolTip('Imoin');
         this.tray.setContextMenu(contextMenu);
+        this.tray.on('click', () => { i.showMainWindow(); })
+    }
+
+    showMainWindow(): void {
+        let i = this;
+        if (this.mainWindow == null) {
+            this.mainWindow = new Electron.BrowserWindow({ width: 800, height: 600 })
+            // Emitted when the window is closed.
+            this.mainWindow.on('close', function (e: Event) {
+                e.preventDefault();
+                i.mainWindow.hide();
+                // Dereference the window object, usually you would store windows
+                // in an array if your app supports multi windows, this is the time
+                // when you should delete the corresponding element.
+                i.mainWindow = null
+            })
+        }
+
+        this.mainWindow.show()
     }
 }
 
