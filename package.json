@@ -29,7 +29,7 @@
   "author": "Erik Wegner",
   "license": "ISC",
   "dependencies": {
-    "electron": "^1.6.1",
+    "electron": "^1.6.3",
     "event-stream": "^3.3.4",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
