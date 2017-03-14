@@ -16,6 +16,8 @@ export class ElectronApp implements IEnvironment {
     private tray: Electron.Tray
     private mainWindow: Electron.BrowserWindow
 
+    private isQuitting = false
+
     constructor() {
         let i = this;
         this.app.on('ready', function () {
@@ -68,6 +70,7 @@ export class ElectronApp implements IEnvironment {
     }
 
     quit(): void {
+        this.isQuitting = true;
         this.app.quit();
     }
 
@@ -91,12 +94,15 @@ export class ElectronApp implements IEnvironment {
             this.mainWindow = new Electron.BrowserWindow({ width: 800, height: 600 })
             // Emitted when the window is closed.
             this.mainWindow.on('close', function (e: Event) {
-                e.preventDefault();
-                i.mainWindow.hide();
-                // Dereference the window object, usually you would store windows
-                // in an array if your app supports multi windows, this is the time
-                // when you should delete the corresponding element.
-                i.mainWindow = null
+                if (i.isQuitting == false) {
+                    e.preventDefault();
+                    i.mainWindow.hide();
+                } else {
+                    // Dereference the window object, usually you would store windows
+                    // in an array if your app supports multi windows, this is the time
+                    // when you should delete the corresponding element.
+                    i.mainWindow = null
+                }
             })
         }
 
