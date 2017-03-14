@@ -1,14 +1,15 @@
-var gulp = require('gulp');
-var ts = require('gulp-typescript');
-var tsProject;
-var clean = require('gulp-clean');
-var es = require('event-stream');
+const gulp = require('gulp');
+const ts = require('gulp-typescript');
+const clean = require('gulp-clean');
+const es = require('event-stream');
 const zip = require('gulp-zip');
+const electron = require('electron-connect').server.create();
 
-var targetpaths = {};
+let tsProject;
+let targetpaths = {};
 
 gulp.task('ts-scripts', function () {
-    var tsResult = tsProject.src()
+    let tsResult = tsProject.src()
         .pipe(tsProject());
 
     return tsResult.js.pipe(gulp.dest(targetpaths.target));
