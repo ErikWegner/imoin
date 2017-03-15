@@ -7,6 +7,7 @@ import { Monitor } from "./MonitorData";
 import { UICommand } from "./UICommand";
 import Electron = require('electron')
 import path = require('path')
+import url = require('url')
 
 /**
  * Implementation for Electron (Desktop)
@@ -15,6 +16,7 @@ export class ElectronApp implements IEnvironment {
     private app = Electron.app
     private tray: Electron.Tray
     private mainWindow: Electron.BrowserWindow
+    private cfgWindow: Electron.BrowserWindow
 
     private isQuitting = false
 
@@ -78,14 +80,35 @@ export class ElectronApp implements IEnvironment {
         let i = this;
         this.tray = new Electron.Tray(path.join(__dirname, 'icons', 'icon-64.png'));
         const contextMenu = Electron.Menu.buildFromTemplate([
-            { label: 'Item1', type: 'radio' },
-            { label: 'Item2', type: 'radio' },
+            { label: 'Status', click() { i.showMainWindow(); } },
+            { label: 'Configure', click() { i.showCfgWindow(); } },
             { type: 'separator' },
             { label: 'Quit', click() { i.quit() } }
         ]);
         this.tray.setToolTip('Imoin');
         this.tray.setContextMenu(contextMenu);
         this.tray.on('click', () => { i.showMainWindow(); })
+    }
+
+    showCfgWindow(): void {
+        let i = this;
+        if (this.cfgWindow == null) {
+            this.cfgWindow = new Electron.BrowserWindow();
+            this.cfgWindow.loadURL(url.format({
+                pathname: path.join(__dirname, 'html', 'options.html'),
+                protocol: 'file:',
+                slashes: true
+            }))
+            this.cfgWindow.on('close', (e: Event) => {
+                if (i.isQuitting == false) {
+                    e.preventDefault();
+                    i.cfgWindow.hide();
+                } else {
+                    i.cfgWindow = null
+                }
+            })
+        }
+        this.cfgWindow.show();
     }
 
     showMainWindow(): void {
@@ -104,6 +127,13 @@ export class ElectronApp implements IEnvironment {
                     i.mainWindow = null
                 }
             })
+
+            // and load the index.html of the app.
+            this.mainWindow.loadURL(url.format({
+                pathname: path.join(__dirname, 'html', 'panel.html'),
+                protocol: 'file:',
+                slashes: true
+            }))
         }
 
         this.mainWindow.show()
