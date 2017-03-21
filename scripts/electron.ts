@@ -6,8 +6,10 @@ import { Settings } from "./Settings";
 import { Monitor } from "./MonitorData";
 import { UICommand } from "./UICommand";
 import Electron = require('electron')
+const { ipcMain } = require('electron');
 import path = require('path')
 import url = require('url')
+
 
 /**
  * Implementation for Electron (Desktop)
@@ -17,13 +19,16 @@ export class ElectronApp implements IEnvironment {
     private tray: Electron.Tray
     private mainWindow: Electron.BrowserWindow
     private cfgWindow: Electron.BrowserWindow
-
+    private onUICommandCallback: (param: UICommand) => void;
     private isQuitting = false
 
     constructor() {
         let i = this;
         this.app.on('ready', function () {
             i.createTrayMenu()
+            ipcMain.addListener('frompanel', (data) => {
+                i.handleMessage(data);
+            })
         });
     }
 
@@ -45,7 +50,7 @@ export class ElectronApp implements IEnvironment {
         );
     }
     displayStatus(data: Monitor.MonitorData): void {
-        // TODO
+        ipcMain.emit('topanel', data);
     }
     load(url: string, username: string, password: string): Promise<string> {
         // TODO
@@ -55,9 +60,17 @@ export class ElectronApp implements IEnvironment {
         // TODO
         return new Promise<String>((resolve, reject) => { });
     }
+
     onUICommand(callback: (param: UICommand) => void): void {
-        // TODO
+        this.onUICommandCallback = callback;
     }
+
+    emitUICommand(param: UICommand) {
+        if (this.onUICommandCallback != null) {
+            this.onUICommandCallback(param);
+        }
+    }
+
 
     debug(o: any): void {
         console.debug(o);
@@ -138,6 +151,34 @@ export class ElectronApp implements IEnvironment {
 
         this.mainWindow.show()
     }
+
+    protected handleMessage(data: any) {
+        const command = data.command || "";
+        this.debug(data);
+/*        if (command == "triggerRefresh") {
+            this.handleAlarm();
+        }
+
+        if (command == "triggerOpenPage") {
+            if (typeof (command.url) !== "undefined" && command.url != "") {
+                this.host.tabs.create({
+                    url: request.url
+                });
+            }
+        }
+
+        if (command == "triggerCmdExec") {
+            let c = new UICommand;
+            c.command = request.remoteCommand;
+            c.hostname = request.hostname;
+            c.servicename = request.servicename;
+        }
+
+        if (command == "SettingsChanged") {
+            this.notifySettingsChanged();
+        }*/
+    }
+
 }
 
 EnvironmentFactory.registerFactory(() => new ElectronApp());
