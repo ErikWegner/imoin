@@ -46,6 +46,8 @@ export class ElectronApp extends AbstractEnvironment {
     initTimer(delay: number, callback: () => void): void {
         // TODO
         this.debug("initTimer");
+        this.onAlarmCallback = callback;
+        this.handleAlarm();
     }
     stopTimer(): void {
         // TODO

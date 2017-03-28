@@ -81,7 +81,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
             me.handleAlarm()
         });
         this.debug("Triggering immediate update");
-        callback();
+        this.handleAlarm();
     }
 
     removeAlarm(webExtension: any) {
