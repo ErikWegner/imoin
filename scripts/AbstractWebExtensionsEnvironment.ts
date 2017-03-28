@@ -1,27 +1,16 @@
 /// <reference path="definitions/firefox-webextension/index.d.ts" />
 
-import {IEnvironment} from "./IEnvironment";
-import {Settings} from "./Settings";
-import {Monitor} from "./MonitorData";
+import { AbstractEnvironment } from "./AbstractEnvironment";
+import { Settings } from "./Settings";
+import { Monitor } from "./MonitorData";
 import Status = Monitor.Status;
-import {UICommand} from "./UICommand";
+import { UICommand } from "./UICommand";
 
 /**
  * A common implementation
  */
-export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
-    protected dataBuffer: Monitor.MonitorData;
+export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironment {
     protected portFromPanel: WebExtension.Port;
-    protected onSettingsChangedCallback: () => void;
-    private onAlarmCallback: () => void;
-    private onUICommandCallback: (param: UICommand) => void;
-
-    abstract loadSettings(): Promise<Settings>
-
-    abstract initTimer(delay: number, callback: () => void): void
-
-    abstract stopTimer(): void
-
     protected abstract host: WebExtension.WebExtensionBrowser;
 
     protected abstract console: Console;
@@ -34,7 +23,7 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
             case Status.GREEN:
                 path = "ok";
                 /*badgeText = "" + this.dataBuffer.hostup;*/
-                 badgeColor = "#83b225";
+                badgeColor = "#83b225";
                 break;
             case Status.YELLOW:
                 path = "warn";
@@ -54,14 +43,14 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
                 "32": "icons/icon-32" + path + ".png"
             }
         });
-        this.host.browserAction.setBadgeText({text: badgeText});
-        this.host.browserAction.setBadgeBackgroundColor({color: badgeColor});
+        this.host.browserAction.setBadgeText({ text: badgeText });
+        this.host.browserAction.setBadgeBackgroundColor({ color: badgeColor });
     }
 
-    
+
     protected trySendDataToPopup() {
         if (this.portFromPanel) {
-            this.portFromPanel.postMessage({command: "ProcessStatusUpdate", data: this.dataBuffer})
+            this.portFromPanel.postMessage({ command: "ProcessStatusUpdate", data: this.dataBuffer })
         }
     }
 
@@ -75,40 +64,6 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
             me.portFromPanel = null;
         });
         this.trySendDataToPopup();
-    }
-
-    protected handleMessage(request: any, sender: any, sendResponse: (message: any) => void) {
-        const command = request.command || "";
-
-        if (command == "triggerRefresh") {
-            this.handleAlarm();
-        }
-
-        if (command == "triggerOpenPage") {
-            if (typeof (command.url) !== "undefined" && command.url != "") {
-                this.host.tabs.create({
-                    url: request.url
-                });
-            }
-        }
-
-        if (command == "triggerCmdExec") {
-            let c = new UICommand;
-            c.command = request.remoteCommand;
-            c.hostname = request.hostname;
-            c.servicename = request.servicename;
-        }
-
-        if (command == "SettingsChanged") {
-            this.notifySettingsChanged();
-        }
-    }
-
-    handleAlarm() {
-        this.debug("Periodic alarm");
-        if (this.onAlarmCallback != null) {
-            this.onAlarmCallback();
-        }
     }
 
     addAlarm(webExtension: any, delay: number, callback: () => void): void {
@@ -132,33 +87,6 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
     removeAlarm(webExtension: any) {
         webExtension.alarms.clear("imoin");
         webExtension.alarms.onAlarm.removeListener(this.handleAlarm)
-    }
-
-    onSettingsChanged(callback: () => void) {
-        this.onSettingsChangedCallback = callback
-    }
-
-    onUICommand(callback: (param: UICommand) => void): void {
-        this.onUICommandCallback = callback;
-    }
-
-    emitUICommand(param: UICommand) {
-        if (this.onUICommandCallback != null) {
-            this.onUICommandCallback(param);
-        }
-    }
-
-    notifySettingsChanged() {
-        if (this.onSettingsChangedCallback != null) {
-            this.onSettingsChangedCallback();
-        }
-    }
-
-    displayStatus(data: Monitor.MonitorData): void {
-        this.debug("displayStatus");
-        this.dataBuffer = data;
-        this.updateIconAndBadgetext();
-        this.trySendDataToPopup();
     }
 
     load(url: string, username: string, password: string): Promise<string> {
@@ -218,5 +146,11 @@ export abstract class AbstractWebExtensionsEnvironment implements IEnvironment {
 
     error(o: any) {
         this.console.error(o);
+    }
+
+    protected openWebPage(url: string) {
+        this.host.tabs.create({
+            url: url
+        });
     }
 }

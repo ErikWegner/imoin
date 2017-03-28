@@ -14,6 +14,8 @@
     "../scripts/icingacgi.ts",
     "../scripts/icingaapi.ts",
     "../scripts/IEnvironment.ts",
+    "../scripts/AbstractEnvironment.ts",
+    "../scripts/UICommand.ts",
     "../scripts/electron.ts",
     "../scripts/main.ts",
     "../scripts/requireInitElectron.ts"

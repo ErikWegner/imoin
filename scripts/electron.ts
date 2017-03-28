@@ -1,7 +1,8 @@
 /// <reference path="definitions/node/index.d.ts" />
 /// <reference path="definitions/electron/index.d.ts" />
 
-import { IEnvironment, EnvironmentFactory } from "./IEnvironment";
+import { EnvironmentFactory } from "./IEnvironment";
+import { AbstractEnvironment } from "./AbstractEnvironment";
 import { Settings } from "./Settings";
 import { Monitor } from "./MonitorData";
 import { UICommand } from "./UICommand";
@@ -14,15 +15,25 @@ import url = require('url')
 /**
  * Implementation for Electron (Desktop)
  */
-export class ElectronApp implements IEnvironment {
+export class ElectronApp extends AbstractEnvironment {
+    protected updateIconAndBadgetext(): void {
+        this.debug("updateIconAndBadgetext");
+    }
+    protected trySendDataToPopup(): void {
+        ipcMain.emit('topanel', this.dataBuffer);
+    }
+    protected openWebPage(url: string): void {
+        throw new Error('Method not implemented.');
+    }
+
     private app = Electron.app
     private tray: Electron.Tray
     private mainWindow: Electron.BrowserWindow
     private cfgWindow: Electron.BrowserWindow
-    private onUICommandCallback: (param: UICommand) => void;
     private isQuitting = false
 
     constructor() {
+        super();
         let i = this;
         this.app.on('ready', function () {
             i.createTrayMenu()
@@ -34,12 +45,15 @@ export class ElectronApp implements IEnvironment {
 
     initTimer(delay: number, callback: () => void): void {
         // TODO
+        this.debug("initTimer");
     }
     stopTimer(): void {
         // TODO
+        this.debug("stopTimer");
     }
     onSettingsChanged(callback: () => void): void {
         // TODO
+        this.debug("onSettingsChanged");
     }
     loadSettings(): Promise<Settings> {
         return new Promise<Settings>(
@@ -48,9 +62,6 @@ export class ElectronApp implements IEnvironment {
                 //reject("Not implemented");
             }
         );
-    }
-    displayStatus(data: Monitor.MonitorData): void {
-        ipcMain.emit('topanel', data);
     }
     load(url: string, username: string, password: string): Promise<string> {
         // TODO
@@ -61,19 +72,8 @@ export class ElectronApp implements IEnvironment {
         return new Promise<String>((resolve, reject) => { });
     }
 
-    onUICommand(callback: (param: UICommand) => void): void {
-        this.onUICommandCallback = callback;
-    }
-
-    emitUICommand(param: UICommand) {
-        if (this.onUICommandCallback != null) {
-            this.onUICommandCallback(param);
-        }
-    }
-
-
     debug(o: any): void {
-        console.debug(o);
+        console.log(o);
     }
 
     log(o: any): void {
@@ -151,34 +151,6 @@ export class ElectronApp implements IEnvironment {
 
         this.mainWindow.show()
     }
-
-    protected handleMessage(data: any) {
-        const command = data.command || "";
-        this.debug(data);
-/*        if (command == "triggerRefresh") {
-            this.handleAlarm();
-        }
-
-        if (command == "triggerOpenPage") {
-            if (typeof (command.url) !== "undefined" && command.url != "") {
-                this.host.tabs.create({
-                    url: request.url
-                });
-            }
-        }
-
-        if (command == "triggerCmdExec") {
-            let c = new UICommand;
-            c.command = request.remoteCommand;
-            c.hostname = request.hostname;
-            c.servicename = request.servicename;
-        }
-
-        if (command == "SettingsChanged") {
-            this.notifySettingsChanged();
-        }*/
-    }
-
 }
 
 EnvironmentFactory.registerFactory(() => new ElectronApp());
