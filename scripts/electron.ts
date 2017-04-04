@@ -18,7 +18,13 @@ import url = require('url')
 export class ElectronApp extends AbstractEnvironment {
     protected updateIconAndBadgetext(): void {
         this.debug("updateIconAndBadgetext");
+        if (this.tray) {
+            let iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
+            this.tray.setImage(path.join(__dirname, iAndB.badgeIcon["32"]))
+            this.tray.setToolTip(iAndB.badgeText);
+        }
     }
+
     protected trySendDataToPopup(): void {
         ipcMain.emit('topanel', this.dataBuffer);
     }
@@ -40,12 +46,13 @@ export class ElectronApp extends AbstractEnvironment {
             ipcMain.addListener('frompanel', (data) => {
                 i.handleMessage(data);
             })
+            i.updateIconAndBadgetext();
         });
     }
 
     initTimer(delay: number, callback: () => void): void {
-        // TODO
         this.debug("initTimer");
+        // TODO
         this.onAlarmCallback = callback;
         this.handleAlarm();
     }
@@ -67,7 +74,7 @@ export class ElectronApp extends AbstractEnvironment {
     }
     load(url: string, username: string, password: string): Promise<string> {
         // TODO
-        return new Promise<String>((resolve, reject) => { });
+        return new Promise<String>((resolve, reject) => { reject("Not implemented") });
     }
     post(url: string, data: any, username: string, password: string): Promise<string> {
         // TODO

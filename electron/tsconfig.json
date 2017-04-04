@@ -10,6 +10,7 @@
   "include": [
     "../scripts/Settings.ts",
     "../scripts/MonitorData.ts",
+    "../scripts/IconAndBadgetext.ts",
     "../scripts/AbstractMonitor.ts",
     "../scripts/icingacgi.ts",
     "../scripts/icingaapi.ts",

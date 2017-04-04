@@ -16,35 +16,10 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     protected abstract console: Console;
 
     protected updateIconAndBadgetext() {
-        let path = "";
-        let badgeText: string = "";
-        let badgeColor = "";
-        switch (this.dataBuffer.state) {
-            case Status.GREEN:
-                path = "ok";
-                /*badgeText = "" + this.dataBuffer.hostup;*/
-                badgeColor = "#83b225";
-                break;
-            case Status.YELLOW:
-                path = "warn";
-                badgeText = "" + this.dataBuffer.servicewarnings;
-                badgeColor = "#b29a25";
-                break;
-            case Status.RED:
-                path = "err";
-                badgeText = "" + (this.dataBuffer.hosterrors + this.dataBuffer.servicewarnings + this.dataBuffer.serviceerrors);
-                badgeColor = "#b25425";
-                break;
-        }
-        this.host.browserAction.setIcon({
-            path: {
-                "16": "icons/icon-16" + path + ".png",
-                "24": "icons/icon-32" + path + ".png",
-                "32": "icons/icon-32" + path + ".png"
-            }
-        });
-        this.host.browserAction.setBadgeText({ text: badgeText });
-        this.host.browserAction.setBadgeBackgroundColor({ color: badgeColor });
+        let iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
+        this.host.browserAction.setIcon({ path: iAndB.badgeIcon });        
+        this.host.browserAction.setBadgeText({ text: iAndB.badgeText });
+        this.host.browserAction.setBadgeBackgroundColor({ color: iAndB.badgeColor });
     }
 
 
