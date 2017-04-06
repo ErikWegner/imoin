@@ -1,2 +1,2 @@
-import "./electron"
+import "./ElectronApp"
 import "./main"
