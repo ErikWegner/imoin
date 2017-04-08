@@ -1,7 +1,11 @@
 'use strict';
 
+function log(o) {
+    //console.log(o);
+}
 function postPanelMessage(data) {
 }
+
 if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     // Web extension in Chrome or Firefox
     var host = chrome || browser;
@@ -26,7 +30,7 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     const {ipcRenderer} = require('electron');
 
     addEventListener('topanel', function (event) {
-        console.log(event);
+        log(event);
     });
 
     postPanelMessage = function (data) {
@@ -42,19 +46,19 @@ var filtered_lists_templates = {};
 function showAndUpdatePanelContent(data) {
     let message = data.message;
     if (message) {
-        console.log("Message " + message)
+        log("Message " + message)
         rendered_template = renderTemplateError(message);
     } else {
-        console.log("Rendering main template")
+        log("Rendering main template")
         rendered_template = renderMainTemplate(data);
     }
 
-    console.log("Render prep done");
-    console.log("Removing");
+    log("Render prep done");
+    log("Removing");
     while (document.body.childNodes.length > 0) {
         document.body.removeChild(document.body.childNodes[document.body.childNodes.length - 1]);
     }
-    console.log("Adding");
+    log("Adding");
     if (rendered_template.length > 0) {
         for (let i in rendered_template) {
             document.body.appendChild(rendered_template[i]);
@@ -62,7 +66,7 @@ function showAndUpdatePanelContent(data) {
     } else {
         document.body.appendChild(rendered_template);
     }
-    console.log("Done")
+    log("Done")
 
     registerMainEventHandlers();
 }
@@ -222,7 +226,7 @@ function renderMainTemplate(statusdata) {
 
     for (var hostindex in hosts) {
         hostdetail = hosts[hostindex];
-        console.log("Processing host " + hostdetail.name)
+        log("Processing host " + hostdetail.name)
 
         var show_host_in_list1 = hostdetail.status !== "UP";
         var all_serviceshtml = [];
