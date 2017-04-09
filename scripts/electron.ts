@@ -26,6 +26,7 @@ export class ElectronApp extends AbstractEnvironment {
     }
 
     protected trySendDataToPopup(): void {
+        this.debug("trySendDataToPopup");
         ipcMain.emit('topanel', this.dataBuffer);
     }
     protected openWebPage(url: string): void {
@@ -104,6 +105,7 @@ export class ElectronApp extends AbstractEnvironment {
         const contextMenu = Electron.Menu.buildFromTemplate([
             { label: 'Status', click() { i.showMainWindow(); } },
             { label: 'Configure', click() { i.showCfgWindow(); } },
+            { label: 'Update now', click() { i.handleAlarm(); }},
             { type: 'separator' },
             { label: 'Quit', click() { i.quit() } }
         ]);

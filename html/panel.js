@@ -25,7 +25,7 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     // Electron
     const { ipcRenderer } = require('electron');
 
-    addEventListener('topanel', function (event) {
+    ipcRenderer.on('topanel', function (event) {
         console.log(event);
     });
 
