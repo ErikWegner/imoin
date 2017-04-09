@@ -101,12 +101,13 @@ export abstract class AbstractEnvironment implements IEnvironment {
                 this.openWebPage(request.url)
             }
         }
-
         if (command == "triggerCmdExec") {
             let c = new UICommand;
             c.command = request.remoteCommand;
             c.hostname = request.hostname;
             c.servicename = request.servicename;
+
+            this.emitUICommand(c);
         }
 
         if (command == "SettingsChanged") {

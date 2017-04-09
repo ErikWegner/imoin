@@ -105,6 +105,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
                         }
                     }
                 };
+                xhr.setRequestHeader("Accept", "application/json");
                 xhr.setRequestHeader("Content-Type", "application/json");
                 xhr.send(JSON.stringify(data));
             }

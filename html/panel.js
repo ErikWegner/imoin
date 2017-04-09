@@ -1,19 +1,23 @@
 'use strict';
 
-function postPanelMessage(data) { }
+function log(o) {
+    //console.log(o);
+}
+function postPanelMessage(data) {
+}
+
 if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     // Web extension in Chrome or Firefox
     var host = chrome || browser;
 
     // This script runs at the moment that the popup is displayed
-    const myPort = host.runtime.connect({ name: "port-from-panel", includeTlsChannelId: false });
+    const myPort = host.runtime.connect({name: "port-from-panel", includeTlsChannelId: false});
     myPort.onMessage.addListener(function (message) {
         var command = message.command || "";
         var data = message.data || {};
 
-        if (command == "ProcessStatusUpdate") {
+        if (command === "ProcessStatusUpdate") {
             showAndUpdatePanelContent(data);
-            return
         }
 
     });
@@ -23,13 +27,13 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     }
 } else if (typeof self === "object" && typeof self.addEventListener === "function") {
     // Electron
-    const { ipcRenderer } = require('electron');
+    const {ipcRenderer} = require('electron');
 
     ipcRenderer.on('topanel', function (event) {
-        console.log(event);
+        log(event);
     });
 
-    postPanelMessage = function(data) {
+    postPanelMessage = function (data) {
         ipcRenderer.send('frompanel', data);
     }
 }
@@ -40,32 +44,31 @@ var rendered_template = document.createTextNode("");
 var filtered_lists_templates = {};
 
 function showAndUpdatePanelContent(data) {
-    message = data.message;
+    let message = data.message;
     if (message) {
-        console.log("Message " + message)
+        log("Message " + message)
         rendered_template = renderTemplateError(message);
     } else {
-        console.log("Rendering main template")
+        log("Rendering main template")
         rendered_template = renderMainTemplate(data);
     }
 
-    console.log("Render prep done");
-    console.log("Removing");
+    log("Render prep done");
+    log("Removing");
     while (document.body.childNodes.length > 0) {
         document.body.removeChild(document.body.childNodes[document.body.childNodes.length - 1]);
     }
-    console.log("Adding");
+    log("Adding");
     if (rendered_template.length > 0) {
-        for (var i in rendered_template) {
+        for (let i in rendered_template) {
             document.body.appendChild(rendered_template[i]);
         }
     } else {
         document.body.appendChild(rendered_template);
     }
-    console.log("Done")
+    log("Done")
 
     registerMainEventHandlers();
-
 }
 
 function renderTemplateError(message) {
@@ -216,13 +219,14 @@ function renderMainTemplate(statusdata) {
     // list 2: show all hosts, show service if it is not ok
     // list 3: show all hosts, show all services
 
-    var html1 = document.createElement("div"), html2 = document.createElement("div"), html3 = document.createElement("div");
+    var html1 = document.createElement("div"), html2 = document.createElement("div"),
+        html3 = document.createElement("div");
     var hostdetail;
     var hosts = statusdata.hosts;
 
     for (var hostindex in hosts) {
         hostdetail = hosts[hostindex];
-        console.log("Processing host " + hostdetail.name)
+        log("Processing host " + hostdetail.name)
 
         var show_host_in_list1 = hostdetail.status !== "UP";
         var all_serviceshtml = [];
@@ -379,21 +383,21 @@ function AddCellToTr(tr, text, tdclass) {
     return tr;
 }
 
-var triggerRefresh = function () {
-    postPanelMessage({ command: "triggerRefresh" });
+function triggerRefresh() {
+    postPanelMessage({command: "triggerRefresh"});
 }
 
-var triggerCmdExec = function (e) {
-    var el = e.target
-    if (el == null) return;
+function triggerCmdExec(e) {
+    const el = e.target;
+    if (el === null) return;
 
-    var command = el.getAttribute("data-command");
+    const command = el.getAttribute("data-command");
 
-    el = el.parentElement;
-    if (el == null) return;
+    const parentElement = el.parentElement;
+    if (parentElement === null) return;
 
-    var hostname = el.getAttribute("data-hostname");
-    var servicename = el.getAttribute("data-servicename") || "";
+    const hostname = parentElement.getAttribute("data-hostname");
+    const servicename = parentElement.getAttribute("data-servicename") || "";
 
     postPanelMessage({
         command: "triggerCmdExec",
@@ -403,8 +407,7 @@ var triggerCmdExec = function (e) {
     });
 }
 
-var triggerOpenPage = function (e) {
-    var url = e.target.getAttribute("data-url");
-    postPanelMessage({ command: "triggerOpenPage", url: url });
+function triggerOpenPage(e) {
+    const url = e.target.getAttribute("data-url");
+    postPanelMessage({command: "triggerOpenPage", url: url});
 }
-

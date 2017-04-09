@@ -17,7 +17,7 @@
     "../scripts/IEnvironment.ts",
     "../scripts/AbstractEnvironment.ts",
     "../scripts/UICommand.ts",
-    "../scripts/electron.ts",
+    "../scripts/ElectronApp.ts",
     "../scripts/main.ts",
     "../scripts/requireInitElectron.ts"
   ],

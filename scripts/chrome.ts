@@ -49,11 +49,19 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
     }
 
     displayStatus(data: Monitor.MonitorData): void {
-        console.log("Chrome.displayStatus");
+        this.debug("Chrome.displayStatus");
         this.dataBuffer = data;
         this.updateIconAndBadgetext();
         this.trySendDataToPopup();
     }    
+
+    debug(o: any) {
+        // no-op
+    }
+
+    log(o: any) {
+        // no-op
+    }
 }
 
 EnvironmentFactory.registerFactory(() => new Chrome());

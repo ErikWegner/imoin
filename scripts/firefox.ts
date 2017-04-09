@@ -21,27 +21,28 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     }    
 
     loadSettings(): Promise<Settings> {
-        this.debug("Loading settings");
+        const i = this;
+        i.debug("Loading settings");
         return new Promise<Settings>(
             (resolve, reject) => {
                 /* Change the array of keys to match the options.js */
                 let gettingItem = browser.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"]);
                 if (gettingItem) {
                     gettingItem.then(function (settings: Settings) {
-                            this.debug("Settings loaded");
+                            i.debug("Settings loaded");
                             let clone = JSON.parse(JSON.stringify(settings));
                             if (clone.password) clone.password = "*****";
-                            this.debug(clone);
+                            i.debug(clone);
                             // success
                             resolve(settings);
                         }, function (error: any) {
-                            console.error("Loading settings failed");
-                            console.error(error);
+                            i.error("Loading settings failed");
+                            i.error(error);
                             reject(error)
                         }
                     )
                 } else {
-                    console.error("Storage not available");
+                    i.error("Storage not available");
                 }
             }
         );
