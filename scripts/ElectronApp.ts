@@ -8,14 +8,21 @@ import { Monitor } from "./MonitorData";
 import { UICommand } from "./UICommand";
 import Electron = require('electron')
 const { ipcMain } = require('electron');
-import path = require('path')
-import url = require('url')
-
+import path = require('path');
+import url = require('url');
+const { keytar } = require('keytar');
+const settings = require('electron-settings');
 
 /**
  * Implementation for Electron (Desktop)
  */
 export class ElectronApp extends AbstractEnvironment {
+    private app = Electron.app
+    private tray: Electron.Tray
+    private mainWindow: Electron.BrowserWindow
+    private cfgWindow: Electron.BrowserWindow
+    private isQuitting = false
+
     protected updateIconAndBadgetext(): void {
         this.debug("updateIconAndBadgetext");
         if (this.tray) {
@@ -29,15 +36,10 @@ export class ElectronApp extends AbstractEnvironment {
         this.debug("trySendDataToPopup");
         ipcMain.emit('topanel', this.dataBuffer);
     }
+
     protected openWebPage(url: string): void {
         throw new Error('Method not implemented.');
     }
-
-    private app = Electron.app
-    private tray: Electron.Tray
-    private mainWindow: Electron.BrowserWindow
-    private cfgWindow: Electron.BrowserWindow
-    private isQuitting = false
 
     constructor() {
         super();
@@ -68,8 +70,21 @@ export class ElectronApp extends AbstractEnvironment {
     loadSettings(): Promise<Settings> {
         return new Promise<Settings>(
             (resolve, reject) => {
-                resolve(new Settings(5, "api1", "", "user", "pass"));
-                //reject("Not implemented");
+                if (!settings.has("imoinsettings")) {
+                    reject("No settings");
+                    return;
+                }
+
+                const protosettings = settings.get("imoinsettings");
+                protosettings.hostgroup = protosettings.hostgroup || null;
+                protosettings.password = keytar.getPassword("imoin", protosettings.username);
+                resolve(new Settings(
+                    protosettings.timerPeriod,
+                    protosettings.icingaversion,
+                    protosettings.url, 
+                    protosettings.username, 
+                    protosettings.password,
+                    protosettings.hostgroup));
             }
         );
     }
