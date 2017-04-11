@@ -1,6 +1,6 @@
 {
   "name": "Imoin",
-  "version": "1.0.0",
+  "version": "16.0.4",
   "description": "Monitor Icinga on your desktop",
   "main": "requireInitElectron.js",
   "scripts": {
