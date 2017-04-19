@@ -280,9 +280,8 @@ function renderMainTemplate(statusdata) {
 
     var p, a, div1, table, tr, th, td;
     r.appendChild(p = document.createElement("p"));
-    p.appendChild(a = document.createElement("a"));
+    p.appendChild(a = document.createElement("span"));
     a.setAttribute("class", "refresh");
-    a.setAttribute("href", "javascript:void(0);");
     a.appendChild(document.createTextNode("↺ Refresh"));
     if (statusdata.hostgroupinfo !== null && statusdata.hostgroupinfo !== "") p.appendChild(document.createTextNode(" " + statusdata.hostgroupinfo));
 
