@@ -197,6 +197,11 @@ tr.service td.OK {
 }*/
 
 /* https://bugzilla.mozilla.org/show_bug.cgi?id=893113 */
+.refresh {
+    cursor: pointer;
+    color: #0d15ff;
+    text-decoration: underline;
+}
 .recheck {
     width: 14px;
     height: 14px;

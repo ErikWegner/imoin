@@ -53,21 +53,22 @@ export class IcingaApi extends AbstractMonitor {
     fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
-                let hosturl = this.settings.url + "/api/v1/objects/hosts?attrs=display_name&attrs=last_check_result";
-                let servicesurl = this.settings.url + "/api/v1/objects/services?attrs=display_name&attrs=last_check_result";
+                const hosturl = this.settings.url + "/api/v1/objects/hosts?attrs=display_name&attrs=last_check_result";
+                const servicesurl = this.settings.url + "/api/v1/objects/services?attrs=display_name&attrs=last_check_result";
 
-                let hostsrequest = this.environment.load(hosturl, this.settings.username, this.settings.password);
-                let servicesrequest = this.environment.load(servicesurl, this.settings.username, this.settings.password);
+                const hostsrequest = this.environment.load(hosturl, this.settings.username, this.settings.password);
+                const servicesrequest = this.environment.load(servicesurl, this.settings.username, this.settings.password);
 
                 Promise
                     .all([hostsrequest, servicesrequest])
                     .then(a => {
-                        let hostdata = JSON.parse(a[0]);
-                        let servicedata = JSON.parse(a[1]);
-                        resolve(this.processData(hostdata, servicedata));
+                        const hostdata = JSON.parse(a[0]);
+                        const servicedata = JSON.parse(a[1]);
+                        const m = this.processData(hostdata, servicedata);
+                        resolve(m);
                     })
                     .catch(a => {
-                        resolve(Monitor.ErrorMonitorData("Connection error. Check settings. " + a[0] + "|" + a[1]));
+                        resolve(Monitor.ErrorMonitorData("Connection error. Check settings and log. " + a[0] + "|" + a[1]));
                     })
             }
         );
@@ -97,13 +98,17 @@ export class IcingaApi extends AbstractMonitor {
             let host = hostByName[jsonservice.name.substr(0, jsonservice.name.indexOf("!"))];
             if (host) {
                 let service = new Monitor.Service(jsonservice.attrs.display_name);
-                if (jsonservice.attrs.last_check_result.state == 0) {
-                    service.setStatus("OK");
-                } else if (jsonservice.attrs.last_check_result.state == 1) {
-                    service.setStatus("WARNING");
+                if (jsonservice.attrs.last_check_result) {
+                    if (jsonservice.attrs.last_check_result.state == 0) {
+                        service.setStatus("OK");
+                    } else if (jsonservice.attrs.last_check_result.state == 1) {
+                        service.setStatus("WARNING");
+                    }
+                    service.checkresult = jsonservice.attrs.last_check_result.output;
+                } else {
+                    service.checkresult = "Check did not run yet.";
                 }
                 service.host = host.name;
-                service.checkresult = jsonservice.attrs.last_check_result.output;
                 host.addService(service);
             }
         });

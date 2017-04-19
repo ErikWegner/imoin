@@ -84,9 +84,8 @@ function renderTemplateError(message) {
     r.appendChild(p);
     p.appendChild(document.createTextNode(message));
 
-    var a = document.createElement("a");
+    var a = document.createElement("span");
     a.setAttribute("class", "refresh");
-    a.setAttribute("href", "javascript:void(0);");
     a.appendChild(document.createTextNode("↺ Refresh"));
     p = document.createElement("p");
     p.appendChild(a);
