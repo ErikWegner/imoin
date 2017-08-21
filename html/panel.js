@@ -11,7 +11,7 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     var host = chrome || browser;
 
     // This script runs at the moment that the popup is displayed
-    const myPort = host.runtime.connect({name: "port-from-panel", includeTlsChannelId: false});
+    const myPort = host.runtime.connect({ name: "port-from-panel", includeTlsChannelId: false });
     myPort.onMessage.addListener(function (message) {
         var command = message.command || "";
         var data = message.data || {};
@@ -27,7 +27,7 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     }
 } else if (typeof self === "object" && typeof self.addEventListener === "function") {
     // Electron
-    const {ipcRenderer} = require('electron');
+    const { ipcRenderer } = require('electron');
 
     ipcRenderer.on('topanel', function (event) {
         log(event);
@@ -44,7 +44,7 @@ var rendered_template = document.createTextNode("");
 var filtered_lists_templates = {};
 
 function showAndUpdatePanelContent(data) {
-    let message = data.message;
+    const message = data.message;
     if (message) {
         log("Message " + message)
         rendered_template = renderTemplateError(message);
@@ -89,6 +89,7 @@ function renderTemplateError(message) {
     a.appendChild(document.createTextNode("↺ Refresh"));
     p = document.createElement("p");
     p.appendChild(a);
+    p.appendChild(renderSetupButton());
     r.appendChild(p);
 
     return r;
@@ -162,6 +163,20 @@ function renderServiceTemplate(servicedata) {
 
     return r;
 }
+
+function renderSetupButton() {
+    const b = document.createElement("button");
+    b.setAttribute("type", "button");
+    b.appendChild(document.createTextNode("⚙ Options"));
+    b.onclick = function () {
+        postPanelMessage({
+            command: "triggerCmdShowOptions"
+        });
+    };
+
+    return b;
+}
+
 
 var chkimg = document.createElement("span");
 chkimg.setAttribute("title", "Recheck");
@@ -280,6 +295,7 @@ function renderMainTemplate(statusdata) {
 
     var p, a, div1, table, tr, th, td;
     r.appendChild(p = document.createElement("p"));
+    p.appendChild(renderSetupButton());
     p.appendChild(a = document.createElement("span"));
     a.setAttribute("class", "refresh");
     a.appendChild(document.createTextNode("↺ Refresh"));
@@ -382,7 +398,7 @@ function AddCellToTr(tr, text, tdclass) {
 }
 
 function triggerRefresh() {
-    postPanelMessage({command: "triggerRefresh"});
+    postPanelMessage({ command: "triggerRefresh" });
 }
 
 function triggerCmdExec(e) {
@@ -407,5 +423,7 @@ function triggerCmdExec(e) {
 
 function triggerOpenPage(e) {
     const url = e.target.getAttribute("data-url");
-    postPanelMessage({command: "triggerOpenPage", url: url});
+    postPanelMessage({ command: "triggerOpenPage", url: url });
 }
+
+showAndUpdatePanelContent({});

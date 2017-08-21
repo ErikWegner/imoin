@@ -10,7 +10,6 @@ import {EnvironmentFactory} from "./IEnvironment";
  * Implementation for Firefox
  */
 export class Firefox extends AbstractWebExtensionsEnvironment {
-    
     protected host = browser;
 
     protected console = console;
