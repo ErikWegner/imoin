@@ -89,7 +89,6 @@ function renderTemplateError(message) {
     a.appendChild(document.createTextNode("↺ Refresh"));
     p = document.createElement("p");
     p.appendChild(a);
-    p.appendChild(renderSetupButton());
     r.appendChild(p);
 
     return r;
@@ -163,20 +162,6 @@ function renderServiceTemplate(servicedata) {
 
     return r;
 }
-
-function renderSetupButton() {
-    const b = document.createElement("button");
-    b.setAttribute("type", "button");
-    b.appendChild(document.createTextNode("⚙ Options"));
-    b.onclick = function () {
-        postPanelMessage({
-            command: "triggerCmdShowOptions"
-        });
-    };
-
-    return b;
-}
-
 
 var chkimg = document.createElement("span");
 chkimg.setAttribute("title", "Recheck");
@@ -295,7 +280,6 @@ function renderMainTemplate(statusdata) {
 
     var p, a, div1, table, tr, th, td;
     r.appendChild(p = document.createElement("p"));
-    p.appendChild(renderSetupButton());
     p.appendChild(a = document.createElement("span"));
     a.setAttribute("class", "refresh");
     a.appendChild(document.createTextNode("↺ Refresh"));

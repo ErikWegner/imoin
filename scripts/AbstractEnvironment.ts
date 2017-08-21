@@ -14,7 +14,6 @@ export abstract class AbstractEnvironment implements IEnvironment {
     abstract loadSettings(): Promise<Settings>;
     abstract initTimer(delay: number, callback: () => void): void;
     abstract stopTimer(): void;
-    abstract showOptions(): void;
     protected abstract trySendDataToPopup(): void;
     protected abstract openWebPage(url: string): void;
     protected abstract updateIconAndBadgetext(): void;
@@ -113,10 +112,6 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
         if (command == "SettingsChanged") {
             this.notifySettingsChanged();
-        }
-
-        if (command == "triggerCmdShowOptions") {
-            this.showOptions();
         }
     }
 }
