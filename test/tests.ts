@@ -1,0 +1,71 @@
+import 'mocha';
+import { assert, expect } from 'chai';
+import { NagiosCore } from '../scripts/nagioscore';
+import { IEnvironment } from '../scripts/IEnvironment';
+import * as sinon from 'sinon';
+import { Settings } from '../scripts/Settings';
+import * as fs from 'fs';
+
+describe('Array', function () {
+  describe('#indexOf()', function () {
+    it('should return -1 when the value is not present', function () {
+      assert.equal(-1, [1, 2, 3].indexOf(4));
+    });
+  });
+});
+
+describe('nagioscore', function () {
+  let monitor: NagiosCore;
+  let mockEnvLoad: sinon.SinonStub;
+  let mockEnv: IEnvironment;
+  let settings: Settings;
+
+  beforeEach(() => {
+    settings = new Settings(0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
+    mockEnvLoad = sinon.stub();
+    mockEnv = {
+      initTimer: sinon.spy(),
+      stopTimer: sinon.spy(),
+      debug: sinon.spy(),
+      displayStatus: sinon.spy(),
+      error: sinon.spy(),
+      loadSettings: sinon.spy(),
+      log: sinon.spy(),
+      onSettingsChanged: sinon.spy(),
+      post: sinon.spy(),
+      onUICommand: sinon.spy(),
+      load: mockEnvLoad
+    };
+
+    monitor = new NagiosCore();
+    monitor.init(mockEnv, settings);
+  })
+
+  it('should do load hosts and services', (done) => {
+    fs.readFile('test/data/nagioscore/hostlist.json', (err, hostlist) => {
+      if (err) {
+        throw err;
+      }
+      fs.readFile('test/data/nagioscore/servicelist.json', (err, servicelist) => {
+        if (err) {
+          throw err;
+        }
+        const p1 = new Promise((resolve, reject) => {
+          resolve(hostlist.toString());
+        });
+        const p2 = new Promise((resolve, reject) => {
+          resolve(servicelist.toString());
+        });
+
+        mockEnvLoad
+          .onFirstCall().returns(p1)
+          .onSecondCall().returns(p2);
+
+        monitor.fetchStatus().then((data) => {
+          expect(data).to.have.property('hosts').with.lengthOf(54);
+          done();
+        });
+      })
+    });
+  });
+});

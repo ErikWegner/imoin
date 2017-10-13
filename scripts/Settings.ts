@@ -1,4 +1,4 @@
-export type IcingaOptionsVersion = "cgi" | "api1";
+export type IcingaOptionsVersion = "cgi" | "api1" | "nagioscore" ;
 
 export class Settings {
     constructor(
