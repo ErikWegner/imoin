@@ -4,7 +4,7 @@
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha -r ts-node/register test/**/*.ts",
     "bump-version": "gulp bump",
     "build:firefox": "gulp firefox",
     "build:chrome": "gulp chrome",
@@ -41,5 +41,16 @@
     "keytar": "^3.0.2",
     "typescript": "^2.1.5",
     "web-ext": "^1.8.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/mocha": "^2.2.43",
+    "@types/node": "^8.0.34",
+    "@types/sinon": "^2.3.6",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "sinon": "^4.0.1",
+    "ts-node": "^3.3.0",
+    "typings": "^2.1.1"
   }
 }
