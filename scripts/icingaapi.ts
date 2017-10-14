@@ -84,7 +84,7 @@ export class IcingaApi extends AbstractMonitor {
             return Monitor.ErrorMonitorData("Result empty");
         }
 
-        let m = new Monitor.MonitorData();
+        const m = new Monitor.MonitorData();
         let hostByName: {[name: string]: Monitor.Host} = {};
         hostdata.results.forEach(hostdatahost => {
             let host = new Monitor.Host(hostdatahost.name);
@@ -95,7 +95,7 @@ export class IcingaApi extends AbstractMonitor {
         });
 
         servicedata.results.forEach(jsonservice => {
-            let host = hostByName[jsonservice.name.substr(0, jsonservice.name.indexOf("!"))];
+            const host = hostByName[jsonservice.name.substr(0, jsonservice.name.indexOf("!"))];
             if (host) {
                 let service = new Monitor.Service(jsonservice.attrs.display_name);
                 if (jsonservice.attrs.last_check_result) {

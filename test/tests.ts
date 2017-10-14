@@ -41,7 +41,7 @@ describe('nagioscore', function () {
     monitor.init(mockEnv, settings);
   })
 
-  it('should do load hosts and services', (done) => {
+  it('should load hosts and services', (done) => {
     fs.readFile('test/data/nagioscore/hostlist.json', (err, hostlist) => {
       if (err) {
         throw err;
