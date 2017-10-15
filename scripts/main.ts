@@ -1,8 +1,9 @@
-import {EnvironmentFactory} from "./IEnvironment";
-import {Settings} from "./Settings";
-import {IMonitor} from "./IMonitor";
-import {IcingaApi} from "./icingaapi";
-import {IcingaCgi} from "./icingacgi";
+import { EnvironmentFactory } from './IEnvironment';
+import { Settings } from './Settings';
+import { IMonitor } from './IMonitor';
+import { IcingaApi } from './icingaapi';
+import { IcingaCgi } from './icingacgi';
+import { NagiosCore } from './nagioscore';
 
 /**
  * Connecting all pieces together
@@ -17,19 +18,23 @@ function resolveMonitor(settings: Settings): IMonitor {
         return new IcingaCgi();
     }
 
+    if (settings.icingaversion == "nagioscore") {
+        return new NagiosCore();
+    }
+
     return null;
 }
 
-var e = EnvironmentFactory.get();
-var monitor: IMonitor = null;
+const e = EnvironmentFactory.get();
+let monitor: IMonitor = null;
 
 function start() {
     if (monitor != null) {
         monitor.shutdown();
     }
-    
+
     e.loadSettings().then((settings) => {
-        var monitor = resolveMonitor(settings);
+        monitor = resolveMonitor(settings);
         if (monitor != null) {
             monitor.init(e, settings);
             monitor.startTimer();
@@ -38,4 +43,4 @@ function start() {
 }
 
 start()
-e.onSettingsChanged(function() { start(); });
+e.onSettingsChanged(() => { start(); });

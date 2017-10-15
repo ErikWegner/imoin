@@ -1,7 +1,7 @@
 Imoin
 =====
 
-This is a browser add-on that monitors your nagios or icinga instance.
+This is a browser add-on that monitors your Nagios or Icinga instance.
 
 This is the branch for the WebExtenions version, which is currently under development.
 
@@ -13,6 +13,12 @@ Use one of these browsers:
 
 * Firefox 48 or greater
 * Chrome (current stable)
+
+Supported versions:
+-------------------
+
+* Icinga 2
+* Nagios Core 4.0.7+
 
 
 Done
