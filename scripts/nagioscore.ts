@@ -17,12 +17,14 @@ interface IHostJsonData {
 interface IServiceJsonData {
   data: {
     servicelist: {
-      [servicename: string]: {
-        host_name: string,
-        description: string,
-        status: number,
-        last_check: number,
-        plugin_output: string
+      [hostname: string]: {
+        [servicename: string]: {
+          host_name: string,
+          description: string,
+          status: number,
+          last_check: number,
+          plugin_output: string
+        }
       }
     }
   }
@@ -71,24 +73,27 @@ export class NagiosCore extends AbstractMonitor {
       m.addHost(host);
     });
 
-    Object.keys(servicedata.data.servicelist).forEach((servicename) => {
-      const servicedataservice = servicedata.data.servicelist[servicename];
-      const host = hostByName[servicedataservice.host_name];
-      if (host) {
-        const service = new Monitor.Service(servicedataservice.description);
-        if (servicedataservice.last_check !== 0) {
-          if (servicedataservice.status === 2) {
-            service.setStatus("OK");
-          } else if (servicedataservice.status === 4) {
-            service.setStatus("WARNING");
+    Object.keys(servicedata.data.servicelist).forEach((hostname) => {
+      const hostwithservices = servicedata.data.servicelist[hostname];
+      Object.keys(hostwithservices).forEach((servicename) => {
+        const servicedataservice = hostwithservices[servicename];
+        const host = hostByName[servicedataservice.host_name];
+        if (host) {
+          const service = new Monitor.Service(servicedataservice.description);
+          if (servicedataservice.last_check !== 0) {
+            if (servicedataservice.status === 2) {
+              service.setStatus("OK");
+            } else if (servicedataservice.status === 4) {
+              service.setStatus("WARNING");
+            }
+            service.checkresult = servicedataservice.plugin_output;
+          } else {
+            service.checkresult = "Check did not run yet.";
           }
-          service.checkresult = servicedataservice.plugin_output;
-        } else {
-          service.checkresult = "Check did not run yet.";
+          service.host = host.name;
+          host.addService(service);
         }
-        service.host = host.name;
-        host.addService(service);
-      }
+      });
     });
 
     return m;

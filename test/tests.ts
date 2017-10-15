@@ -39,9 +39,9 @@ describe('nagioscore', function () {
 
     monitor = new NagiosCore();
     monitor.init(mockEnv, settings);
-  })
+  });
 
-  it('should load hosts and services', (done) => {
+  function fetchDataAndRunTests(testexecutions: () => void) {
     fs.readFile('test/data/nagioscore/hostlist.json', (err, hostlist) => {
       if (err) {
         throw err;
@@ -61,11 +61,54 @@ describe('nagioscore', function () {
           .onFirstCall().returns(p1)
           .onSecondCall().returns(p2);
 
-        monitor.fetchStatus().then((data) => {
-          expect(data).to.have.property('hosts').with.lengthOf(54);
-          done();
-        });
+        testexecutions();
       })
+    });
+  }
+
+  it('should load hosts and services', (done) => {
+    fetchDataAndRunTests(() => {
+      monitor.fetchStatus().then((data) => {
+        expect(data).to.have.property('hosts').with.lengthOf(54);
+        done();
+      });
+    });
+  });
+  
+  it('should process hosts', (done) => {
+    fetchDataAndRunTests(() => {
+      monitor.fetchStatus().then((data) => {
+        const firsthost = data.hosts[0];
+        expect(firsthost.name).to.equal('Firewall');
+        expect(firsthost.status).to.equal('UP');
+        const downhost = data.hosts[14];
+        expect(downhost.name).to.equal('europa.nagios.local');
+        expect(downhost.status).to.equal('DOWN');
+        done();
+      });
+    });
+  });
+
+  it('should process services', (done) => {
+    fetchDataAndRunTests(() => {
+      monitor.fetchStatus().then((data) => {
+        const host = data.hosts[1];
+        expect(host.name).to.equal('Log-Server.nagios.local');
+        expect(host).to.have.property('services').with.lengthOf(23);
+        done();
+      });
+    });
+  });
+
+  it('should process services WARNING', (done) => {
+    fetchDataAndRunTests(() => {
+      monitor.fetchStatus().then((data) => {
+        const host = data.hosts[1];
+        const service1 = host.services[0];
+        expect(service1.name).to.equal('/ Disk Usage');
+        expect(service1.status).to.equal('WARNING');        
+        done();
+      });
     });
   });
 });
