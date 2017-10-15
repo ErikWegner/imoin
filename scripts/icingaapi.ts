@@ -97,7 +97,7 @@ export class IcingaApi extends AbstractMonitor {
         servicedata.results.forEach(jsonservice => {
             const host = hostByName[jsonservice.name.substr(0, jsonservice.name.indexOf("!"))];
             if (host) {
-                let service = new Monitor.Service(jsonservice.attrs.display_name);
+                const service = new Monitor.Service(jsonservice.attrs.display_name);
                 if (jsonservice.attrs.last_check_result) {
                     if (jsonservice.attrs.last_check_result.state == 0) {
                         service.setStatus("OK");
