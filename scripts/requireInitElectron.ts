@@ -1,2 +1,0 @@
-import "./ElectronApp"
-import "./main"

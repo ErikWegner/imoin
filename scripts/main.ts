@@ -1,4 +1,4 @@
-import { EnvironmentFactory } from './IEnvironment';
+import { EnvironmentFactory, IEnvironment } from './IEnvironment';
 import { Settings } from './Settings';
 import { IMonitor } from './IMonitor';
 import { IcingaApi } from './icingaapi';
@@ -28,19 +28,22 @@ function resolveMonitor(settings: Settings): IMonitor {
 const e = EnvironmentFactory.get();
 let monitor: IMonitor = null;
 
-function start() {
-    if (monitor != null) {
-        monitor.shutdown();
+export function init(e: IEnvironment) {
+
+    function start() {
+        if (monitor != null) {
+            monitor.shutdown();
+        }
+
+        e.loadSettings().then((settings) => {
+            monitor = resolveMonitor(settings);
+            if (monitor != null) {
+                monitor.init(e, settings);
+                monitor.startTimer();
+            }
+        });
     }
 
-    e.loadSettings().then((settings) => {
-        monitor = resolveMonitor(settings);
-        if (monitor != null) {
-            monitor.init(e, settings);
-            monitor.startTimer();
-        }
-    });
+    start();
+    e.onSettingsChanged(() => { start(); });
 }
-
-start()
-e.onSettingsChanged(() => { start(); });

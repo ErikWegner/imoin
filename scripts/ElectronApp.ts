@@ -1,6 +1,3 @@
-/// <reference path="definitions/node/index.d.ts" />
-/// <reference path="definitions/electron/index.d.ts" />
-
 import { EnvironmentFactory } from "./IEnvironment";
 import { AbstractEnvironment } from "./AbstractEnvironment";
 import { Settings } from "./Settings";
@@ -46,7 +43,7 @@ export class ElectronApp extends AbstractEnvironment {
         let i = this;
         this.app.on('ready', function () {
             i.createTrayMenu()
-            ipcMain.addListener('frompanel', (data) => {
+            ipcMain.addListener('frompanel', (data: any) => {
                 i.handleMessage(data);
             })
             i.updateIconAndBadgetext();
@@ -90,11 +87,11 @@ export class ElectronApp extends AbstractEnvironment {
     }
     load(url: string, username: string, password: string): Promise<string> {
         // TODO
-        return new Promise<String>((resolve, reject) => { reject("Not implemented") });
+        return new Promise<string>((resolve, reject) => { reject("Not implemented") });
     }
     post(url: string, data: any, username: string, password: string): Promise<string> {
         // TODO
-        return new Promise<String>((resolve, reject) => { });
+        return new Promise<string>((resolve, reject) => { });
     }
 
     debug(o: any): void {

@@ -1,39 +1,43 @@
 "use strict";
 const gulp = require('gulp');
-const ts = require('gulp-typescript');
+const webpack = require('webpack-stream');
 const clean = require('gulp-clean');
 const es = require('event-stream');
 const zip = require('gulp-zip');
 const bump = require('gulp-bump');
 const fs = require('fs');
 const semver = require('semver');
+const path = require('path');
 
 let tsProject;
 let targetpaths = {};
 
 gulp.task('ts-scripts', function () {
-    let tsResult = tsProject.src()
-        .pipe(tsProject());
+    const wpconfig = require('./webpack.config.js');
+    wpconfig.entry.index = './' + tsProject;
+    wpconfig.output.path = path.resolve(__dirname, targetpaths.target);
 
-    return tsResult.js.pipe(gulp.dest(targetpaths.target));
+    return gulp.src(tsProject)
+        .pipe(webpack(wpconfig))
+        .pipe(gulp.dest(targetpaths.target));
 });
 
 gulp.task('firefox-setpaths', function () {
-    tsProject = ts.createProject('firefox/tsconfig.json');
+    tsProject = 'scripts/firefox.ts';
     targetpaths.target = 'release/firefox';
     targetpaths.icons = targetpaths.target + '/icons'
     targetpaths.html = targetpaths.target + '/html'
 });
 
 gulp.task('chrome-setpaths', function () {
-    tsProject = ts.createProject('chrome/tsconfig.json');
+    tsProject = 'scripts/chrome.ts';
     targetpaths.target = 'release/chrome';
     targetpaths.icons = targetpaths.target + '/icons'
     targetpaths.html = targetpaths.target + '/html'
 });
 
 gulp.task('electron-setpaths', function () {
-    tsProject = ts.createProject('electron/tsconfig.json');
+    tsProject = 'scripts/electron.ts';
     targetpaths.target = 'release/electron';
     targetpaths.icons = targetpaths.target + '/icons'
     targetpaths.html = targetpaths.target + '/html'
@@ -58,9 +62,7 @@ gulp.task('chrome', [
     return es.concat(
         gulp
             .src([
-                'chrome/manifest.json',
-                'chrome/manifest.json',
-                'vendor/require.js'
+                'chrome/manifest.json'
             ])
             .pipe(gulp.dest(targetpaths.target))
     )
@@ -75,8 +77,7 @@ gulp.task('firefox', [
     return es.concat(
         gulp
             .src([
-                'firefox/manifest.json',
-                'vendor/require.js'
+                'firefox/manifest.json'
             ])
             .pipe(gulp.dest(targetpaths.target))
     )
@@ -146,10 +147,10 @@ gulp.task('bump', function () {
     var newVer = semver.inc(pkg.version, 'patch');
 
     return gulp.src([
-        './chrome/manifest.json', 
-        './firefox/manifest.json', 
-        './electron/package.json', 
-        './package.json'], {base: './'})
+        './chrome/manifest.json',
+        './firefox/manifest.json',
+        './electron/package.json',
+        './package.json'], { base: './' })
         .pipe(bump({
             version: newVer
         }))

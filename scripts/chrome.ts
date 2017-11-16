@@ -5,6 +5,7 @@ import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
 import Status = Monitor.Status;
 import {EnvironmentFactory} from "./IEnvironment";
+import { init } from './main';
 
 /**
  * Implementation for Chrome
@@ -65,3 +66,5 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 }
 
 EnvironmentFactory.registerFactory(() => new Chrome());
+
+init(EnvironmentFactory.get());
