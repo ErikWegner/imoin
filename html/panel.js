@@ -102,7 +102,9 @@ function renderHostTemplate(hostdata) {
     r.appendChild(div2 = document.createElement("div"));
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "hostname");
-    span.setAttribute("data-url", hostdata.hostlink);
+    if (hostdata.hostlink) {
+        span.setAttribute("data-url", hostdata.hostlink);
+    }
     span.appendChild(document.createTextNode(hostdata.name));
 
     div2.appendChild(span = document.createElement("span"));
@@ -112,7 +114,7 @@ function renderHostTemplate(hostdata) {
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "actions");
     span.setAttribute("data-hostname", hostdata.name);
-    span.appendChild(ackimg.cloneNode(true));
+    //span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
     span.appendChild(chkimg.cloneNode(true));
 
@@ -137,7 +139,9 @@ function renderServiceTemplate(servicedata) {
 
     span = document.createElement("span");
     span.setAttribute("class", "servicename");
-    span.setAttribute("data-url", servicedata.servicelink);
+    if (servicedata.servicelink) {
+        span.setAttribute("data-url", servicedata.servicelink);
+    }
     span.appendChild(document.createTextNode(servicedata.name));
     r.appendChild(span);
 
@@ -148,9 +152,9 @@ function renderServiceTemplate(servicedata) {
 
     span = document.createElement("span");
     span.setAttribute("class", "actions");
-    span.setAttribute("data-hostname", servicedata.host);
+    span.setAttribute("data-hostname", servicedata.host.name);
     span.setAttribute("data-servicename", servicedata.name);
-    span.appendChild(ackimg.cloneNode(true));
+    //span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
     span.appendChild(chkimg.cloneNode(true));
     r.appendChild(span);
@@ -407,7 +411,9 @@ function triggerCmdExec(e) {
 
 function triggerOpenPage(e) {
     const url = e.target.getAttribute("data-url");
-    postPanelMessage({ command: "triggerOpenPage", url: url });
+    if (url) {
+        postPanelMessage({ command: "triggerOpenPage", url: url });
+    }
 }
 
 showAndUpdatePanelContent({});

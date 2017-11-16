@@ -174,8 +174,8 @@ tr.service td.OK {
     background-color: #3f3;
 }
 
-.hostname,
-.servicename {
+.hostname[data-url],
+.servicename[data-url] {
     cursor: pointer;
 }
 

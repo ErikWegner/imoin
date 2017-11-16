@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@qwirl.eu:imoin"
+    "url": "https://github.com/ErikWegner/imoin.git"
   },
   "keywords": [
     "Icinga",
