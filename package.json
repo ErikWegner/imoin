@@ -1,11 +1,12 @@
 {
   "name": "imoin",
-  "version": "17.0.1",
+  "version": "17.1.0",
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.ts",
     "bump-version": "gulp bump",
+    "bump-version-minor": "gulp bump-minor",
     "build:firefox": "gulp firefox",
     "build:chrome": "gulp chrome",
     "build:electron": "gulp electron",

@@ -35,7 +35,7 @@ export interface IServiceJsonData {
 export class IcingaApi extends AbstractMonitor {
     handleUICommand(param: UICommand): void {
         if (param.command == "recheck") {
-            let url = this.settings.url + "/api/v1/actions/reschedule-check";
+            let url = this.settings.url + "/v1/actions/reschedule-check";
             let data = {
                 type: "Host",
                 force_check: true,
@@ -53,8 +53,8 @@ export class IcingaApi extends AbstractMonitor {
     fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
-                const hosturl = this.settings.url + "/api/v1/objects/hosts?attrs=display_name&attrs=last_check_result";
-                const servicesurl = this.settings.url + "/api/v1/objects/services?attrs=display_name&attrs=last_check_result";
+                const hosturl = this.settings.url + "/v1/objects/hosts?attrs=display_name&attrs=last_check_result";
+                const servicesurl = this.settings.url + "/v1/objects/services?attrs=display_name&attrs=last_check_result";
 
                 const hostsrequest = this.environment.load(hosturl, this.settings.username, this.settings.password);
                 const servicesrequest = this.environment.load(servicesurl, this.settings.username, this.settings.password);
@@ -68,7 +68,13 @@ export class IcingaApi extends AbstractMonitor {
                         resolve(m);
                     })
                     .catch(a => {
-                        resolve(Monitor.ErrorMonitorData("Connection error. Check settings and log. " + a[0] + "|" + a[1]));
+                        let msg = "Connection error: ";
+                        if (typeof a === "string") {
+                            msg += a;
+                        } else {
+                            msg += 'Check settings and log.';
+                        }
+                        resolve(Monitor.ErrorMonitorData(msg));
                     })
             }
         );

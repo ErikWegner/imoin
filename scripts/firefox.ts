@@ -18,6 +18,12 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     constructor() {
         super();
         browser.runtime.onConnect.addListener(this.connected.bind(this));
+        // temporary update notification
+        browser.runtime.onInstalled.addListener((details)=> {
+            if (details.reason === 'update') {
+                this.openWebPage('https://github.com/ErikWegner/imoin/releases/tag/17.1.0');
+            }
+        });
     }    
 
     loadSettings(): Promise<Settings> {

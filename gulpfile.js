@@ -139,12 +139,30 @@ gulp.task('chrome-package', [
         .pipe(gulp.dest(targetpaths.target + '/artifacts/'));
 });
 
-// bump versions on package/bower/manifest
+// bump versions on package/manifest
 gulp.task('bump', function () {
     // read version from package.json
     var pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));;
     // increment version
     var newVer = semver.inc(pkg.version, 'patch');
+
+    return gulp.src([
+        './chrome/manifest.json',
+        './firefox/manifest.json',
+        './electron/package.json',
+        './package.json'], { base: './' })
+        .pipe(bump({
+            version: newVer
+        }))
+        .pipe(gulp.dest('./'));
+});
+
+// bump versions on package/manifest
+gulp.task('bump-minor', function () {
+    // read version from package.json
+    var pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));;
+    // increment version
+    var newVer = semver.inc(pkg.version, 'minor');
 
     return gulp.src([
         './chrome/manifest.json',

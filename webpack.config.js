@@ -21,7 +21,7 @@ module.exports = {
   },
 
   // Source maps support ('inline-source-map' also works)
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
 
   // Add the loader for .ts files.
   module: {

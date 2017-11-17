@@ -27,6 +27,7 @@ declare namespace WebExtension {
     }
 
     class Runtime {
+        onInstalled: InstalledEvent;
         onConnect: RuntimeEvent;
         connect(extensionId?: string, connectInfo? : {name?: string, includeTlsChannelId?: boolean}): Port;
         openOptionsPage(): void;
@@ -35,6 +36,17 @@ declare namespace WebExtension {
 
     class MessageSender {
 
+    }
+
+    interface InstalledEventDetails {
+        id? : string;
+        previousVersion?: string;
+        reason: string;
+        temporary: boolean;
+    }
+
+    class InstalledEvent {
+        addListener(callback: (details: InstalledEventDetails) => void): void;
     }
 
     class RuntimeEvent {
