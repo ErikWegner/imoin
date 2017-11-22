@@ -36,13 +36,6 @@ gulp.task('chrome-setpaths', function () {
     targetpaths.html = targetpaths.target + '/html'
 });
 
-gulp.task('electron-setpaths', function () {
-    tsProject = 'scripts/electron.ts';
-    targetpaths.target = 'release/electron';
-    targetpaths.icons = targetpaths.target + '/icons'
-    targetpaths.html = targetpaths.target + '/html'
-});
-
 gulp.task('copy-icons', function () {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
 })
@@ -85,22 +78,6 @@ gulp.task('firefox', [
 })
 
 
-gulp.task('electron', [
-    'electron-setpaths',
-    'copy-icons',
-    'ts-scripts',
-    'copy-html',
-], function () {
-    return es.concat(
-        gulp
-            .src([
-                'electron/package.json'
-            ])
-            .pipe(gulp.dest(targetpaths.target))
-    )
-
-})
-
 gulp.task('firefox-watch', [
     'firefox-setpaths',
     'ts-scripts',
@@ -113,16 +90,6 @@ gulp.task('firefox-watch', [
 
 gulp.task('chrome-watch', [
     'chrome-setpaths',
-    'ts-scripts',
-], function () {
-
-    gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
-
-})
-
-gulp.task('electron-watch', [
-    'electron-setpaths',
     'ts-scripts',
 ], function () {
 
@@ -149,7 +116,6 @@ gulp.task('bump', function () {
     return gulp.src([
         './chrome/manifest.json',
         './firefox/manifest.json',
-        './electron/package.json',
         './package.json'], { base: './' })
         .pipe(bump({
             version: newVer
@@ -167,7 +133,6 @@ gulp.task('bump-minor', function () {
     return gulp.src([
         './chrome/manifest.json',
         './firefox/manifest.json',
-        './electron/package.json',
         './package.json'], { base: './' })
         .pipe(bump({
             version: newVer
@@ -185,15 +150,9 @@ gulp.task('clean-chrome', ['chrome-setpaths'], function () {
         .pipe(clean());
 })
 
-gulp.task('clean-electron', ['electron-setpaths'], function () {
-    return gulp.src(targetpaths.target, { read: false })
-        .pipe(clean());
-})
-
 gulp.task('clean', [
     'clean-firefox',
     'clean-chrome',
-    'clean-electron'
 ], function () {
 
 })

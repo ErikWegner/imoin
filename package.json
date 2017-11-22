@@ -1,6 +1,6 @@
 {
   "name": "imoin",
-  "version": "17.1.0",
+  "version": "18.0.0",
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
@@ -9,15 +9,12 @@
     "bump-version-minor": "gulp bump-minor",
     "build:firefox": "gulp firefox",
     "build:chrome": "gulp chrome",
-    "build:electron": "gulp electron",
     "watch:firefox": "npm run build:firefox && gulp firefox-watch",
     "watch:chrome": "npm run build:chrome && gulp chrome-watch",
-    "watch:electron": "npm run build:electron && gulp electron-watch",
     "package:firefox": "npm run build:firefox && cd release/firefox && web-ext build",
     "package:chrome": "gulp clean-chrome && gulp chrome-package",
     "sign:firefox": "npm run package:firefox && web-ext sign --source-dir release/firefox --api-key=${npm_config_AMO_JWT_ISSUER} --api-secret=${npm_config_AMO_JWT_SECRET}",
     "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
-    "run:electron": "npm run build:electron && cd release/electron && electron .",
     "clean": "gulp clean"
   },
   "repository": {
@@ -33,13 +30,10 @@
   "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.0.4",
-    "@types/electron": "^1.6.10",
     "@types/mocha": "^2.2.43",
     "@types/sinon": "^2.3.6",
     "awesome-typescript-loader": "^3.3.0",
     "chai": "^4.1.2",
-    "electron": "^1.6.3",
-    "electron-settings": "^3.0.14",
     "event-stream": "^3.3.4",
     "gulp": "^3.9.1",
     "gulp-bump": "^2.7.0",
