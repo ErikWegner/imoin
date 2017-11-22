@@ -13,3 +13,15 @@
   background-color: #bfbfbf;
   height: 1px;
 }
+
+.options .instancelistmod {
+  margin-left: 12px;
+}
+
+.options .instancelistdelete {
+  color:#bf0000;
+}
+
+.options .instancelistadd {
+  color:#0000bf;
+}

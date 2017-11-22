@@ -29,6 +29,10 @@ function restoreOptions() {
     console.log(`Error: ${error}`);
   }
 
+  if (!host.storage) {
+    return;
+  }
+
   /* Change the array of keys to match the firefox.ts */
   if (hosttype == "browser") {
     var getting = host.storage.local.get(
@@ -37,6 +41,11 @@ function restoreOptions() {
   } else if (hosttype == "chrome") {
     host.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"], setCurrentChoice);
   }
+}
+
+function addInstance() {
+  const i = document.getElementById('instanceid');
+  i.options[i.options.length] = new Option("Instance " + i.options.length, i.options.length);
 }
 
 document.addEventListener("DOMContentLoaded", restoreOptions);
