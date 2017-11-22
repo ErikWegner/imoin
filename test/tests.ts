@@ -42,11 +42,11 @@ describe('nagioscore', function () {
   });
 
   function fetchDataAndRunTests(testexecutions: () => void) {
-    fs.readFile('test/data/nagioscore/hostlist.json', (err, hostlist) => {
+    fs.readFile('test/data/nagioscore/hostlist.json', (err: any, hostlist: any) => {
       if (err) {
         throw err;
       }
-      fs.readFile('test/data/nagioscore/servicelist.json', (err, servicelist) => {
+      fs.readFile('test/data/nagioscore/servicelist.json', (err: any, servicelist: any) => {
         if (err) {
           throw err;
         }
