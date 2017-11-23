@@ -17,10 +17,14 @@
         <select id="instanceid" name="instanceid">
           <option value="0">Default</option>
         </select>
-        <button type="button" class="instancelistmod instancelistadd" onclick="addInstance();">Add</button>
+        <button type="button" class="instancelistmod instancelistadd" id="addInstance">Add</button>
       </div>
       <div class="splitter"></div>
       <div class="group">
+          <label for="instancelabel">Label</label>
+          <input type="text" id="instancelabel" name="instancelabel" />
+        </div>
+        <div class="group">
         <label for="icingaversion">Version</label>
         <select id="icingaversion" name="icingaversion">
           <option value="cgi">CGI (Icinga 1.x)</option>
@@ -46,8 +50,8 @@
       </div>
       <div class="group">
         <label></label>
-        <button type="submit">Update</button>
-        <button type="button" class="instancelistmod instancelistdelete">Delete</button>
+        <button type="button" id="updateInstance">Update</button>
+        <button type="button" class="instancelistmod instancelistdelete" id="removeInstance">Delete</button>
       </div>
     </fieldset>
   </form>
