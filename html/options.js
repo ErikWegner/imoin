@@ -60,3 +60,7 @@ document.addEventListener('DOMContentLoaded', restoreOptions);
 document.querySelector('#addInstance').addEventListener('click', addInstance);
 document.querySelector('#updateInstance').addEventListener('click', updateInstance);
 document.querySelector('#removeInstance').addEventListener('click', removeInstance);
+
+if (typeof module !== 'undefined' && module.exports != null) {
+  exports.addInstance = addInstance;
+}
