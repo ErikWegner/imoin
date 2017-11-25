@@ -56,11 +56,16 @@ function removeInstance() {
 
 }
 
-document.addEventListener('DOMContentLoaded', restoreOptions);
-document.querySelector('#addInstance').addEventListener('click', addInstance);
-document.querySelector('#updateInstance').addEventListener('click', updateInstance);
-document.querySelector('#removeInstance').addEventListener('click', removeInstance);
+function addClickHandler(selector, handler) {
+  element = document.querySelector(selector);
+  if (!element || !element.addEventListener) {
+    return
+  }
 
-if (typeof module !== 'undefined' && module.exports != null) {
-  exports.addInstance = addInstance;
+  element.addEventListener('click', handler);
 }
+
+document.addEventListener('DOMContentLoaded', restoreOptions);
+addClickHandler('#addInstance', addInstance);
+addClickHandler('#updateInstance', updateInstance);
+addClickHandler('#removeInstance', removeInstance);
