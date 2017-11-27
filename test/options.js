@@ -1,6 +1,12 @@
 describe('options html', () => {
-  it('should add instance', (done) => {
+  beforeEach(() => {
+    updateDOM = sinon.spy();
+  });
+
+  it('should add instance', () => {
+    const l = instances.length;
     addInstance();
-    done();
-  })
-})
+    expect(instances.length).toBe(l + 1);
+    expect(updateDOM.calledOnce);
+  });
+});

@@ -1,6 +1,21 @@
 var hosttype = chrome ? 'chrome' : browser ? 'browser' : 'na'
 var host = chrome || browser;
 
+/*    ---- Library functions ---- */
+
+function createInstance(title) {
+  return {
+    instancelabel: title,
+    timerPeriod: 5,
+    icingaversion: 'cgi',
+    url: '',
+    username: '',
+    password: '',
+  }
+}
+
+const instances = [];
+
 function saveOptions() {
   host.storage.local.set({
     timerPeriod: parseInt(document.querySelector('#timerPeriod').value),
@@ -44,8 +59,9 @@ function restoreOptions() {
 }
 
 function addInstance() {
-  const i = document.getElementById('instanceid');
-  i.options[i.options.length] = new Option('Instance ' + i.options.length, i.options.length);
+  const i = createInstance('Instance ' + instances.length);
+  instances.push(i);
+  updateDOM();
 }
 
 function updateInstance() {
@@ -53,6 +69,12 @@ function updateInstance() {
 }
 
 function removeInstance() {
+  
+}
+
+/*    ---- Browser functions ---- */
+
+function updateDOM() {
 
 }
 
@@ -65,6 +87,7 @@ function addClickHandler(selector, handler) {
   element.addEventListener('click', handler);
 }
 
+/*    ---- Initialize ---- */
 document.addEventListener('DOMContentLoaded', restoreOptions);
 addClickHandler('#addInstance', addInstance);
 addClickHandler('#updateInstance', updateInstance);
