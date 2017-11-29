@@ -15,19 +15,7 @@ function createInstance(title) {
 }
 
 const instances = [];
-
-function saveOptions() {
-  host.storage.local.set({
-    timerPeriod: parseInt(document.querySelector('#timerPeriod').value),
-    icingaversion: document.querySelector('#icingaversion').value,
-    url: document.querySelector('#url').value,
-    username: document.querySelector('#username').value,
-    password: document.querySelector('#password').value,
-  });
-  var myPort = host.runtime.connect({name:'port-from-options'});
-  myPort.postMessage({command: 'SettingsChanged'});
-  myPort.disconnect();
-}
+let selectedInstance = -1;
 
 function restoreOptions() {
 
@@ -61,15 +49,23 @@ function restoreOptions() {
 function addInstance() {
   const i = createInstance('Instance ' + instances.length);
   instances.push(i);
+  selectedInstance = instances.length - 1;
   updateDOM();
 }
 
 function updateInstance() {
-
+  const i = instances[selectedInstance];
+  i.instancelabel = getFormTextValue('#instancelabel', 'Instance' + (selectedInstance + 1));
+  i.timerPeriod = parseInt(getFormTextValue('#timerPeriod', '5'));
+  i.icingaversion = getFormTextValue('#icingaversion', 'cgi');
+  i.url = getFormTextValue('#url', '');
+  i.username = getFormTextValue('#username', '');
+  i.password = getFormTextValue('#password', '');
+  saveOptions();
 }
 
 function removeInstance() {
-  
+
 }
 
 /*    ---- Browser functions ---- */
@@ -85,6 +81,19 @@ function addClickHandler(selector, handler) {
   }
 
   element.addEventListener('click', handler);
+}
+
+function getFormTextValue(selector, defaultValue) {
+  document.querySelector('#instancelabel').value || defaultValue;
+}
+
+function saveOptions() {
+  host.storage.local.set({
+    instances: instances
+  });
+  var myPort = host.runtime.connect({name:'port-from-options'});
+  myPort.postMessage({command: 'SettingsChanged'});
+  myPort.disconnect();
 }
 
 /*    ---- Initialize ---- */
