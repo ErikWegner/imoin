@@ -20,32 +20,21 @@ function createInstance(title) {
 }
 
 function restoreOptions() {
-
-  function setCurrentChoice(result) {
-    document.querySelector('#instancelabel').value = result.label || 'Default';
-    document.querySelector('#timerPeriod').value = result.timerPeriod || '5';
-    document.querySelector('#icingaversion').value = result.icingaversion || 'cgi';
-    document.querySelector('#url').value = result.url || '';
-    document.querySelector('#username').value = result.username || '';
-    document.querySelector('#password').value = result.password || '';
-  }
-
   function onError(error) {
     console.log(`Error: ${error}`);
   }
 
-  if (!host.storage) {
-    return;
-  }
-
-  /* Change the array of keys to match the firefox.ts */
-  if (hosttype == 'browser') {
-    var getting = host.storage.local.get(
-      ['timerPeriod', 'icingaversion', 'url', 'username', 'password']);
-    getting.then(setCurrentChoice, onError);
-  } else if (hosttype == 'chrome') {
-    host.storage.local.get(['timerPeriod', 'icingaversion', 'url', 'username', 'password'], setCurrentChoice);
-  }
+  return loadOptions().then((storageData) => {
+    if (!storageData) {
+      storageData = {};
+    }
+    instances = storageData.instances || [];
+    if (instances.length === 0) {
+      instances.push(createInstance('Default'));
+    }
+    selectedInstance = 0;
+    updateDOM();
+  }, onError);
 }
 
 function addInstance() {
@@ -77,8 +66,17 @@ function removeInstance() {
 
 /*    ---- Browser functions ---- */
 
-function updateDOM() {
+function updateDOM(instanceData) {
+  if (!instanceData) {
+    instanceData = createInstance('Default');
+  }
 
+  document.querySelector('#instancelabel').value = instanceData.label || 'Default';
+  document.querySelector('#timerPeriod').value = instanceData.timerPeriod || '5';
+  document.querySelector('#icingaversion').value = instanceData.icingaversion || 'cgi';
+  document.querySelector('#url').value = instanceData.url || '';
+  document.querySelector('#username').value = instanceData.username || '';
+  document.querySelector('#password').value = instanceData.password || '';
 }
 
 function addClickHandler(selector, handler) {
@@ -98,9 +96,22 @@ function saveOptions() {
   host.storage.local.set({
     instances: instances
   });
-  var myPort = host.runtime.connect({name:'port-from-options'});
-  myPort.postMessage({command: 'SettingsChanged'});
+  var myPort = host.runtime.connect({ name: 'port-from-options' });
+  myPort.postMessage({ command: 'SettingsChanged' });
   myPort.disconnect();
+}
+
+function loadOptions() {
+  return new Promise((resolve, reject) => {
+    if (host.storage) {
+      /* Change the array of keys to match the firefox.ts */
+      if (hosttype == 'browser') {
+        return host.storage.local.get(['instances']);
+      } else if (hosttype == 'chrome') {
+        host.storage.local.get(['instances'], (instances) => { resolve(instances); });
+      }
+    }
+  });
 }
 
 /*    ---- Initialize ---- */

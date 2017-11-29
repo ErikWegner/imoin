@@ -7,6 +7,7 @@ describe('options html', () => {
     updateDOM = sinon.spy();
     saveOptions = sinon.spy();
     getFormTextValue = sinon.stub();
+    loadOptions = sinon.stub().resolves({instance: createInstance('Unit test default')});
   });
 
   it('should add instance', () => {
@@ -80,4 +81,52 @@ describe('options html', () => {
     expect(instances.indexOf(removedInstance)).toBe(-1);
     expect(updateDOM.calledOnce).toBe(true);
   });
+
+  it('should restore options and update DOM', (done) => {
+    restoreOptions().then(() => {
+      expect(updateDOM.calledOnce).toBe(true);
+      done();
+    });
+  });
+
+  it('should restore with null argument', (done) => {
+    loadOptions = sinon.stub().resolves(null);
+    restoreOptions().then(() => {
+      expect(selectedInstance).toBe(0);
+      expect(instances.length).toBe(1);
+      expect(instances[0].instancelabel).toBe('Default');
+      done();
+    });
+  });
+
+  it('should restore with null value', (done) => {
+    loadOptions = sinon.stub().resolves({instances: null});
+    restoreOptions().then(() => {
+      expect(selectedInstance).toBe(0);
+      expect(instances.length).toBe(1);
+      expect(instances[0].instancelabel).toBe('Default');
+      done();
+    });
+  });
+
+  it('should restore with empty storage', (done) => {
+    loadOptions = sinon.stub().resolves({instances: []});
+    restoreOptions().then(() => {
+      expect(selectedInstance).toBe(0);
+      expect(instances.length).toBe(1);
+      expect(instances[0].instancelabel).toBe('Default');
+      done();
+    });
+  });
+
+  it('should restore with filled storage', (done) => {
+    loadOptions = sinon.stub().resolves({instances: [createInstance('should restore with filled storage instance')]});
+    restoreOptions().then(() => {
+      expect(selectedInstance).toBe(0);
+      expect(instances.length).toBe(1);
+      expect(instances[0].instancelabel).toBe('should restore with filled storage instance');
+      done();
+    });
+  });
+
 });
