@@ -1,6 +1,11 @@
 var hosttype = chrome ? 'chrome' : browser ? 'browser' : 'na'
 var host = chrome || browser;
 
+/*    ---- Global variables ---- */
+
+let instances = [];
+let selectedInstance = -1;
+
 /*    ---- Library functions ---- */
 
 function createInstance(title) {
@@ -13,9 +18,6 @@ function createInstance(title) {
     password: '',
   }
 }
-
-const instances = [];
-let selectedInstance = -1;
 
 function restoreOptions() {
 
@@ -65,7 +67,12 @@ function updateInstance() {
 }
 
 function removeInstance() {
+  if (instances.length < 2) {
+    return;
+  }
 
+  instances.splice(selectedInstance, 1);
+  updateDOM();
 }
 
 /*    ---- Browser functions ---- */
