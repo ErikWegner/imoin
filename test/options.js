@@ -82,6 +82,20 @@ describe('options html', () => {
     expect(updateDOM.calledOnce).toBe(true);
   });
 
+  it('should remove last instance and update selectedInstance', () => {
+    // create 4 instances
+    for (let i = 0; i < 4; i++) { addInstance(); }
+    // select instance 2
+    const l1 = selectedInstance;
+    const removedInstance = instances[selectedInstance];
+
+    updateDOM.reset(); // addInstance will call updateDOM
+    removeInstance();
+    expect(instances.indexOf(removedInstance)).toBe(-1);
+    expect(l1).toBe(3);
+    expect(selectedInstance).toBe(2);
+  });
+
   it('should restore options and update DOM', (done) => {
     restoreOptions().then(() => {
       expect(updateDOM.calledOnce).toBe(true);

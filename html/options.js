@@ -61,22 +61,41 @@ function removeInstance() {
   }
 
   instances.splice(selectedInstance, 1);
+  if (selectedInstance >= instances.length) {
+    selectedInstance = instances.length - 1;
+  }
   updateDOM();
 }
 
 /*    ---- Browser functions ---- */
 
-function updateDOM(instanceData) {
+function updateDOM() {
+  if (selectedInstance >= instances.length) {
+    return;
+  }
+
+  let instanceData = instances[selectedInstance];
   if (!instanceData) {
     instanceData = createInstance('Default');
   }
 
-  document.querySelector('#instancelabel').value = instanceData.label || 'Default';
+  document.querySelector('#instancelabel').value = instanceData.instancelabel || 'Default';
   document.querySelector('#timerPeriod').value = instanceData.timerPeriod || '5';
   document.querySelector('#icingaversion').value = instanceData.icingaversion || 'cgi';
   document.querySelector('#url').value = instanceData.url || '';
   document.querySelector('#username').value = instanceData.username || '';
   document.querySelector('#password').value = instanceData.password || '';
+
+  const i = document.getElementById('instanceid');
+  while (i.options.length > instances.length) {
+    i.options.remove(i.options.length - 1);
+  }
+  i.options = instances.map((instance, index) => {
+    return new Option(instance.instancelabel, index)
+  }).forEach((option, index) => {
+    i.options[index] = option;
+  })
+  i.options.selectedIndex = selectedInstance;
 }
 
 function addClickHandler(selector, handler) {
