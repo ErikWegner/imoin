@@ -122,15 +122,18 @@ function saveOptions() {
 
 function loadOptions() {
   return new Promise((resolve, reject) => {
-    if (host.storage) {
-      /* Change the array of keys to match the firefox.ts */
-      if (hosttype == 'browser') {
-        return host.storage.local.get(['instances']);
-      } else if (hosttype == 'chrome') {
-        host.storage.local.get(['instances'], (instances) => { resolve(instances); });
-      }
+    if (!host.storage) {
+      resolve(null);
+      return;
     }
-  });
+    /* Change the array of keys to match the firefox.ts */
+    if (hosttype == 'browser') {
+      return host.storage.local.get(['instances']);
+    } else if (hosttype == 'chrome') {
+      host.storage.local.get(['instances'], (instances) => { resolve(instances); });
+    }
+  }
+  );
 }
 
 /*    ---- Initialize ---- */
