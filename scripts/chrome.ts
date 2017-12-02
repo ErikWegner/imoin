@@ -4,7 +4,6 @@ import {AbstractWebExtensionsEnvironment} from "./AbstractWebExtensionsEnvironme
 import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
 import Status = Monitor.Status;
-import {EnvironmentFactory} from "./IEnvironment";
 import { init } from './main';
 
 /**
@@ -65,6 +64,4 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
     }
 }
 
-EnvironmentFactory.registerFactory(() => new Chrome());
-
-init(EnvironmentFactory.get());
+init(new Chrome());

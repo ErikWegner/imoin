@@ -4,7 +4,6 @@ import {AbstractWebExtensionsEnvironment} from "./AbstractWebExtensionsEnvironme
 import {Settings} from "./Settings";
 import {Monitor} from "./MonitorData";
 import {UICommand} from "./UICommand";
-import {EnvironmentFactory} from "./IEnvironment";
 import { init } from "./main";
 
 /**
@@ -64,6 +63,4 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     }
 }
 
-EnvironmentFactory.registerFactory(() => new Firefox());
-
-init(EnvironmentFactory.get());
+init(new Firefox());
