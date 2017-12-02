@@ -1,12 +1,10 @@
-/// <reference path="definitions/es6-promise/index.d.ts" />
-
-import {Monitor} from "./MonitorData";
+import { Monitor } from './MonitorData';
 import MonitorData = Monitor.MonitorData;
-import {IEnvironment} from "./IEnvironment";
-import {Settings} from "./Settings";
+import { IEnvironment } from './IEnvironment';
+import { ImoinMonitorInstance } from './Settings';
 
 export interface IMonitor {
-    init(environment: IEnvironment, settings: Settings): void
+    init(environment: IEnvironment, instance: ImoinMonitorInstance, index: number): void
     startTimer(): void
     /* Stop all activities */
     shutdown(): void

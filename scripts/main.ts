@@ -1,5 +1,5 @@
 import { IEnvironment } from './IEnvironment';
-import { Settings } from './Settings';
+import { Settings, ImoinMonitorInstance } from './Settings';
 import { IMonitor } from './IMonitor';
 import { IcingaApi } from './icingaapi';
 import { IcingaCgi } from './icingacgi';
@@ -9,16 +9,16 @@ import { NagiosCore } from './nagioscore';
  * Connecting all pieces together
  */
 
-function resolveMonitor(settings: Settings): IMonitor {
-    if (settings.icingaversion == "api1") {
+function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
+    if (instance.icingaversion == 'api1') {
         return new IcingaApi();
     }
 
-    if (settings.icingaversion == "cgi") {
+    if (instance.icingaversion == 'cgi') {
         return new IcingaCgi();
     }
 
-    if (settings.icingaversion == "nagioscore") {
+    if (instance.icingaversion == 'nagioscore') {
         return new NagiosCore();
     }
 
@@ -35,11 +35,13 @@ export function init(e: IEnvironment) {
         }
 
         e.loadSettings().then((settings) => {
-            monitor = resolveMonitor(settings);
-            if (monitor != null) {
-                monitor.init(e, settings);
-                monitor.startTimer();
-            }
+            settings.instances.forEach((instance, index) => {
+                monitor = resolveMonitor(instance);
+                if (monitor != null) {
+                    monitor.init(e, instance, index);
+                    monitor.startTimer();
+                }
+            });
         });
     }
 

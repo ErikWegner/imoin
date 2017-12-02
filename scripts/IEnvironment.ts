@@ -1,16 +1,20 @@
-/// <reference path="definitions/es6-promise/index.d.ts" />
-
-import {Settings} from "./Settings";
-import {Monitor} from "./MonitorData";
+import { Settings } from './Settings';
+import { Monitor } from './MonitorData';
 import MonitorData = Monitor.MonitorData;
-import {UICommand} from "./UICommand";
+import { UICommand } from './UICommand';
 
 export interface IEnvironment {
-    /* Execute the callback at every delay minutes */
-    initTimer(delay: number, callback: () => void): void;
+    /**
+     * Execute the callback at every delay minutes
+     * 
+     * @argument index Index when using multiple instances
+     * @argument callback function to run after each period
+     * @argument delay waiting period in minutes
+     */
+    initTimer(index: number, delay: number, callback: () => void): void;
 
     /* Disable the timer */
-    stopTimer(): void;
+    stopTimer(index: number): void;
 
     /* Execute the callback when the settings have changed */
     onSettingsChanged(callback: () => void): void;
