@@ -21,4 +21,20 @@ export class Settings {
         }
         return url.substr(0, l);
     }
+
+    static paramsToInstance(
+        delay: number,
+        version: IcingaOptionsVersion,
+        url: string,
+        user: string,
+        password: string
+    ): ImoinMonitorInstance {
+        return {
+            timerPeriod: delay,
+            icingaversion: version,
+            url: url,
+            username: user,
+            password: password
+        }
+    }
 }

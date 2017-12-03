@@ -18,10 +18,9 @@ describe('nagioscore', function () {
   let monitor: NagiosCore;
   let mockEnvLoad: sinon.SinonStub;
   let mockEnv: IEnvironment;
-  let settings: Settings;
 
   beforeEach(() => {
-    settings = new Settings(0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
+    const settings = Settings.paramsToInstance(0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
     mockEnvLoad = sinon.stub();
     mockEnv = {
       initTimer: sinon.spy(),
@@ -38,7 +37,7 @@ describe('nagioscore', function () {
     };
 
     monitor = new NagiosCore();
-    monitor.init(mockEnv, settings);
+    monitor.init(mockEnv, settings, 0);
   });
 
   function fetchDataAndRunTests(testexecutions: () => void) {
