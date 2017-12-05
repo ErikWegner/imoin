@@ -4,7 +4,7 @@
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.ts",
+    "test": "mocha -r ts-node/register test/test*.ts",
     "test:karma": "karma start karma.conf.js",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bump-minor",
