@@ -5,6 +5,7 @@
   "main": "",
   "scripts": {
     "test": "mocha -r ts-node/register test/test*.ts",
+    "test:mocha:watch": "mocha -w --watch-extensions ts -r ts-node/register test/test*.ts",
     "test:karma": "karma start karma.conf.js",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bump-minor",
