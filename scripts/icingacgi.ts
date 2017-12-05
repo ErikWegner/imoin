@@ -1,7 +1,7 @@
 import { AbstractMonitor } from './AbstractMonitor';
 import { Monitor } from './MonitorData';
 import { UICommand } from './UICommand';
-import { Settings } from './Settings';
+import { Settings, ImoinMonitorInstance } from './Settings';
 
 interface IIcingaCgiHostStatusJson {
     host_name: string;
@@ -99,22 +99,22 @@ export class IcingaCgi extends AbstractMonitor {
     private ProcessResponse_1_10(response: IIcingaCgiJson, status: Monitor.MonitorData) {
         var hso;
 
-        function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, settings: Settings): Monitor.Host {
+        function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, instance: ImoinMonitorInstance): Monitor.Host {
             hso = new Monitor.Host(hoststatus.host_display_name);
             hso.status = hoststatus.status;
             hso.checkresult = hoststatus.status_information;
             hso.has_been_acknowledged = hoststatus.has_been_acknowledged;
-            hso.hostlink = Settings.urlNoTrailingSlash(settings) + '/extinfo.cgi?type=1&host=' + hoststatus.host_name;
+            hso.hostlink = Settings.urlNoTrailingSlash(instance) + '/extinfo.cgi?type=1&host=' + hoststatus.host_name;
             return hso;
         }
 
-        function processServicestatus(servicestatus: IIcingaCgiServiceStatusJson, settings: Settings) {
+        function processServicestatus(servicestatus: IIcingaCgiServiceStatusJson, instance: ImoinMonitorInstance) {
             let hoststatus = status.getHostByName(servicestatus.host_name);
             let service = new Monitor.Service(servicestatus.service_description);
             hoststatus.addService(service);
             service.checkresult = servicestatus.status_information;
             service.status = servicestatus.status;
-            service.servicelink = Settings.urlNoTrailingSlash(settings) +
+            service.servicelink = Settings.urlNoTrailingSlash(instance) +
                 '/extinfo.cgi?type=2&host=' + servicestatus.host_name +
                 '&service=' + servicestatus.service_description;
         }

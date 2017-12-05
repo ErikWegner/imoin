@@ -24,16 +24,12 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
         return new Promise<Settings>(
             (resolve, reject) => {
                 chrome.storage.local.get(
-                    ['timerPeriod', 'icingaversion', 'url', 'username', 'password', 'hostgroup'],
-                    items => {
-                        let settings = new Settings(
-                            items['timerPeriod'],
-                            items['icingaversion'],
-                            items['url'],
-                            items['username'],
-                            items['password'],
-                            items['hostgroup']
-                        );
+                    ['instances'],
+                    (data) => {
+                        const settings = new Settings();
+                        if (data.instances) {
+                            settings.instances = JSON.parse(data.instances);
+                        }
                         resolve(settings);
                     })
             }

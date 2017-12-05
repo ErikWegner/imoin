@@ -28,7 +28,7 @@ function restoreOptions() {
     if (!storageData) {
       storageData = {};
     }
-    instances = storageData.instances || [];
+    instances = JSON.parse(storageData.instances || '[]');
     if (instances.length === 0) {
       instances.push(createInstance('Default'));
     }
@@ -112,8 +112,9 @@ function getFormTextValue(selector, defaultValue) {
 }
 
 function saveOptions() {
+  // storage does not save objects
   host.storage.local.set({
-    instances: instances
+    instances: JSON.stringify(instances)
   });
   var myPort = host.runtime.connect({ name: 'port-from-options' });
   myPort.postMessage({ command: 'SettingsChanged' });

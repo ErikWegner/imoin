@@ -5,9 +5,25 @@ describe('options html', () => {
     selectedInstance = -1;
     // Stub browser interactions
     updateDOM = sinon.spy();
-    saveOptions = sinon.spy();
+    //saveOptions = sinon.spy();
     getFormTextValue = sinon.stub();
-    loadOptions = sinon.stub().resolves({instance: createInstance('Unit test default')});
+    loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
+    port = {
+      postMessage: sinon.spy(),
+      disconnect: sinon.spy()
+    }
+    host = {
+      storage: {
+        local: {
+          set: sinon.spy()
+        }
+      },
+      runtime: {
+        connect: function() {
+          return port;
+        }
+      }
+    };
   });
 
   it('should add instance', () => {
@@ -29,7 +45,9 @@ describe('options html', () => {
   });
 
   it('should update instance', () => {
-    // create 4 instances
+    const saveOptionsSpy = sinon.spy(window, 'saveOptions');
+    
+        // create 4 instances
     for (let i = 0; i < 4; i++) { addInstance(); }
     // select instance 2
     selectedInstance = 1;
@@ -51,7 +69,7 @@ describe('options html', () => {
     expect(probe.url).toBe('Call #url');
     expect(probe.username).toBe('Call #username');
     expect(probe.password).toBe('Call #password');
-    expect(saveOptions.calledOnce).toBe(true);
+    expect(saveOptionsSpy.callCount).toBe(1);
   });
 
   it('should not remove last instance', () => {
@@ -114,7 +132,7 @@ describe('options html', () => {
   });
 
   it('should restore with null value', (done) => {
-    loadOptions = sinon.stub().resolves({instances: null});
+    loadOptions = sinon.stub().resolves({ instances: null });
     restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
@@ -124,7 +142,7 @@ describe('options html', () => {
   });
 
   it('should restore with empty storage', (done) => {
-    loadOptions = sinon.stub().resolves({instances: []});
+    loadOptions = sinon.stub().resolves({ instances: '[]' });
     restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
@@ -134,7 +152,8 @@ describe('options html', () => {
   });
 
   it('should restore with filled storage', (done) => {
-    loadOptions = sinon.stub().resolves({instances: [createInstance('should restore with filled storage instance')]});
+    const r = [createInstance('should restore with filled storage instance')];
+    loadOptions = sinon.stub().resolves({ instances: JSON.stringify(r) });
     restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
@@ -143,4 +162,23 @@ describe('options html', () => {
     });
   });
 
+  it('should restore 4 instances', (done) => {
+    loadOptions = sinon.stub().resolves({ instances: '[{"instancelabel":"Instance 0","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 1","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 2","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 3","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""}]' });
+    restoreOptions().then(() => {
+      expect(selectedInstance).toBe(0);
+      expect(instances.length).toBe(4);
+      expect(instances[2].instancelabel).toBe('Instance 2');
+      done();
+    });
+  });
+
+  it('should save instances object', () => {
+    const setSpy = host.storage.local.set;
+    // create 4 instances
+    for (let i = 0; i < 4; i++) { addInstance(); }
+    saveOptions();
+    expect(setSpy.callCount).toBe(1);
+    const arg = setSpy.args[0];
+    expect(arg[0].instances).toBe(JSON.stringify(instances));
+  });
 });
