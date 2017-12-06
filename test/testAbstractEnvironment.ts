@@ -71,6 +71,20 @@ describe('AbstractEnvironnment', () => {
     expect(r.getMessage()).to.equal('(U1) Fail 1\n(U2) Fail 2');
   });
 
+
+  it('should merge error result and green result to message', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[2] = Monitor.ErrorMonitorData('Fail 1');
+    b[2].instanceLabel = 'U1';
+    b[2].updateCounters();
+    b[5] = new Monitor.MonitorData();
+    b[5].instanceLabel = 'U2';
+    b[5].updateCounters();
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.getMessage()).to.equal('(U1) Fail 1');
+  });
+
   it('should merge empty buffer', () => {
     const r = AbstractEnvironment.mergeResultsFromAllInstances({});
     expect(r.getState()).to.equal(Monitor.Status.RED);
@@ -81,8 +95,15 @@ describe('AbstractEnvironnment', () => {
     const b: { [index: number]: Monitor.MonitorData } = {};
     for (let i = 0; i < 4; i++) {
       const m = new Monitor.MonitorData();
-      m.setState(i % 2 === 1 ? Monitor.Status.YELLOW : Monitor.Status.GREEN);
-      b[i] = m;
+      const h = new Monitor.Host('U1');
+      const s = new Monitor.Service('S' + i);
+      
+      b[i] = m;      
+      m.addHost(h);
+      h.addService(s);
+
+      h.setState('UP');
+      s.status = i % 2 === 1 ? 'WARNING' : 'OK';
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -100,5 +121,102 @@ describe('AbstractEnvironnment', () => {
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
     expect(r.getState()).to.equal(Monitor.Status.GREEN);
+  });
+
+  it('should sum hosterrors', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    for (let i = 0; i < 4; i++) {
+      const m = new Monitor.MonitorData();
+      const h = new Monitor.Host('U1');
+      
+      b[i] = m;      
+      m.addHost(h);
+
+      h.setState('DOWN');
+    }
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.hosterrors).to.equal(4);
+  });
+
+  it('should sum hostup', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    for (let i = 0; i < 7; i++) {
+      const m = new Monitor.MonitorData();
+      const h = new Monitor.Host('U1');
+      
+      b[i] = m;      
+      m.addHost(h);
+
+      h.setState('UP');
+    }
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.hostup).to.equal(7);
+  });
+
+  it('should sum serviceerrors', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    for (let i = 0; i < 6; i++) {
+      const m = new Monitor.MonitorData();
+      const h = new Monitor.Host('U1');
+      const s = new Monitor.Service('S' + i);
+      
+      b[i] = m;      
+      m.addHost(h);
+      h.addService(s);
+
+      s.status = 'CRITICAL';
+    }
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.serviceerrors).to.equal(6);
+  });
+
+  it('should sum servicewarnings', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    for (let i = 0; i < 5; i++) {
+      const m = new Monitor.MonitorData();
+      const h = new Monitor.Host('U1');
+      const s = new Monitor.Service('S' + i);
+      
+      b[i] = m;      
+      m.addHost(h);
+      h.addService(s);
+
+      s.status = 'WARNING';
+    }
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.servicewarnings).to.equal(5);
+  });
+
+  it('should sum serviceok', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    for (let i = 0; i < 4; i++) {
+      const m = new Monitor.MonitorData();
+      const h = new Monitor.Host('U1');
+      const s = new Monitor.Service('S' + i);
+      
+      b[i] = m;      
+      m.addHost(h);
+      h.addService(s);
+
+      s.status = 'OK';
+    }
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.serviceok).to.equal(4);
+  });
+
+  it('should sum error results to hosterrors', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[2] = Monitor.ErrorMonitorData('Fail 1');
+    b[5] = Monitor.ErrorMonitorData('Fail 2');
+    b[2].updateCounters();
+    b[5].updateCounters();
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.hosterrors).to.equal(2);
   });
 });

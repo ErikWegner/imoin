@@ -133,20 +133,39 @@ export abstract class AbstractEnvironment implements IEnvironment {
         const r = new Monitor.MonitorData();
 
         r.setState(AbstractEnvironment.mergeStateFromAllInstances(sources));
-        r.setMessage(AbstractEnvironment.mergeMessagesFromAllInstances(sources))
+        const allMessages = AbstractEnvironment.mergeMessagesFromAllInstances(sources);
+        r.setMessage(allMessages.join("\n"));
 
+        sources
+            .map((source) => source.hosts)
+            .forEach((hosts) => r.hosts = r.hosts.concat(hosts));
+
+        r.updateCounters();
+        r.hosterrors += allMessages.length;
+        
         return r;
+    }
+
+    private static sumFieldFromAllInstances(sources: Monitor.MonitorData[], field: "hosterrors" | "serviceerrors" | "servicewarnings" | "serviceok" | "hostup"): number {
+        return sources
+            .map((monitorData) => monitorData[field])
+            .reduce((acc, val) => acc + val);
     }
 
     private static updatePendingResult(): Monitor.MonitorData {
         const r = new Monitor.MonitorData();
         r.setState(Monitor.Status.RED);
         r.setMessage('Update pending');
+        r.hosterrors = 0;
+        r.servicewarnings = 0;
+        r.serviceerrors = 0;
         return r;
     }
 
-    private static mergeMessagesFromAllInstances(sources: Monitor.MonitorData[]): string {
-        return sources.map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`).join("\n");
+    private static mergeMessagesFromAllInstances(sources: Monitor.MonitorData[]): string[] {
+        return sources
+        .filter((monitorData) => typeof(monitorData.message) === "string" && monitorData.message != "")
+        .map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`);
     }
 
     private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {

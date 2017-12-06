@@ -45,12 +45,11 @@ var filtered_lists_templates = {};
 
 function showAndUpdatePanelContent(data) {
     const message = data.message;
+    log("Rendering main template")
+    rendered_template = renderMainTemplate(data);
     if (message) {
         log("Message " + message)
-        rendered_template = renderTemplateError(message);
-    } else {
-        log("Rendering main template")
-        rendered_template = renderMainTemplate(data);
+        rendered_template.unshift(renderTemplateError(message));
     }
 
     log("Render prep done");
@@ -83,13 +82,6 @@ function renderTemplateError(message) {
     p.setAttribute("class", "errormessage");
     r.appendChild(p);
     p.appendChild(document.createTextNode(message));
-
-    var a = document.createElement("span");
-    a.setAttribute("class", "refresh");
-    a.appendChild(document.createTextNode("↺ Refresh"));
-    p = document.createElement("p");
-    p.appendChild(a);
-    r.appendChild(p);
 
     return r;
 }
