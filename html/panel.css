@@ -220,3 +220,7 @@ tr.service td.OK {
 body {
     min-width: 400px;
 }
+
+.errormessage {
+    white-space: pre;
+}

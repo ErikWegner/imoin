@@ -22,6 +22,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
     protected onSettingsChangedCallback: () => void;
     private onUICommandCallback: (param: UICommand) => void;
     private alarmCallbacks: { [alarmName: string]: () => void } = {};
+    private dataBuffers: { [index: number]: Monitor.MonitorData } = {};
 
     protected static prepareIconAndBadgetext(data: Monitor.MonitorData): IconAndBadgetext {
         let path = '';
@@ -86,9 +87,10 @@ export abstract class AbstractEnvironment implements IEnvironment {
         }
     }
 
-    public displayStatus(data: Monitor.MonitorData): void {
+    public displayStatus(index: number, data: Monitor.MonitorData): void {
         this.debug('displayStatus');
-        this.dataBuffer = data;
+        this.dataBuffers[index] = data;
+        this.dataBuffer = AbstractEnvironment.mergeResultsFromAllInstances(this.dataBuffers);
         this.updateIconAndBadgetext();
         this.trySendDataToPopup();
     }
@@ -98,8 +100,8 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
         if (command == 'triggerRefresh') {
             Object.keys(this.alarmCallbacks).forEach((alarmName) => {
-                this.handleAlarm({name: alarmName});
-            });            
+                this.handleAlarm({ name: alarmName });
+            });
         }
 
         if (command == 'triggerOpenPage') {
@@ -119,5 +121,28 @@ export abstract class AbstractEnvironment implements IEnvironment {
         if (command == 'SettingsChanged') {
             this.notifySettingsChanged();
         }
+    }
+
+    public static mergeResultsFromAllInstances(buffers: { [index: number]: Monitor.MonitorData }): Monitor.MonitorData {
+        const r = new Monitor.MonitorData();
+        const sources = Object.keys(buffers).map((key) => buffers[parseInt(key)]);
+
+        r.setState(AbstractEnvironment.mergeStateFromAllInstances(sources));
+        r.setMessage(AbstractEnvironment.mergeMessagesFromAllInstances(sources))
+
+        return r;
+    }
+
+    private static mergeMessagesFromAllInstances(sources: Monitor.MonitorData[]): string {
+        if (sources.length === 0) {
+            return 'Update pending';
+        }
+        return sources.map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`).join("\n");
+    }
+
+    private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {
+        if (sources.every((monitorData) => monitorData.getState() != Monitor.Status.RED)) {
+        }
+        return Monitor.Status.RED;
     }
 }

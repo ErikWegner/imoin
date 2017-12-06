@@ -36,13 +36,6 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
         )
     }
 
-    displayStatus(data: Monitor.MonitorData): void {
-        this.debug('Chrome.displayStatus');
-        this.dataBuffer = data;
-        this.updateIconAndBadgetext();
-        this.trySendDataToPopup();
-    }
-
     debug(o: any) {
         // no-op
     }

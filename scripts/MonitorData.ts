@@ -60,6 +60,7 @@ export namespace Monitor {
         public servicewarnings: number;
         public serviceerrors: number;
         public updatetime: string;
+        public instanceLabel: string;
 
         setState(state: Status) {
             this.state = state;

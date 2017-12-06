@@ -2,6 +2,8 @@ import 'mocha';
 import { assert, expect } from 'chai';
 import * as sinon from 'sinon';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
+import { Monitor } from '../scripts/MonitorData';
+import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 
 describe('AbstractEnvironnment', () => {
   it('should register and handle one alarm', () => {
@@ -48,4 +50,28 @@ describe('AbstractEnvironnment', () => {
     // second callback has been executed
     expect(spies[1].called).to.equal(true);
   });
+
+  it('should merge error results to status', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[2] = Monitor.ErrorMonitorData('Fail 1');
+    b[5] = Monitor.ErrorMonitorData('Fail 2');
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.getState()).to.equal(Monitor.Status.RED);
+  })
+
+  it('should merge error results to message', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[2] = Monitor.ErrorMonitorData('Fail 1');
+    b[5] = Monitor.ErrorMonitorData('Fail 2');
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.getMessage()).to.equal('Fail 1<br>Fail 2');
+  })
+
+  it('should merge empty buffer', () => {
+    const r = AbstractEnvironment.mergeResultsFromAllInstances({});
+    expect(r.getState()).to.equal(Monitor.Status.RED);
+    expect(r.getMessage()).to.equal('Update pending');
+  })
 });

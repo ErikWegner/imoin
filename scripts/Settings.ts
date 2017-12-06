@@ -1,6 +1,7 @@
 export type IcingaOptionsVersion = 'cgi' | 'api1' | 'nagioscore';
 
 export interface ImoinMonitorInstance {
+    instancelabel: string;
     timerPeriod: number;
     icingaversion: IcingaOptionsVersion;
     url: string;
@@ -23,6 +24,7 @@ export class Settings {
     }
 
     static paramsToInstance(
+        instancelabel: string,
         delay: number,
         version: IcingaOptionsVersion,
         url: string,
@@ -34,7 +36,8 @@ export class Settings {
             icingaversion: version,
             url: url,
             username: user,
-            password: password
+            password: password,
+            instancelabel: instancelabel
         }
     }
 }

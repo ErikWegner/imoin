@@ -23,7 +23,7 @@ export interface IEnvironment {
     loadSettings(): Promise<Settings>;
 
     /* Update the UI to reflect the updated status data */
-    displayStatus(data: MonitorData): void;
+    displayStatus(index: number, data: MonitorData): void;
 
     /* Load a resource */
     load(url: string, username: string, password: string): Promise<string>;

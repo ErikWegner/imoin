@@ -20,7 +20,7 @@ describe('nagioscore', function () {
   let mockEnv: IEnvironment;
 
   beforeEach(() => {
-    const settings = Settings.paramsToInstance(0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
+    const settings = Settings.paramsToInstance('unittest instance', 0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
     mockEnvLoad = sinon.stub();
     mockEnv = {
       initTimer: sinon.spy(),

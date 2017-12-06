@@ -80,7 +80,7 @@ function renderTemplateError(message) {
     r.appendChild(img);
     r.appendChild(document.createElement("br"));
     var p = document.createElement("p");
-    p.setAttribute("class", "errormessag");
+    p.setAttribute("class", "errormessage");
     r.appendChild(p);
     p.appendChild(document.createTextNode(message));
 
