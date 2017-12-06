@@ -124,8 +124,13 @@ export abstract class AbstractEnvironment implements IEnvironment {
     }
 
     public static mergeResultsFromAllInstances(buffers: { [index: number]: Monitor.MonitorData }): Monitor.MonitorData {
-        const r = new Monitor.MonitorData();
         const sources = Object.keys(buffers).map((key) => buffers[parseInt(key)]);
+
+        if (sources.length === 0) {
+            return AbstractEnvironment.updatePendingResult();
+        }
+
+        const r = new Monitor.MonitorData();
 
         r.setState(AbstractEnvironment.mergeStateFromAllInstances(sources));
         r.setMessage(AbstractEnvironment.mergeMessagesFromAllInstances(sources))
@@ -133,15 +138,24 @@ export abstract class AbstractEnvironment implements IEnvironment {
         return r;
     }
 
+    private static updatePendingResult(): Monitor.MonitorData {
+        const r = new Monitor.MonitorData();
+        r.setState(Monitor.Status.RED);
+        r.setMessage('Update pending');
+        return r;
+    }
+
     private static mergeMessagesFromAllInstances(sources: Monitor.MonitorData[]): string {
-        if (sources.length === 0) {
-            return 'Update pending';
-        }
         return sources.map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`).join("\n");
     }
 
     private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {
         if (sources.every((monitorData) => monitorData.getState() != Monitor.Status.RED)) {
+            if (sources.every((monitorData) => monitorData.getState() === Monitor.Status.GREEN)) {
+                return Monitor.Status.GREEN;
+            }
+
+            return Monitor.Status.YELLOW;
         }
         return Monitor.Status.RED;
     }

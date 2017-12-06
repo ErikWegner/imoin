@@ -137,7 +137,8 @@ export namespace Monitor {
         }
     }
 
-    export function ErrorMonitorData(message: string,
+    export function ErrorMonitorData(
+        message: string,
         url?: string): MonitorData {
         let m = new MonitorData();
         m.setState(Status.RED);

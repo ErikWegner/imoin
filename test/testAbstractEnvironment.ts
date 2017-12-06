@@ -58,20 +58,47 @@ describe('AbstractEnvironnment', () => {
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
     expect(r.getState()).to.equal(Monitor.Status.RED);
-  })
+  });
 
   it('should merge error results to message', () => {
     const b: { [index: number]: Monitor.MonitorData } = {};
     b[2] = Monitor.ErrorMonitorData('Fail 1');
+    b[2].instanceLabel = 'U1';
     b[5] = Monitor.ErrorMonitorData('Fail 2');
+    b[5].instanceLabel = 'U2';
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
-    expect(r.getMessage()).to.equal('Fail 1<br>Fail 2');
-  })
+    expect(r.getMessage()).to.equal('(U1) Fail 1\n(U2) Fail 2');
+  });
 
   it('should merge empty buffer', () => {
     const r = AbstractEnvironment.mergeResultsFromAllInstances({});
     expect(r.getState()).to.equal(Monitor.Status.RED);
     expect(r.getMessage()).to.equal('Update pending');
-  })
+  });
+
+  it('should merge yellow and green results to yellow', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    for (let i = 0; i < 4; i++) {
+      const m = new Monitor.MonitorData();
+      m.setState(i % 2 === 1 ? Monitor.Status.YELLOW : Monitor.Status.GREEN);
+      b[i] = m;
+    }
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.getState()).to.equal(Monitor.Status.YELLOW);
+  });
+
+
+  it('should merge green results to green', () => {
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    for (let i = 0; i < 4; i++) {
+      const m = new Monitor.MonitorData();
+      m.setState(Monitor.Status.GREEN);
+      b[i] = m;
+    }
+
+    const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    expect(r.getState()).to.equal(Monitor.Status.GREEN);
+  });
 });
