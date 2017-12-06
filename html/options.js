@@ -108,7 +108,7 @@ function addClickHandler(selector, handler) {
 }
 
 function getFormTextValue(selector, defaultValue) {
-  document.querySelector('#instancelabel').value || defaultValue;
+  document.querySelector(selector).value || defaultValue;
 }
 
 function saveOptions() {

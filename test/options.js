@@ -1,12 +1,16 @@
 describe('options html', () => {
+  getFormTextValueStub = sinon.stub(window, 'getFormTextValue');
+  documentQuerySelectorStub = sinon.stub(document, 'querySelector');
+
   beforeEach(() => {
     // Re-Init global variables
     instances = [];
     selectedInstance = -1;
     // Stub browser interactions
     updateDOM = sinon.spy();
-    //saveOptions = sinon.spy();
-    getFormTextValue = sinon.stub();
+    // Reset all stubs
+    getFormTextValueStub.reset();
+    documentQuerySelectorStub.reset();    
     loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
     port = {
       postMessage: sinon.spy(),
@@ -53,7 +57,7 @@ describe('options html', () => {
     selectedInstance = 1;
 
     let callCounter = 0;
-    getFormTextValue.callsFake((selector, defaultValue) => {
+    getFormTextValueStub.callsFake((selector, defaultValue) => {
       callCounter++;
       if ('#timerPeriod' === selector) {
         return '17'
@@ -180,5 +184,18 @@ describe('options html', () => {
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
     expect(arg[0].instances).toBe(JSON.stringify(instances));
+  });
+
+  /**
+   * getFormTextValue uses _selector_ to find the element
+   */
+  it('should get form text value', () => {
+    const selector = '#jfdsalkfds98';
+    getFormTextValueStub.callThrough();
+    documentQuerySelectorStub.onFirstCall().returns('p');
+    getFormTextValue(selector, 'k');
+    
+    expect(documentQuerySelectorStub.callCount).toBe(1);
+    expect(documentQuerySelectorStub.args[0][0]).toBe(selector);
   });
 });
