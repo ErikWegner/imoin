@@ -67,6 +67,15 @@ function removeInstance() {
   updateDOM();
 }
 
+function selectionChanged(e) {
+  const index = parseInt(e.target.value);
+  if (index >= 0 && index < instances.length) {
+    selectedInstance = index;
+  }
+
+  updateDOM();
+}
+
 /*    ---- Browser functions ---- */
 
 function updateDOM() {
@@ -137,8 +146,16 @@ function loadOptions() {
   );
 }
 
+function addDropdownEventHandler(callback) {
+  const ddl = document.querySelector('#instanceid');
+  if (!ddl) { return; }
+
+  ddl.addEventListener('change', callback);
+}
+
 /*    ---- Initialize ---- */
 document.addEventListener('DOMContentLoaded', restoreOptions);
 addClickHandler('#addInstance', addInstance);
 addClickHandler('#updateInstance', updateInstance);
 addClickHandler('#removeInstance', removeInstance);
+addDropdownEventHandler(selectionChanged);

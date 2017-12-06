@@ -10,7 +10,7 @@ describe('options html', () => {
     updateDOM = sinon.spy();
     // Reset all stubs
     getFormTextValueStub.reset();
-    documentQuerySelectorStub.reset();    
+    documentQuerySelectorStub.reset();
     loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
     port = {
       postMessage: sinon.spy(),
@@ -23,7 +23,7 @@ describe('options html', () => {
         }
       },
       runtime: {
-        connect: function() {
+        connect: function () {
           return port;
         }
       }
@@ -50,8 +50,8 @@ describe('options html', () => {
 
   it('should update instance', () => {
     const saveOptionsSpy = sinon.spy(window, 'saveOptions');
-    
-        // create 4 instances
+
+    // create 4 instances
     for (let i = 0; i < 4; i++) { addInstance(); }
     // select instance 2
     selectedInstance = 1;
@@ -194,8 +194,34 @@ describe('options html', () => {
     getFormTextValueStub.callThrough();
     documentQuerySelectorStub.onFirstCall().returns('p');
     getFormTextValue(selector, 'k');
-    
+
     expect(documentQuerySelectorStub.callCount).toBe(1);
     expect(documentQuerySelectorStub.args[0][0]).toBe(selector);
   });
+
+  it('should update selected instance', () => {
+    // create 4 instances
+    for (let i = 0; i < 4; i++) { addInstance(); }
+    const sel1 = selectedInstance;
+    selectionChanged({ target: { value: '2' } });
+    const sel2 = selectedInstance;
+
+    // last added instance is selected
+    expect(sel1).toBe(3);
+    // selected instance has changed
+    expect(sel2).toBe(2);
+  })
+
+  it('should update dom after selected instance changes', () => {
+    // create 4 instances
+    for (let i = 0; i < 4; i++) { addInstance(); }
+    const dc1 = updateDOM.callCount;
+    selectionChanged({ target: { value: '2' } });
+    const dc2 = updateDOM.callCount;
+
+    // adding an instance calls updateDOM
+    expect(dc1).toBe(4);
+    // changing selected instance triggers updateDOM
+    expect(dc2).toBe(5);
+  })
 });
