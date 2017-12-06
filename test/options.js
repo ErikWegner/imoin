@@ -1,6 +1,7 @@
 describe('options html', () => {
-  getFormTextValueStub = sinon.stub(window, 'getFormTextValue');
-  documentQuerySelectorStub = sinon.stub(document, 'querySelector');
+  const getFormTextValueStub = sinon.stub(window, 'getFormTextValue');
+  const documentQuerySelectorStub = sinon.stub(document, 'querySelector');
+  const saveOptionsSpy = sinon.spy(window, 'saveOptions');
 
   beforeEach(() => {
     // Re-Init global variables
@@ -49,8 +50,6 @@ describe('options html', () => {
   });
 
   it('should update instance', () => {
-    const saveOptionsSpy = sinon.spy(window, 'saveOptions');
-
     // create 4 instances
     for (let i = 0; i < 4; i++) { addInstance(); }
     // select instance 2
@@ -74,6 +73,15 @@ describe('options html', () => {
     expect(probe.username).toBe('Call #username');
     expect(probe.password).toBe('Call #password');
     expect(saveOptionsSpy.callCount).toBe(1);
+  });
+
+  it('should call updateDOM after updating instance', () => {
+    // create 4 instances
+    for (let i = 0; i < 4; i++) { addInstance(); }
+    updateDOM.reset(); // addInstance will call updateDOM
+
+    updateInstance();
+    expect(updateDOM.callCount).toBe(1);
   });
 
   it('should not remove last instance', () => {
@@ -197,6 +205,19 @@ describe('options html', () => {
 
     expect(documentQuerySelectorStub.callCount).toBe(1);
     expect(documentQuerySelectorStub.args[0][0]).toBe(selector);
+  });
+
+  /**
+   * getFormTextValue returns value
+   */
+  it('should get form text value', () => {
+    const selector = '#jfdsalkfds98';
+    getFormTextValueStub.callThrough();
+    documentQuerySelectorStub.onFirstCall().returns({ value: null });
+    const result = getFormTextValue(selector, 'k');
+
+    expect(documentQuerySelectorStub.callCount).toBe(1);
+    expect(result).toBe('k');
   });
 
   it('should update selected instance', () => {

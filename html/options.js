@@ -53,6 +53,7 @@ function updateInstance() {
   i.username = getFormTextValue('#username', '');
   i.password = getFormTextValue('#password', '');
   saveOptions();
+  updateDOM();
 }
 
 function removeInstance() {
@@ -96,14 +97,10 @@ function updateDOM() {
   document.querySelector('#password').value = instanceData.password || '';
 
   const i = document.getElementById('instanceid');
-  while (i.options.length > instances.length) {
-    i.options.remove(i.options.length - 1);
-  }
-  i.options = instances.map((instance, index) => {
-    return new Option(instance.instancelabel, index)
-  }).forEach((option, index) => {
-    i.options[index] = option;
-  })
+  i.options.length = 0;
+  instances
+    .map((instance, index) => new Option(instance.instancelabel, index))
+    .forEach((option) => i.options.add(option));
   i.options.selectedIndex = selectedInstance;
 }
 
@@ -117,7 +114,7 @@ function addClickHandler(selector, handler) {
 }
 
 function getFormTextValue(selector, defaultValue) {
-  document.querySelector(selector).value || defaultValue;
+  return document.querySelector(selector).value || defaultValue;
 }
 
 function saveOptions() {
