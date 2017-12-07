@@ -30,6 +30,7 @@ export namespace Monitor {
         public hostlink: string;
         public has_been_acknowledged: boolean = false;
         public checkresult: string;
+        public instanceindex: number;
 
         constructor(readonly name: string) {
         }

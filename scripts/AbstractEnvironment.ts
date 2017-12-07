@@ -21,10 +21,14 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
     protected dataBuffer = AbstractEnvironment.createUpdatePendingResult();
     protected onSettingsChangedCallback: () => void;
-    private onUICommandCallback: (param: UICommand) => void;
+    private onUICommandCallbacks: { [index: number]: (param: UICommand) => void } = {};
     private alarmCallbacks: { [alarmName: string]: () => void } = {};
     private dataBuffers: { [index: number]: Monitor.MonitorData } = {};
     private panelMonitorData: { [index: number]: IPanelMonitorData } = {};
+
+    protected static alarmName(index: number): string {
+        return 'imoin-' + index;
+    }
 
     protected static prepareIconAndBadgetext(data: Monitor.MonitorData): IconAndBadgetext {
         let path = '';
@@ -77,13 +81,14 @@ export abstract class AbstractEnvironment implements IEnvironment {
         this.onSettingsChangedCallback = callback
     }
 
-    public onUICommand(callback: (param: UICommand) => void): void {
-        this.onUICommandCallback = callback;
+    public onUICommand(index: number, callback: (param: UICommand) => void): void {
+        this.onUICommandCallbacks[index] = callback;
     }
 
-    protected emitUICommand(param: UICommand) {
-        if (this.onUICommandCallback != null) {
-            this.onUICommandCallback(param);
+    protected emitUICommand(index: number, param: UICommand) {
+        const f = this.onUICommandCallbacks[index];
+        if (f != null) {
+            f(param);
         }
     }
 
@@ -107,9 +112,16 @@ export abstract class AbstractEnvironment implements IEnvironment {
         const command = request.command || '';
 
         if (command == 'triggerRefresh') {
-            Object.keys(this.alarmCallbacks).forEach((alarmName) => {
+            const tf = (alarmName: string) => {
                 this.handleAlarm({ name: alarmName });
-            });
+            }
+
+            if (request.instanceindex) {
+                const alarmName = AbstractEnvironment.alarmName(request.instanceindex);
+                tf(alarmName);
+            } else {
+                Object.keys(this.alarmCallbacks).forEach(tf);
+            }
         }
 
         if (command == 'triggerOpenPage') {
@@ -123,7 +135,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
             c.hostname = request.hostname;
             c.servicename = request.servicename;
 
-            this.emitUICommand(c);
+            this.emitUICommand(request.instanceindex, c);
         }
 
         if (command == 'SettingsChanged') {

@@ -106,6 +106,7 @@ function renderHostTemplate(hostdata) {
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "actions");
     span.setAttribute("data-hostname", hostdata.name);
+    span.setAttribute("data-instanceindex", hostdata.instanceindex);
     //span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
     span.appendChild(chkimg.cloneNode(true));
@@ -145,6 +146,7 @@ function renderServiceTemplate(servicedata) {
     span = document.createElement("span");
     span.setAttribute("class", "actions");
     span.setAttribute("data-hostname", servicedata.host.name);
+    span.setAttribute("data-instanceindex", servicedata.host.instanceindex);
     span.setAttribute("data-servicename", servicedata.name);
     //span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
@@ -188,6 +190,13 @@ function registerEventHanderForClass(handler, classname) {
     });
 }
 
+function registerEventHanderBySelector(handler, selector) {
+    var elements = document.querySelectorAll(selector);
+    Array.prototype.forEach.call(elements, function (element) {
+        element.addEventListener("click", handler);
+    });
+}
+
 function registerMainEventHandlers() {
     var cbnames = ["r1", "r2", "r3", "i"];
     for (var cbname_index in cbnames) {
@@ -206,6 +215,7 @@ function registerDetailsEventHandlers() {
     registerEventHanderForClass(triggerOpenPage, 'servicename');
     registerEventHanderForClass(triggerCmdExec, 'recheck');
     registerEventHanderForClass(triggerCmdExec, 'ack');
+    registerEventHanderBySelector(triggerRefresh, '.instance .refresh');
 }
 
 function renderInstancesList(statusdata) {
@@ -217,7 +227,7 @@ function renderInstancesList(statusdata) {
             var instance = statusdata.instances[key];
             var tr = document.createElement('div');
             tr.setAttribute("class", "instance");
-            var td;
+            var td, a;
 
             // Instance label
             tr.appendChild(td = document.createElement('span'));
@@ -232,8 +242,10 @@ function renderInstancesList(statusdata) {
             // Instance actions
             tr.appendChild(td = document.createElement('span'));
             td.setAttribute("class", "actions")
-            td.appendChild(document.createTextNode(" "));
-            td.appendChild(chkimg.cloneNode(true));
+            td.setAttribute("data-instanceindex", key);
+            td.appendChild(a = document.createElement("span"));
+            a.setAttribute("class", "refresh");
+            a.appendChild(document.createTextNode("↺"));
 
             table.appendChild(tr);
         });
@@ -415,8 +427,20 @@ function AddCellToTr(tr, text, tdclass) {
     return tr;
 }
 
-function triggerRefresh() {
-    postPanelMessage({ command: "triggerRefresh" });
+function triggerRefresh(e) {
+    const el = e.target;
+    const message = { command: "triggerRefresh" };
+    if (el) {
+        const parentElement = el.parentElement;
+        if (parentElement) {
+            const instanceindex = parentElement.getAttribute("data-instanceindex");
+            if (instanceindex != null) {
+                message['instanceindex'] = instanceindex;
+            }
+        }
+    }
+
+    postPanelMessage(message);
 }
 
 function triggerCmdExec(e) {
@@ -430,12 +454,14 @@ function triggerCmdExec(e) {
 
     const hostname = parentElement.getAttribute("data-hostname");
     const servicename = parentElement.getAttribute("data-servicename") || "";
+    const instanceindex = parentElement.getAttribute("data-instanceindex");
 
     postPanelMessage({
         command: "triggerCmdExec",
         hostname: hostname,
         servicename: servicename,
-        remoteCommand: command
+        remoteCommand: command,
+        instanceindex: instanceindex
     });
 }
 

@@ -33,7 +33,7 @@ export interface IEnvironment {
     post(url: string, data: any, username: string, password: string): Promise<string>;
 
     /* UICommand for the monitor instance */
-    onUICommand(callback: (param: UICommand) => void): void;
+    onUICommand(index: number, callback: (param: UICommand) => void): void;
 
     /* Register a monitor instance */
     registerMonitorInstance(index: number, monitor: IPanelMonitorData): void;

@@ -91,9 +91,11 @@ export class IcingaApi extends AbstractMonitor {
         }
 
         const m = new Monitor.MonitorData();
-        let hostByName: { [name: string]: Monitor.Host } = {};
+        const hostByName: { [name: string]: Monitor.Host } = {};
+        const index = this.index;
         hostdata.results.forEach(hostdatahost => {
             let host = new Monitor.Host(hostdatahost.name);
+            host.instanceindex = index;
             hostByName[host.name] = host;
             host.setState(hostdatahost.attrs.last_check_result.state == 0 ? 'UP' : 'DOWN');
             host.checkresult = hostdatahost.attrs.last_check_result.output;

@@ -4,7 +4,6 @@ import { AbstractEnvironment } from './AbstractEnvironment';
 import { Settings } from './Settings';
 import { Monitor } from './MonitorData';
 import Status = Monitor.Status;
-import { UICommand } from './UICommand';
 
 /**
  * A common implementation
@@ -44,7 +43,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
     addAlarm(index: number, delay: number, callback: () => void): void {
         this.debug('Adding alarm every ' + delay + ' minutes');
-        const alarmName = 'imoin-' + index;
+        const alarmName = AbstractEnvironment.alarmName(index);
 
         this.host.alarms.create(
             alarmName,

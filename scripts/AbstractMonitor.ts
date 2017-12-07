@@ -14,7 +14,7 @@ export abstract class AbstractMonitor implements IMonitor {
         this.settings = settings;
         this.index = index;
 
-        this.environment.onUICommand(this.handleUICommand.bind(this));
+        this.environment.onUICommand(index, this.handleUICommand.bind(this));
     }
 
     startTimer() {

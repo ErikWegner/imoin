@@ -63,10 +63,12 @@ export class NagiosCore extends AbstractMonitor {
       return Monitor.ErrorMonitorData('Result empty');
     }
     const m = new Monitor.MonitorData();
-    let hostByName: { [name: string]: Monitor.Host } = {};
+    const hostByName: { [name: string]: Monitor.Host } = {};
+    const index = this.index;
     Object.keys(hostdata.data.hostlist).forEach((hostname) => {
       const hostdatahost = hostdata.data.hostlist[hostname];
       const host = new Monitor.Host(hostdatahost.name);
+      host.instanceindex = index;
       hostByName[host.name] = host;
       host.setState(hostdatahost.status == 2 ? 'UP' : 'DOWN');
       host.checkresult = hostdatahost.plugin_output;

@@ -105,6 +105,7 @@ export class IcingaCgi extends AbstractMonitor {
             hso.checkresult = hoststatus.status_information;
             hso.has_been_acknowledged = hoststatus.has_been_acknowledged;
             hso.hostlink = Settings.urlNoTrailingSlash(instance) + '/extinfo.cgi?type=1&host=' + hoststatus.host_name;
+            hso.instanceindex = this.instanceindex;
             return hso;
         }
 

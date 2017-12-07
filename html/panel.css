@@ -29,6 +29,7 @@ input[type=radio]:checked + label {
     background-color: #a0a0a0;
 }
 
+.instance,
 .host {
     padding: 0.5ex;
 }
@@ -206,6 +207,9 @@ tr.service td.OK {
 /* https://bugzilla.mozilla.org/show_bug.cgi?id=893113 */
 .refresh {
     cursor: pointer;
+}
+
+.header .refresh {
     color: #0d15ff;
     text-decoration: underline;
 }

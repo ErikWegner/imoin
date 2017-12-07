@@ -3,7 +3,6 @@
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
 import { Monitor } from './MonitorData';
-import { UICommand } from './UICommand';
 import { init } from './main';
 
 /**
