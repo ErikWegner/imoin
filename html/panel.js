@@ -409,7 +409,10 @@ function renderMainTemplate(statusdata) {
     AddInput(div1, "filter0", "r1", "Errors/Warnings").setAttribute("checked", "checked");
     AddInput(div1, "filter1", "r2", "All Hosts");
     AddInput(div1, "filter2", "r3", "All Services");
-    AddInput(div1, "instances", "i", "Instances");
+    
+    if (statusdata.instances && Object.keys(statusdata.instances).length > 1) {
+        AddInput(div1, "instances", "i", "Instances");
+    }
 
     div1 = document.createElement("div");
     div1.setAttribute("class", "content");
