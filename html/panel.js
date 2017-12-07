@@ -189,7 +189,7 @@ function registerEventHanderForClass(handler, classname) {
 }
 
 function registerMainEventHandlers() {
-    var cbnames = ["r1", "r2", "r3"];
+    var cbnames = ["r1", "r2", "r3", "i"];
     for (var cbname_index in cbnames) {
         var el = document.getElementById(cbnames[cbname_index]);
         if (el) {
@@ -206,6 +206,40 @@ function registerDetailsEventHandlers() {
     registerEventHanderForClass(triggerOpenPage, 'servicename');
     registerEventHanderForClass(triggerCmdExec, 'recheck');
     registerEventHanderForClass(triggerCmdExec, 'ack');
+}
+
+function renderInstancesList(statusdata) {
+    var r = document.createElement("div");
+    if (statusdata.instances) {
+        var table = document.createElement("div");
+        r.appendChild(table);
+        Object.keys(statusdata.instances).forEach((key) => {
+            var instance = statusdata.instances[key];
+            var tr = document.createElement('div');
+            tr.setAttribute("class", "instance");
+            var td;
+
+            // Instance label
+            tr.appendChild(td = document.createElement('span'));
+            td.setAttribute("class", "instancename");
+            td.appendChild(document.createTextNode(instance.instancelabel));
+
+            // Instance update time
+            tr.appendChild(td = document.createElement('span'));
+            td.setAttribute("class", "instanceupdatetime")
+            td.appendChild(document.createTextNode(instance.updatetime));
+
+            // Instance actions
+            tr.appendChild(td = document.createElement('span'));
+            td.setAttribute("class", "actions")
+            td.appendChild(document.createTextNode(" "));
+            td.appendChild(chkimg.cloneNode(true));
+
+            table.appendChild(tr);
+        });
+    }
+
+    return r;
 }
 
 function renderMainTemplate(statusdata) {
@@ -262,10 +296,13 @@ function renderMainTemplate(statusdata) {
         html3.appendChild(renderHostTemplate(hostdetail));
     }
 
+    var html4 = renderInstancesList(statusdata);
+
     filtered_lists_templates = {
         filter0: html1,
         filter1: html2,
-        filter2: html3
+        filter2: html3,
+        instances: html4
     };
 
 
@@ -344,6 +381,7 @@ function renderMainTemplate(statusdata) {
     AddInput(div1, "filter0", "r1", "Errors/Warnings").setAttribute("checked", "checked");
     AddInput(div1, "filter1", "r2", "All Hosts");
     AddInput(div1, "filter2", "r3", "All Services");
+    AddInput(div1, "instances", "i", "Instances");
 
     div1 = document.createElement("div");
     div1.setAttribute("class", "content");

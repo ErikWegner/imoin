@@ -33,11 +33,18 @@ input[type=radio]:checked + label {
     padding: 0.5ex;
 }
 
+.instanceupdatetime {
+    float: right;
+    margin-top: 0.5ex;    
+}
+
+.instance:hover,
 .host:hover {
     background-color: #eef;
     border-radius: 1ex;
 }
 
+.instancename,
 .hostname {
     font-size: 160%;
 }
@@ -218,7 +225,7 @@ tr.service td.OK {
 }
 
 body {
-    min-width: 400px;
+    min-width: 450px;
 }
 
 .errormessage {
