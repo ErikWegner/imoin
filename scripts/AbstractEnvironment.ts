@@ -94,6 +94,10 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
     protected notifySettingsChanged() {
         if (this.onSettingsChangedCallback != null) {
+            this.dataBuffer = AbstractEnvironment.createUpdatePendingResult();
+            this.dataBuffers = {};
+            this.panelMonitorData = {};
+            this.alarmCallbacks = {};
             this.onSettingsChangedCallback();
         }
     }

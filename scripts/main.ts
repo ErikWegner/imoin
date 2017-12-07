@@ -25,12 +25,13 @@ function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
     return null;
 }
 
-let monitor: IMonitor = null;
+let monitors: IMonitor[] = [];
 
 export function init(e: IEnvironment) {
 
     function start() {
-        if (monitor != null) {
+        let monitor;
+        while (monitor = monitors.pop()) {
             monitor.shutdown();
         }
 
@@ -43,11 +44,12 @@ export function init(e: IEnvironment) {
                 if (monitor != null) {
                     monitor.init(e, instance, index);
                     monitor.startTimer();
+                    monitors.push(monitor);
                 }
             });
         });
     }
 
     start();
-    e.onSettingsChanged(() => { start(); });
+    e.onSettingsChanged(start);
 }
