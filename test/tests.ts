@@ -33,7 +33,8 @@ describe('nagioscore', function () {
       onSettingsChanged: sinon.spy(),
       post: sinon.spy(),
       onUICommand: sinon.spy(),
-      load: mockEnvLoad
+      load: mockEnvLoad,
+      registerMonitorInstance: sinon.spy(),
     };
 
     monitor = new NagiosCore();
@@ -73,7 +74,7 @@ describe('nagioscore', function () {
       });
     });
   });
-  
+
   it('should process hosts', (done) => {
     fetchDataAndRunTests(() => {
       monitor.fetchStatus().then((data) => {
@@ -105,7 +106,7 @@ describe('nagioscore', function () {
         const host = data.hosts[1];
         const service1 = host.services[0];
         expect(service1.name).to.equal('/ Disk Usage');
-        expect(service1.status).to.equal('WARNING');        
+        expect(service1.status).to.equal('WARNING');
         done();
       });
     });

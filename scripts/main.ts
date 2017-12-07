@@ -36,6 +36,9 @@ export function init(e: IEnvironment) {
 
         e.loadSettings().then((settings) => {
             settings.instances.forEach((instance, index) => {
+                e.registerMonitorInstance(index, {
+                    instancelabel: instance.instancelabel
+                });
                 monitor = resolveMonitor(instance);
                 if (monitor != null) {
                     monitor.init(e, instance, index);

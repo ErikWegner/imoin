@@ -2,6 +2,7 @@ import { Settings } from './Settings';
 import { Monitor } from './MonitorData';
 import MonitorData = Monitor.MonitorData;
 import { UICommand } from './UICommand';
+import { IPanelMonitorData } from './IPanelMonitorData';
 
 export interface IEnvironment {
     /**
@@ -33,6 +34,9 @@ export interface IEnvironment {
 
     /* UICommand for the monitor instance */
     onUICommand(callback: (param: UICommand) => void): void;
+
+    /* Register a monitor instance */
+    registerMonitorInstance(index: number, monitor: IPanelMonitorData): void;
 
     debug(o: any): void;
     log(o: any): void;

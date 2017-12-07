@@ -4,6 +4,7 @@ import { UICommand } from './UICommand';
 import { Settings } from './Settings';
 import { IconAndBadgetext } from './IconAndBadgetext';
 import Status = Monitor.Status;
+import { IPanelMonitorData } from './IPanelMonitorData';
 
 export abstract class AbstractEnvironment implements IEnvironment {
     abstract load(url: string, username: string, password: string): Promise<string>;
@@ -18,11 +19,12 @@ export abstract class AbstractEnvironment implements IEnvironment {
     protected abstract openWebPage(url: string): void;
     protected abstract updateIconAndBadgetext(): void;
 
-    protected dataBuffer = Monitor.ErrorMonitorData('Update pending …');
+    protected dataBuffer = AbstractEnvironment.createUpdatePendingResult();
     protected onSettingsChangedCallback: () => void;
     private onUICommandCallback: (param: UICommand) => void;
     private alarmCallbacks: { [alarmName: string]: () => void } = {};
     private dataBuffers: { [index: number]: Monitor.MonitorData } = {};
+    private panelMonitorData: { [index: number]: IPanelMonitorData } = {};
 
     protected static prepareIconAndBadgetext(data: Monitor.MonitorData): IconAndBadgetext {
         let path = '';
@@ -67,6 +69,10 @@ export abstract class AbstractEnvironment implements IEnvironment {
         this.alarmCallbacks[alarm.name]();
     }
 
+    public registerMonitorInstance(index: number, monitor: IPanelMonitorData) {
+        this.panelMonitorData[index] = monitor;
+    }
+
     public onSettingsChanged(callback: () => void) {
         this.onSettingsChangedCallback = callback
     }
@@ -90,7 +96,9 @@ export abstract class AbstractEnvironment implements IEnvironment {
     public displayStatus(index: number, data: Monitor.MonitorData): void {
         this.debug('displayStatus');
         this.dataBuffers[index] = data;
+        this.panelMonitorData[index].updatetime = data.updatetime;
         this.dataBuffer = AbstractEnvironment.mergeResultsFromAllInstances(this.dataBuffers);
+        this.dataBuffer.instances = this.panelMonitorData;
         this.updateIconAndBadgetext();
         this.trySendDataToPopup();
     }
@@ -123,14 +131,14 @@ export abstract class AbstractEnvironment implements IEnvironment {
         }
     }
 
-    public static mergeResultsFromAllInstances(buffers: { [index: number]: Monitor.MonitorData }): Monitor.MonitorData {
+    public static mergeResultsFromAllInstances(buffers: { [index: number]: Monitor.MonitorData }): Monitor.PanelMonitorData {
         const sources = Object.keys(buffers).map((key) => buffers[parseInt(key)]);
 
         if (sources.length === 0) {
-            return AbstractEnvironment.updatePendingResult();
+            return AbstractEnvironment.createUpdatePendingResult();
         }
 
-        const r = new Monitor.MonitorData();
+        const r = new Monitor.PanelMonitorData();
 
         r.setState(AbstractEnvironment.mergeStateFromAllInstances(sources));
         const allMessages = AbstractEnvironment.mergeMessagesFromAllInstances(sources);
@@ -142,7 +150,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
         r.updateCounters();
         r.hosterrors += allMessages.length;
-        
+
         return r;
     }
 
@@ -152,8 +160,8 @@ export abstract class AbstractEnvironment implements IEnvironment {
             .reduce((acc, val) => acc + val);
     }
 
-    private static updatePendingResult(): Monitor.MonitorData {
-        const r = new Monitor.MonitorData();
+    private static createUpdatePendingResult(): Monitor.PanelMonitorData {
+        const r = new Monitor.PanelMonitorData();
         r.setState(Monitor.Status.RED);
         r.setMessage('Update pending');
         r.hosterrors = 0;
@@ -164,8 +172,8 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
     private static mergeMessagesFromAllInstances(sources: Monitor.MonitorData[]): string[] {
         return sources
-        .filter((monitorData) => typeof(monitorData.message) === "string" && monitorData.message != "")
-        .map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`);
+            .filter((monitorData) => typeof (monitorData.message) === "string" && monitorData.message != "")
+            .map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`);
     }
 
     private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {

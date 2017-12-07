@@ -97,8 +97,8 @@ describe('AbstractEnvironnment', () => {
       const m = new Monitor.MonitorData();
       const h = new Monitor.Host('U1');
       const s = new Monitor.Service('S' + i);
-      
-      b[i] = m;      
+
+      b[i] = m;
       m.addHost(h);
       h.addService(s);
 
@@ -128,8 +128,8 @@ describe('AbstractEnvironnment', () => {
     for (let i = 0; i < 4; i++) {
       const m = new Monitor.MonitorData();
       const h = new Monitor.Host('U1');
-      
-      b[i] = m;      
+
+      b[i] = m;
       m.addHost(h);
 
       h.setState('DOWN');
@@ -144,8 +144,8 @@ describe('AbstractEnvironnment', () => {
     for (let i = 0; i < 7; i++) {
       const m = new Monitor.MonitorData();
       const h = new Monitor.Host('U1');
-      
-      b[i] = m;      
+
+      b[i] = m;
       m.addHost(h);
 
       h.setState('UP');
@@ -161,8 +161,8 @@ describe('AbstractEnvironnment', () => {
       const m = new Monitor.MonitorData();
       const h = new Monitor.Host('U1');
       const s = new Monitor.Service('S' + i);
-      
-      b[i] = m;      
+
+      b[i] = m;
       m.addHost(h);
       h.addService(s);
 
@@ -179,8 +179,8 @@ describe('AbstractEnvironnment', () => {
       const m = new Monitor.MonitorData();
       const h = new Monitor.Host('U1');
       const s = new Monitor.Service('S' + i);
-      
-      b[i] = m;      
+
+      b[i] = m;
       m.addHost(h);
       h.addService(s);
 
@@ -197,8 +197,8 @@ describe('AbstractEnvironnment', () => {
       const m = new Monitor.MonitorData();
       const h = new Monitor.Host('U1');
       const s = new Monitor.Service('S' + i);
-      
-      b[i] = m;      
+
+      b[i] = m;
       m.addHost(h);
       h.addService(s);
 
@@ -219,4 +219,19 @@ describe('AbstractEnvironnment', () => {
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
     expect(r.hosterrors).to.equal(2);
   });
+
+  it('should update time when displayStatus() is called', () => {
+    const index = 5;
+    const mae = new MockAbstractEnvironment();
+    mae.registerMonitorInstance(index, { instancelabel: 't1' });
+    const monitorData = Monitor.ErrorMonitorData('');
+    monitorData.updatetime = 'cat fish dog';
+
+    mae.displayStatus(index, monitorData);
+
+    const buf = mae.getDataBuffer();
+    expect(buf.instances).to.be.an('object');
+    expect(buf.instances[index]).to.be.an('object');
+    expect(buf.instances[index].updatetime).to.equal('cat fish dog');
+  })
 });

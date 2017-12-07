@@ -1,13 +1,24 @@
 import { AbstractEnvironment } from '../../scripts/AbstractEnvironment';
 import { Settings } from '../../scripts/Settings';
+import * as sinon from 'sinon';
 
 export class MockAbstractEnvironment extends AbstractEnvironment {
+  public trySendDataToPopupSpy: sinon.SinonSpy;
+  constructor() {
+    super();
+    this.trySendDataToPopupSpy = sinon.spy();
+  }
+
   public registerAlarmCallbackPublic(alarmName: string, callback: () => void) {
     this.registerAlarmCallback(alarmName, callback);
   }
 
   public handleAlarmPublic(alarm: { name: string }) {
     this.handleAlarm(alarm);
+  }
+
+  public getDataBuffer() {
+    return this.dataBuffer;
   }
 
   load(url: string, username: string, password: string): Promise<string> {
@@ -35,12 +46,12 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
     throw new Error("Method not implemented.");
   }
   protected trySendDataToPopup(): void {
-    throw new Error("Method not implemented.");
+    this.trySendDataToPopupSpy(this.dataBuffer);
   }
   protected openWebPage(url: string): void {
     throw new Error("Method not implemented.");
   }
   protected updateIconAndBadgetext(): void {
-    throw new Error("Method not implemented.");
+    // no op
   }
 } 

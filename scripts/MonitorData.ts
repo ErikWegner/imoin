@@ -1,3 +1,5 @@
+import { IPanelMonitorData } from './IPanelMonitorData';
+
 export namespace Monitor {
     export type HostState = 'UP' | 'DOWN'
     export type ServiceState = 'OK' | 'WARNING' | 'CRITICAL'
@@ -112,7 +114,10 @@ export namespace Monitor {
             this.updateState();
         }
 
-        static renderDate(indate: Date) {
+        static renderDate(indate?: Date) {
+            if (!indate) {
+                indate = new Date();
+            }
             let s00 = function (s: number) {
                 let r = s.toString();
                 return (r.length < 2 ? '0' + r : r);
@@ -144,6 +149,11 @@ export namespace Monitor {
         m.setState(Status.RED);
         m.setMessage(message);
         m.url = url;
+        m.updatetime = MonitorData.renderDate();
         return m
+    }
+
+    export class PanelMonitorData extends MonitorData {
+        public instances: { [index: number]: IPanelMonitorData } = {};
     }
 }
