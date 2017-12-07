@@ -5,6 +5,7 @@ var host = chrome || browser;
 
 let instances = [];
 let selectedInstance = -1;
+let fontsize = 100;
 
 /*    ---- Library functions ---- */
 
@@ -33,7 +34,9 @@ function restoreOptions() {
       instances.push(createInstance('Default'));
     }
     selectedInstance = 0;
-    updateDOM();
+    fontsize = storageData.fontsize || fontsize;
+    updateDOMforInstances();
+    updateDOMforMisc();
   }, onError);
 }
 
@@ -41,7 +44,7 @@ function addInstance() {
   const i = createInstance('Instance ' + instances.length);
   instances.push(i);
   selectedInstance = instances.length - 1;
-  updateDOM();
+  updateDOMforInstances();
 }
 
 function updateInstance() {
@@ -52,10 +55,12 @@ function updateInstance() {
   i.url = getFormTextValue('#url', '');
   i.username = getFormTextValue('#username', '');
   i.password = getFormTextValue('#password', '');
-  saveOptions();
-  updateDOM();
 }
 
+function updateSettings() {
+  saveOptions();
+  updateDOMforInstances();
+}
 function removeInstance() {
   if (instances.length < 2) {
     return;
@@ -65,21 +70,22 @@ function removeInstance() {
   if (selectedInstance >= instances.length) {
     selectedInstance = instances.length - 1;
   }
-  updateDOM();
+  updateDOMforInstances();
 }
 
 function selectionChanged(e) {
+  updateInstance();
   const index = parseInt(e.target.value);
   if (index >= 0 && index < instances.length) {
     selectedInstance = index;
   }
 
-  updateDOM();
+  updateDOMforInstances();
 }
 
 /*    ---- Browser functions ---- */
 
-function updateDOM() {
+function updateDOMforInstances() {
   if (selectedInstance >= instances.length) {
     return;
   }
@@ -104,6 +110,10 @@ function updateDOM() {
   i.options.selectedIndex = selectedInstance;
 }
 
+function updateDOMforMisc() {
+  document.getElementById('fontsize').value = fontsize;
+}
+
 function addClickHandler(selector, handler) {
   element = document.querySelector(selector);
   if (!element || !element.addEventListener) {
@@ -120,7 +130,8 @@ function getFormTextValue(selector, defaultValue) {
 function saveOptions() {
   // storage does not save objects
   host.storage.local.set({
-    instances: JSON.stringify(instances)
+    instances: JSON.stringify(instances),
+    fontsize: parseInt(document.getElementById('fontsize').value),
   });
   var myPort = host.runtime.connect({ name: 'port-from-options' });
   myPort.postMessage({ command: 'SettingsChanged' });
@@ -128,6 +139,7 @@ function saveOptions() {
 }
 
 function loadOptions() {
+  const optionKeys = ['instances', 'fontsize'];
   return new Promise((resolve, reject) => {
     if (!host.storage) {
       resolve(null);
@@ -135,9 +147,9 @@ function loadOptions() {
     }
     /* Change the array of keys to match the firefox.ts */
     if (hosttype == 'browser') {
-      return host.storage.local.get(['instances']);
+      return host.storage.local.get(optionKeys);
     } else if (hosttype == 'chrome') {
-      host.storage.local.get(['instances'], (instances) => { resolve(instances); });
+      host.storage.local.get(optionKeys, resolve);
     }
   }
   );
@@ -153,6 +165,6 @@ function addDropdownEventHandler(callback) {
 /*    ---- Initialize ---- */
 document.addEventListener('DOMContentLoaded', restoreOptions);
 addClickHandler('#addInstance', addInstance);
-addClickHandler('#updateInstance', updateInstance);
+addClickHandler('#updateSettings', updateSettings);
 addClickHandler('#removeInstance', removeInstance);
 addDropdownEventHandler(selectionChanged);

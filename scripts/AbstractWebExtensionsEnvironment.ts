@@ -12,6 +12,8 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     protected portFromPanel: WebExtension.Port;
     protected abstract host: WebExtension.WebExtensionBrowser;
     protected abstract console: Console;
+    protected static optionKeys = ['instances', 'fontsize'];
+    protected settings: Settings = new Settings();
 
     private alarmListenerRegistered = false;
 
@@ -22,10 +24,15 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         this.host.browserAction.setBadgeBackgroundColor({ color: iAndB.badgeColor });
     }
 
-
     protected trySendDataToPopup() {
         if (this.portFromPanel) {
-            this.portFromPanel.postMessage({ command: 'ProcessStatusUpdate', data: this.dataBuffer })
+            this.portFromPanel.postMessage({ command: 'ProcessStatusUpdate', data: this.dataBuffer });
+            this.portFromPanel.postMessage({
+                command: 'uisettings',
+                data: {
+                    fontsize: this.settings.fontsize
+                }
+            });
         }
     }
 
@@ -139,5 +146,17 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
     stopTimer(index: number) {
         this.removeAlarm(index);
+    }
+
+    public static processStoredSettings(storedSettings: any): Settings {
+        const settings = new Settings();
+        if (storedSettings.instances) {
+            settings.instances = JSON.parse(storedSettings.instances);
+        }
+        if (storedSettings.fontsize && storedSettings.fontsize > 0) {
+            settings.fontsize = storedSettings.fontsize;
+        }
+
+        return settings;
     }
 }

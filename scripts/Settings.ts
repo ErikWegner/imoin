@@ -13,6 +13,7 @@ export interface ImoinMonitorInstance {
 export class Settings {
 
     public instances: ImoinMonitorInstance[] = [];
+    public fontsize: number = 100;
 
     static urlNoTrailingSlash(instance: ImoinMonitorInstance): string {
         let url = instance.url;

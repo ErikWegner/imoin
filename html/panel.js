@@ -20,6 +20,10 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
             showAndUpdatePanelContent(data);
         }
 
+        if (command === "uisettings") {
+            setupUISettings(data);
+        }
+
     });
 
     postPanelMessage = function (data) {
@@ -42,6 +46,18 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
 var rendered_template = document.createTextNode("");
 
 var filtered_lists_templates = {};
+
+function setupUISettings(data) {
+    let s = document.getElementById('uistyles');
+    if (s) {
+        s.remove();
+    }
+    s = document.createElement('style');
+    s.setAttribute('id', 'uistyles');
+    const t = document.createTextNode('body {font-size:' + data.fontsize + '%}');
+    s.appendChild(t);
+    document.head.appendChild(s);
+}
 
 function showAndUpdatePanelContent(data) {
     const message = data.message;

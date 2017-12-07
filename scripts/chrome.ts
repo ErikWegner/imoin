@@ -21,17 +21,15 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
     }
 
     loadSettings(): Promise<Settings> {
+        const i = this;
         return new Promise<Settings>(
             (resolve, reject) => {
                 chrome.storage.local.get(
-                    ['instances'],
+                    AbstractWebExtensionsEnvironment.optionKeys,
                     (data) => {
-                        const settings = new Settings();
-                        if (data.instances) {
-                            settings.instances = JSON.parse(data.instances);
-                        }
-                        resolve(settings);
-                    })
+                        i.settings = AbstractWebExtensionsEnvironment.processStoredSettings(data);
+                        resolve(i.settings);
+                    });
             }
         )
     }

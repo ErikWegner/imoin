@@ -1,6 +1,7 @@
 describe('options html', () => {
   const getFormTextValueStub = sinon.stub(window, 'getFormTextValue');
   const documentQuerySelectorStub = sinon.stub(document, 'querySelector');
+  const documentGetElementByIdStub = sinon.stub(document, 'getElementById');
   const saveOptionsSpy = sinon.spy(window, 'saveOptions');
 
   beforeEach(() => {
@@ -8,10 +9,11 @@ describe('options html', () => {
     instances = [];
     selectedInstance = -1;
     // Stub browser interactions
-    updateDOM = sinon.spy();
+    updateDOMforInstances = sinon.spy();
     // Reset all stubs
     getFormTextValueStub.reset();
     documentQuerySelectorStub.reset();
+    documentGetElementByIdStub.withArgs('fontsize').returns({value: "100"});
     loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
     port = {
       postMessage: sinon.spy(),
@@ -36,7 +38,7 @@ describe('options html', () => {
     addInstance();
     expect(instances.length).toBe(l + 1);
     expect(selectedInstance).toBe(l);
-    expect(updateDOM.calledOnce).toBe(true);
+    expect(updateDOMforInstances.calledOnce).toBe(true);
   });
 
   it('should add three instances', () => {
@@ -46,7 +48,7 @@ describe('options html', () => {
     addInstance();
     expect(instances.length).toBe(l + 3);
     expect(selectedInstance).toBe(2);
-    expect(updateDOM.calledThrice).toBe(true);
+    expect(updateDOMforInstances.calledThrice).toBe(true);
   });
 
   it('should update instance', () => {
@@ -72,23 +74,13 @@ describe('options html', () => {
     expect(probe.url).toBe('Call #url');
     expect(probe.username).toBe('Call #username');
     expect(probe.password).toBe('Call #password');
-    expect(saveOptionsSpy.callCount).toBe(1);
-  });
-
-  it('should call updateDOM after updating instance', () => {
-    // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
-    updateDOM.reset(); // addInstance will call updateDOM
-
-    updateInstance();
-    expect(updateDOM.callCount).toBe(1);
   });
 
   it('should not remove last instance', () => {
     const l1 = instances.length;
     addInstance();
     const l2 = instances.length;
-    updateDOM.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.reset(); // addInstance will call updateDOM
     removeInstance();
     const l3 = instances.length;
 
@@ -96,7 +88,7 @@ describe('options html', () => {
     expect(l2).toBe(1); // one instance added
     expect(l3).toBe(1); // still one instance available
 
-    expect(updateDOM.notCalled).toBe(true);
+    expect(updateDOMforInstances.notCalled).toBe(true);
   });
 
   it('should remove selected instance', () => {
@@ -106,10 +98,10 @@ describe('options html', () => {
     selectedInstance = 1;
     const removedInstance = instances[selectedInstance];
 
-    updateDOM.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.reset(); // addInstance will call updateDOM
     removeInstance();
     expect(instances.indexOf(removedInstance)).toBe(-1);
-    expect(updateDOM.calledOnce).toBe(true);
+    expect(updateDOMforInstances.calledOnce).toBe(true);
   });
 
   it('should remove last instance and update selectedInstance', () => {
@@ -119,7 +111,7 @@ describe('options html', () => {
     const l1 = selectedInstance;
     const removedInstance = instances[selectedInstance];
 
-    updateDOM.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.reset(); // addInstance will call updateDOM
     removeInstance();
     expect(instances.indexOf(removedInstance)).toBe(-1);
     expect(l1).toBe(3);
@@ -128,7 +120,7 @@ describe('options html', () => {
 
   it('should restore options and update DOM', (done) => {
     restoreOptions().then(() => {
-      expect(updateDOM.calledOnce).toBe(true);
+      expect(updateDOMforInstances.calledOnce).toBe(true);
       done();
     });
   });
@@ -236,9 +228,9 @@ describe('options html', () => {
   it('should update dom after selected instance changes', () => {
     // create 4 instances
     for (let i = 0; i < 4; i++) { addInstance(); }
-    const dc1 = updateDOM.callCount;
+    const dc1 = updateDOMforInstances.callCount;
     selectionChanged({ target: { value: '2' } });
-    const dc2 = updateDOM.callCount;
+    const dc2 = updateDOMforInstances.callCount;
 
     // adding an instance calls updateDOM
     expect(dc1).toBe(4);
