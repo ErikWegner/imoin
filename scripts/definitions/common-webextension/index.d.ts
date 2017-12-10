@@ -78,6 +78,7 @@ declare namespace WebExtension {
     class StorageArea {
         get(keys: string | Array<string>): Promise<any>;
         get(keys: string | Array<string>, callback: (items: any) => void): void;
+        set(data: object): Promise<void>;
     }
 
     class BrowserAction {

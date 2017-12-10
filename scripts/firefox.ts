@@ -19,7 +19,8 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
         // temporary update notification
         browser.runtime.onInstalled.addListener((details) => {
             if (details.reason === 'update') {
-                this.openWebPage('https://github.com/ErikWegner/imoin/releases/tag/17.1.0');
+                //this.openWebPage('https://github.com/ErikWegner/imoin/releases/tag/17.1.0');
+                this.migrateSettings().then(this.notifySettingsChanged.bind(this));
             }
         });
     }
@@ -46,7 +47,33 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
                 }
             }
         );
+    }
 
+    protected migrateSettings(): Promise<void> {
+        const i = this;
+        i.debug("Migrating settings");
+        return new Promise<void>((resolve, reject) => {
+            // load old single instance settings
+            browser.storage.local
+                .get(['timerPeriod', 'icingaversion', 'url', 'username', 'password', 'instances'])
+                .then((data) => {
+                    i.debug("Old settings loaded")
+                    if (data.instances) {
+                        // instances already present
+                        i.debug("Instances already present, skipping");
+                        reject();
+                    }
+                    const s = new Settings();
+                    s.instances.push(data);
+                    // update settings
+                    i.debug('Saving new settings');
+                    browser.storage.local
+                        .set({
+                            instances: JSON.stringify(s.instances),
+                            fontsize: s.fontsize
+                        }).then(resolve);
+                });
+        });
     }
 }
 
