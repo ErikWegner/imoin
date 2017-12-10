@@ -64,6 +64,7 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
                         reject();
                     }
                     const s = new Settings();
+                    data.instancelabel = "Default";
                     s.instances.push(data);
                     // update settings
                     i.debug('Saving new settings');
