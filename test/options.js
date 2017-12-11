@@ -13,7 +13,7 @@ describe('options html', () => {
     // Reset all stubs
     getFormTextValueStub.reset();
     documentQuerySelectorStub.reset();
-    documentGetElementByIdStub.withArgs('fontsize').returns({value: "100"});
+    documentGetElementByIdStub.withArgs('fontsize').returns({ value: "100" });
     loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
     port = {
       postMessage: sinon.spy(),
@@ -223,7 +223,7 @@ describe('options html', () => {
     expect(sel1).toBe(3);
     // selected instance has changed
     expect(sel2).toBe(2);
-  })
+  });
 
   it('should update dom after selected instance changes', () => {
     // create 4 instances
@@ -236,5 +236,26 @@ describe('options html', () => {
     expect(dc1).toBe(4);
     // changing selected instance triggers updateDOM
     expect(dc2).toBe(5);
-  })
+  });
+
+  it('should update instance on saving options', () => {
+    const setSpy = host.storage.local.set;
+    // create 4 instances
+    for (let i = 0; i < 4; i++) { addInstance(); }
+    // select instance 2
+    selectedInstance = 1;
+
+    getFormTextValueStub.callsFake((selector, defaultValue) => {
+      if ('#timerPeriod' === selector) {
+        return '17'
+      }
+      return "Call " + selector;
+    });
+
+    updateSettings();
+
+    expect(setSpy.callCount).toBe(1);
+    const arg = setSpy.args[0];
+    expect(arg[0].instances).toBe(JSON.stringify([{"instancelabel":"Instance 0","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Call #instancelabel","timerPeriod":17,"icingaversion":"Call #icingaversion","url":"Call #url","username":"Call #username","password":"Call #password"},{"instancelabel":"Instance 2","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 3","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""}]));
+  });
 });

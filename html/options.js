@@ -58,6 +58,7 @@ function updateInstance() {
 }
 
 function updateSettings() {
+  updateInstance();
   saveOptions();
   updateDOMforInstances();
 }
