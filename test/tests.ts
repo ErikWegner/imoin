@@ -18,10 +18,9 @@ describe('nagioscore', function () {
   let monitor: NagiosCore;
   let mockEnvLoad: sinon.SinonStub;
   let mockEnv: IEnvironment;
-  let settings: Settings;
 
   beforeEach(() => {
-    settings = new Settings(0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
+    const settings = Settings.paramsToInstance('unittest instance', 0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
     mockEnvLoad = sinon.stub();
     mockEnv = {
       initTimer: sinon.spy(),
@@ -34,19 +33,20 @@ describe('nagioscore', function () {
       onSettingsChanged: sinon.spy(),
       post: sinon.spy(),
       onUICommand: sinon.spy(),
-      load: mockEnvLoad
+      load: mockEnvLoad,
+      registerMonitorInstance: sinon.spy(),
     };
 
     monitor = new NagiosCore();
-    monitor.init(mockEnv, settings);
+    monitor.init(mockEnv, settings, 0);
   });
 
   function fetchDataAndRunTests(testexecutions: () => void) {
-    fs.readFile('test/data/nagioscore/hostlist.json', (err, hostlist) => {
+    fs.readFile('test/data/nagioscore/hostlist.json', (err: any, hostlist: any) => {
       if (err) {
         throw err;
       }
-      fs.readFile('test/data/nagioscore/servicelist.json', (err, servicelist) => {
+      fs.readFile('test/data/nagioscore/servicelist.json', (err: any, servicelist: any) => {
         if (err) {
           throw err;
         }
@@ -74,7 +74,7 @@ describe('nagioscore', function () {
       });
     });
   });
-  
+
   it('should process hosts', (done) => {
     fetchDataAndRunTests(() => {
       monitor.fetchStatus().then((data) => {
@@ -106,7 +106,7 @@ describe('nagioscore', function () {
         const host = data.hosts[1];
         const service1 = host.services[0];
         expect(service1.name).to.equal('/ Disk Usage');
-        expect(service1.status).to.equal('WARNING');        
+        expect(service1.status).to.equal('WARNING');
         done();
       });
     });

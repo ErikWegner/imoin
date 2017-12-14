@@ -1,5 +1,5 @@
-import { EnvironmentFactory, IEnvironment } from './IEnvironment';
-import { Settings } from './Settings';
+import { IEnvironment } from './IEnvironment';
+import { Settings, ImoinMonitorInstance } from './Settings';
 import { IMonitor } from './IMonitor';
 import { IcingaApi } from './icingaapi';
 import { IcingaCgi } from './icingacgi';
@@ -9,41 +9,47 @@ import { NagiosCore } from './nagioscore';
  * Connecting all pieces together
  */
 
-function resolveMonitor(settings: Settings): IMonitor {
-    if (settings.icingaversion == "api1") {
+function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
+    if (instance.icingaversion == 'api1') {
         return new IcingaApi();
     }
 
-    if (settings.icingaversion == "cgi") {
+    if (instance.icingaversion == 'cgi') {
         return new IcingaCgi();
     }
 
-    if (settings.icingaversion == "nagioscore") {
+    if (instance.icingaversion == 'nagioscore') {
         return new NagiosCore();
     }
 
     return null;
 }
 
-const e = EnvironmentFactory.get();
-let monitor: IMonitor = null;
+let monitors: IMonitor[] = [];
 
 export function init(e: IEnvironment) {
 
     function start() {
-        if (monitor != null) {
+        let monitor;
+        while (monitor = monitors.pop()) {
             monitor.shutdown();
         }
 
         e.loadSettings().then((settings) => {
-            monitor = resolveMonitor(settings);
-            if (monitor != null) {
-                monitor.init(e, settings);
-                monitor.startTimer();
-            }
+            settings.instances.forEach((instance, index) => {
+                e.registerMonitorInstance(index, {
+                    instancelabel: instance.instancelabel
+                });
+                monitor = resolveMonitor(instance);
+                if (monitor != null) {
+                    monitor.init(e, instance, index);
+                    monitor.startTimer();
+                    monitors.push(monitor);
+                }
+            });
         });
     }
 
     start();
-    e.onSettingsChanged(() => { start(); });
+    e.onSettingsChanged(start);
 }

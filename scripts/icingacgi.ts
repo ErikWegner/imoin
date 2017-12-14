@@ -1,7 +1,7 @@
-import {AbstractMonitor} from "./AbstractMonitor";
-import {Monitor} from "./MonitorData";
-import {UICommand} from "./UICommand";
-import {Settings} from "./Settings";
+import { AbstractMonitor } from './AbstractMonitor';
+import { Monitor } from './MonitorData';
+import { UICommand } from './UICommand';
+import { Settings, ImoinMonitorInstance } from './Settings';
 
 interface IIcingaCgiHostStatusJson {
     host_name: string;
@@ -32,13 +32,13 @@ export class IcingaCgi extends AbstractMonitor {
     }
 
     fetchStatus(): Promise<Monitor.MonitorData> {
-        console.log("fetchStatus");
+        console.log('fetchStatus');
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
-                let requesturl = Settings.urlNoTrailingSlash(this.settings) + "/status.cgi?host=all&style=hostservicedetail&jsonoutput";
-                console.log("Loading " + requesturl);
+                let requesturl = Settings.urlNoTrailingSlash(this.settings) + '/status.cgi?host=all&style=hostservicedetail&jsonoutput';
+                console.log('Loading ' + requesturl);
                 if (this.settings.hostgroup) {
-                    requesturl += "&hostgroup=" + this.settings.hostgroup;
+                    requesturl += '&hostgroup=' + this.settings.hostgroup;
                 }
 
                 let cgirequest = this.environment.load(requesturl, this.settings.username, this.settings.password);
@@ -48,7 +48,7 @@ export class IcingaCgi extends AbstractMonitor {
                         resolve(this.processData(JSON.parse(a)));
                     })
                     .catch(a => {
-                        resolve(Monitor.ErrorMonitorData("Connection error. Check settings. " + a));
+                        resolve(Monitor.ErrorMonitorData('Connection error. Check settings. ' + a));
                     })
             }
         );
@@ -60,14 +60,14 @@ export class IcingaCgi extends AbstractMonitor {
 
         // Add host group to title
         if (this.settings.hostgroup) {
-            m.hostgroupinfo = "(" + this.settings.hostgroup + ")";
+            m.hostgroupinfo = '(' + this.settings.hostgroup + ')';
         }
 
         var processed = false;
 
         // process different icinga versions
         if (response.cgi_json_version) {
-            var version_parts = response.cgi_json_version.split(".");
+            var version_parts = response.cgi_json_version.split('.');
             if (version_parts.length >= 2) {
                 var major_version = parseInt(version_parts[0]);
                 var minor_version = parseInt(version_parts[1]);
@@ -87,8 +87,8 @@ export class IcingaCgi extends AbstractMonitor {
                 processed = true;
             } else {
                 m = Monitor.ErrorMonitorData(
-                    "Icinga version not supported. Please open an issue on GitHub.",
-                    "https://github.com/ErikWegner/imoin/issues");
+                    'Icinga version not supported. Please open an issue on GitHub.',
+                    'https://github.com/ErikWegner/imoin/issues');
                 processed = true;
             }
         }
@@ -99,24 +99,25 @@ export class IcingaCgi extends AbstractMonitor {
     private ProcessResponse_1_10(response: IIcingaCgiJson, status: Monitor.MonitorData) {
         var hso;
 
-        function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, settings: Settings): Monitor.Host {
+        function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, instance: ImoinMonitorInstance): Monitor.Host {
             hso = new Monitor.Host(hoststatus.host_display_name);
             hso.status = hoststatus.status;
             hso.checkresult = hoststatus.status_information;
             hso.has_been_acknowledged = hoststatus.has_been_acknowledged;
-            hso.hostlink = Settings.urlNoTrailingSlash(settings) + "/extinfo.cgi?type=1&host=" + hoststatus.host_name;
+            hso.hostlink = Settings.urlNoTrailingSlash(instance) + '/extinfo.cgi?type=1&host=' + hoststatus.host_name;
+            hso.instanceindex = this.instanceindex;
             return hso;
         }
 
-        function processServicestatus(servicestatus: IIcingaCgiServiceStatusJson, settings: Settings) {
+        function processServicestatus(servicestatus: IIcingaCgiServiceStatusJson, instance: ImoinMonitorInstance) {
             let hoststatus = status.getHostByName(servicestatus.host_name);
             let service = new Monitor.Service(servicestatus.service_description);
             hoststatus.addService(service);
             service.checkresult = servicestatus.status_information;
             service.status = servicestatus.status;
-            service.servicelink = Settings.urlNoTrailingSlash(settings) +
-                "/extinfo.cgi?type=2&host=" + servicestatus.host_name +
-                "&service=" + servicestatus.service_description;
+            service.servicelink = Settings.urlNoTrailingSlash(instance) +
+                '/extinfo.cgi?type=2&host=' + servicestatus.host_name +
+                '&service=' + servicestatus.service_description;
         }
 
         const settings = this.settings;

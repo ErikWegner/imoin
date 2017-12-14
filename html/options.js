@@ -1,43 +1,171 @@
-var hosttype = chrome ? "chrome" : browser ? "browser" : "na"
+var hosttype = chrome ? 'chrome' : browser ? 'browser' : 'na'
 var host = chrome || browser;
 
-function saveOptions(e) {
-  e.preventDefault();
-  host.storage.local.set({
-    timerPeriod: parseInt(document.querySelector("#timerPeriod").value),
-    icingaversion: document.querySelector("#icingaversion").value,
-    url: document.querySelector("#url").value,
-    username: document.querySelector("#username").value,
-    password: document.querySelector("#password").value,
-  });
-  var myPort = host.runtime.connect({name:"port-from-options"});
-  myPort.postMessage({command: "SettingsChanged"});
-  myPort.disconnect();
+/*    ---- Global variables ---- */
+
+let instances = [];
+let selectedInstance = -1;
+let fontsize = 100;
+
+/*    ---- Library functions ---- */
+
+function createInstance(title) {
+  return {
+    instancelabel: title,
+    timerPeriod: 5,
+    icingaversion: 'cgi',
+    url: '',
+    username: '',
+    password: '',
+  }
 }
 
 function restoreOptions() {
-
-  function setCurrentChoice(result) {
-    document.querySelector("#timerPeriod").value = result.timerPeriod || "5";
-    document.querySelector("#icingaversion").value = result.icingaversion || "cgi";
-    document.querySelector("#url").value = result.url || "";
-    document.querySelector("#username").value = result.username || "";
-    document.querySelector("#password").value = result.password || "";
-  }
-
   function onError(error) {
     console.log(`Error: ${error}`);
   }
 
-  /* Change the array of keys to match the firefox.ts */
-  if (hosttype == "browser") {
-    var getting = host.storage.local.get(
-      ["timerPeriod", "icingaversion", "url", "username", "password"]);
-    getting.then(setCurrentChoice, onError);
-  } else if (hosttype == "chrome") {
-    host.storage.local.get(["timerPeriod", "icingaversion", "url", "username", "password"], setCurrentChoice);
-  }
+  return loadOptions().then((storageData) => {
+    if (!storageData) {
+      storageData = {};
+    }
+    instances = JSON.parse(storageData.instances || '[]');
+    if (instances.length === 0) {
+      instances.push(createInstance('Default'));
+    }
+    selectedInstance = 0;
+    fontsize = storageData.fontsize || fontsize;
+    updateDOMforInstances();
+    updateDOMforMisc();
+  }, onError);
 }
 
-document.addEventListener("DOMContentLoaded", restoreOptions);
-document.querySelector("form").addEventListener("submit", saveOptions);
+function addInstance() {
+  const i = createInstance('Instance ' + instances.length);
+  instances.push(i);
+  selectedInstance = instances.length - 1;
+  updateDOMforInstances();
+}
+
+function updateInstance() {
+  const i = instances[selectedInstance];
+  i.instancelabel = getFormTextValue('#instancelabel', 'Instance' + (selectedInstance + 1));
+  i.timerPeriod = parseInt(getFormTextValue('#timerPeriod', '5'));
+  i.icingaversion = getFormTextValue('#icingaversion', 'cgi');
+  i.url = getFormTextValue('#url', '');
+  i.username = getFormTextValue('#username', '');
+  i.password = getFormTextValue('#password', '');
+}
+
+function updateSettings() {
+  updateInstance();
+  saveOptions();
+  updateDOMforInstances();
+}
+function removeInstance() {
+  if (instances.length < 2) {
+    return;
+  }
+
+  instances.splice(selectedInstance, 1);
+  if (selectedInstance >= instances.length) {
+    selectedInstance = instances.length - 1;
+  }
+  updateDOMforInstances();
+}
+
+function selectionChanged(e) {
+  updateInstance();
+  const index = parseInt(e.target.value);
+  if (index >= 0 && index < instances.length) {
+    selectedInstance = index;
+  }
+
+  updateDOMforInstances();
+}
+
+/*    ---- Browser functions ---- */
+
+function updateDOMforInstances() {
+  if (selectedInstance >= instances.length) {
+    return;
+  }
+
+  let instanceData = instances[selectedInstance];
+  if (!instanceData) {
+    instanceData = createInstance('Default');
+  }
+
+  document.querySelector('#instancelabel').value = instanceData.instancelabel || 'Default';
+  document.querySelector('#timerPeriod').value = instanceData.timerPeriod || '5';
+  document.querySelector('#icingaversion').value = instanceData.icingaversion || 'cgi';
+  document.querySelector('#url').value = instanceData.url || '';
+  document.querySelector('#username').value = instanceData.username || '';
+  document.querySelector('#password').value = instanceData.password || '';
+
+  const i = document.getElementById('instanceid');
+  i.options.length = 0;
+  instances
+    .map((instance, index) => new Option(instance.instancelabel, index))
+    .forEach((option) => i.options.add(option));
+  i.options.selectedIndex = selectedInstance;
+}
+
+function updateDOMforMisc() {
+  document.getElementById('fontsize').value = fontsize;
+}
+
+function addClickHandler(selector, handler) {
+  element = document.querySelector(selector);
+  if (!element || !element.addEventListener) {
+    return
+  }
+
+  element.addEventListener('click', handler);
+}
+
+function getFormTextValue(selector, defaultValue) {
+  return document.querySelector(selector).value || defaultValue;
+}
+
+function saveOptions() {
+  // storage does not save objects
+  host.storage.local.set({
+    instances: JSON.stringify(instances),
+    fontsize: parseInt(document.getElementById('fontsize').value),
+  });
+  var myPort = host.runtime.connect({ name: 'port-from-options' });
+  myPort.postMessage({ command: 'SettingsChanged' });
+  myPort.disconnect();
+}
+
+function loadOptions() {
+  const optionKeys = ['instances', 'fontsize'];
+  return new Promise((resolve, reject) => {
+    if (!host.storage) {
+      resolve(null);
+      return;
+    }
+    /* Change the array of keys to match the firefox.ts */
+    if (hosttype == 'browser') {
+      return host.storage.local.get(optionKeys);
+    } else if (hosttype == 'chrome') {
+      host.storage.local.get(optionKeys, resolve);
+    }
+  }
+  );
+}
+
+function addDropdownEventHandler(callback) {
+  const ddl = document.querySelector('#instanceid');
+  if (!ddl) { return; }
+
+  ddl.addEventListener('change', callback);
+}
+
+/*    ---- Initialize ---- */
+document.addEventListener('DOMContentLoaded', restoreOptions);
+addClickHandler('#addInstance', addInstance);
+addClickHandler('#updateSettings', updateSettings);
+addClickHandler('#removeInstance', removeInstance);
+addDropdownEventHandler(selectionChanged);

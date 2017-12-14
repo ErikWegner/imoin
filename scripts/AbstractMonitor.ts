@@ -1,37 +1,44 @@
-import {IMonitor} from "./IMonitor";
-import {Monitor} from "./MonitorData";
-import {IEnvironment} from "./IEnvironment";
-import {Settings} from "./Settings";
-import {UICommand} from "./UICommand";
+import { IMonitor } from "./IMonitor";
+import { Monitor } from "./MonitorData";
+import { IEnvironment } from "./IEnvironment";
+import { ImoinMonitorInstance } from "./Settings";
+import { UICommand } from "./UICommand";
 
 export abstract class AbstractMonitor implements IMonitor {
     protected environment: IEnvironment;
-    protected settings: Settings;
+    protected settings: ImoinMonitorInstance;
+    protected index: number;
 
-    init(environment: IEnvironment, settings: Settings) {
+    init(environment: IEnvironment, settings: ImoinMonitorInstance, index: number) {
         this.environment = environment;
         this.settings = settings;
+        this.index = index;
 
-        this.environment.onUICommand(this.handleUICommand.bind(this));
+        this.environment.onUICommand(index, this.handleUICommand.bind(this));
     }
 
     startTimer() {
         const fetchfunc = this.fetchStatus.bind(this);
         const e = this.environment;
-        this.environment.initTimer(
+        const index = this.index;
+        const instanceLabel = this.settings.instancelabel;
+
+        e.initTimer(
+            index,
             this.settings.timerPeriod,
             function () {
                 fetchfunc().then(
                     (status: Monitor.MonitorData) => {
                         status.updateCounters();
-                        e.displayStatus(status);
+                        status.instanceLabel = instanceLabel;
+                        e.displayStatus(index, status);
                     }
                 )
             });
     }
 
     shutdown() {
-        this.environment.stopTimer();
+        this.environment.stopTimer(this.index);
     }
 
     abstract fetchStatus(): Promise<Monitor.MonitorData>;

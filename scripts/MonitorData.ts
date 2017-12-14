@@ -1,6 +1,8 @@
+import { IPanelMonitorData } from './IPanelMonitorData';
+
 export namespace Monitor {
-    export type HostState = "UP" | "DOWN"
-    export type ServiceState = "OK" | "WARNING" | "CRITICAL"
+    export type HostState = 'UP' | 'DOWN'
+    export type ServiceState = 'OK' | 'WARNING' | 'CRITICAL'
 
     export enum Status {
         GREEN,
@@ -9,7 +11,7 @@ export namespace Monitor {
     }
 
     export class Service {
-        public status: ServiceState = "CRITICAL";
+        public status: ServiceState = 'CRITICAL';
         public host: string;
         public checkresult: string;
         public servicelink: string;
@@ -23,11 +25,12 @@ export namespace Monitor {
     }
 
     export class Host {
-        public status: HostState = "DOWN";
+        public status: HostState = 'DOWN';
         public services: Array<Service> = [];
         public hostlink: string;
         public has_been_acknowledged: boolean = false;
         public checkresult: string;
+        public instanceindex: number;
 
         constructor(readonly name: string) {
         }
@@ -60,6 +63,7 @@ export namespace Monitor {
         public servicewarnings: number;
         public serviceerrors: number;
         public updatetime: string;
+        public instanceLabel: string;
 
         setState(state: Status) {
             this.state = state;
@@ -99,25 +103,28 @@ export namespace Monitor {
 
         updateCounters() {
             this.totalservices = this.hosts.map(host => host.services.length).reduce((acc, val) => acc += val, 0);
-            this.serviceok = this.hosts.map(host => host.services.filter(service => service.status == "OK").length).reduce((acc, val) => acc += val, 0);
-            this.servicewarnings = this.hosts.map(host => host.services.filter(service => service.status == "WARNING").length).reduce((acc, val) => acc += val, 0);
+            this.serviceok = this.hosts.map(host => host.services.filter(service => service.status == 'OK').length).reduce((acc, val) => acc += val, 0);
+            this.servicewarnings = this.hosts.map(host => host.services.filter(service => service.status == 'WARNING').length).reduce((acc, val) => acc += val, 0);
             this.serviceerrors = this.totalservices - this.serviceok - this.servicewarnings;
 
             this.totalhosts = this.hosts.length;
-            this.hostup = this.hosts.filter(host => host.status == "UP").length;
+            this.hostup = this.hosts.filter(host => host.status == 'UP').length;
             this.hosterrors = this.totalhosts - this.hostup;
 
             this.setUpdatetime();
             this.updateState();
         }
 
-        static renderDate(indate: Date) {
+        static renderDate(indate?: Date) {
+            if (!indate) {
+                indate = new Date();
+            }
             let s00 = function (s: number) {
                 let r = s.toString();
-                return (r.length < 2 ? "0" + r : r);
+                return (r.length < 2 ? '0' + r : r);
             };
 
-            return indate.getFullYear() + "-" + s00(indate.getMonth() + 1) + "-" + s00(indate.getDate()) + " " + s00(indate.getHours()) + ":" + s00(indate.getMinutes()) + ":" + s00(indate.getSeconds());
+            return indate.getFullYear() + '-' + s00(indate.getMonth() + 1) + '-' + s00(indate.getDate()) + ' ' + s00(indate.getHours()) + ':' + s00(indate.getMinutes()) + ':' + s00(indate.getSeconds());
         }
 
         private setUpdatetime() {
@@ -136,12 +143,18 @@ export namespace Monitor {
         }
     }
 
-    export function ErrorMonitorData(message: string,
-                                     url?: string): MonitorData {
+    export function ErrorMonitorData(
+        message: string,
+        url?: string): MonitorData {
         let m = new MonitorData();
         m.setState(Status.RED);
         m.setMessage(message);
         m.url = url;
+        m.updatetime = MonitorData.renderDate();
         return m
+    }
+
+    export class PanelMonitorData extends MonitorData {
+        public instances: { [index: number]: IPanelMonitorData } = {};
     }
 }

@@ -1,5 +1,3 @@
-/// <reference path="../es6-promise/index.d.ts" />
-
 declare namespace WebExtension {
     class WebExtensionBrowser {
         tabs: Tabs;
@@ -8,10 +6,23 @@ declare namespace WebExtension {
         browserAction: BrowserAction;
         windows: Windows;
         extension: Extension;
+        alarms: Alarms;
     }
 
     type WindowsCreateOptions = {
         url?: string
+    }
+
+    type Alarms = {
+        onAlarm: RuntimeEvent;
+        create(name: string, alarmInfo: AlarmInfo): void;
+        clear(name: string): void;
+    }
+
+    type AlarmInfo = {
+        when?: number;
+        delayInMinutes?: number;
+        periodInMinutes?: number;
     }
 
     class Extension {
@@ -51,6 +62,7 @@ declare namespace WebExtension {
 
     class RuntimeEvent {
         addListener(callback: (message?: any, sender?: MessageSender, sendResponse?: (response: any) => void) => void): void;
+        removeListener(callback: () => void): void;
     }
 
     export class Port {
@@ -66,6 +78,7 @@ declare namespace WebExtension {
     class StorageArea {
         get(keys: string | Array<string>): Promise<any>;
         get(keys: string | Array<string>, callback: (items: any) => void): void;
+        set(data: object): Promise<void>;
     }
 
     class BrowserAction {

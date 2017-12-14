@@ -35,8 +35,8 @@ export class NagiosCore extends AbstractMonitor {
   fetchStatus(): Promise<Monitor.MonitorData> {
     return new Promise<Monitor.MonitorData>(
       (resolve, reject) => {
-        const hosturl = this.settings.url + "/cgi-bin/statusjson.cgi?query=hostlist&formatoptions=whitespace&details=true";
-        const servicesurl = this.settings.url + "/cgi-bin/statusjson.cgi?query=servicelist&formatoptions=whitespace&details=true";
+        const hosturl = this.settings.url + '/cgi-bin/statusjson.cgi?query=hostlist&formatoptions=whitespace&details=true';
+        const servicesurl = this.settings.url + '/cgi-bin/statusjson.cgi?query=servicelist&formatoptions=whitespace&details=true';
 
         const hostsrequest = this.environment.load(hosturl, this.settings.username, this.settings.password);
         const servicesrequest = this.environment.load(servicesurl, this.settings.username, this.settings.password);
@@ -50,25 +50,27 @@ export class NagiosCore extends AbstractMonitor {
             resolve(m);
           })
           .catch(a => {
-            resolve(Monitor.ErrorMonitorData("Connection error. Check settings and log. " + a[0] + "|" + a[1]));
+            resolve(Monitor.ErrorMonitorData('Connection error. Check settings and log. ' + a[0] + '|' + a[1]));
           });
       });
   }
   handleUICommand(param: UICommand): void {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   protected processData(hostdata: IHostJsonData, servicedata: IServiceJsonData): Monitor.MonitorData {
     if (hostdata == null || servicedata == null) {
-      return Monitor.ErrorMonitorData("Result empty");
+      return Monitor.ErrorMonitorData('Result empty');
     }
     const m = new Monitor.MonitorData();
-    let hostByName: { [name: string]: Monitor.Host } = {};
+    const hostByName: { [name: string]: Monitor.Host } = {};
+    const index = this.index;
     Object.keys(hostdata.data.hostlist).forEach((hostname) => {
       const hostdatahost = hostdata.data.hostlist[hostname];
       const host = new Monitor.Host(hostdatahost.name);
+      host.instanceindex = index;
       hostByName[host.name] = host;
-      host.setState(hostdatahost.status == 2 ? "UP" : "DOWN");
+      host.setState(hostdatahost.status == 2 ? 'UP' : 'DOWN');
       host.checkresult = hostdatahost.plugin_output;
       m.addHost(host);
     });
@@ -82,13 +84,13 @@ export class NagiosCore extends AbstractMonitor {
           const service = new Monitor.Service(servicedataservice.description);
           if (servicedataservice.last_check !== 0) {
             if (servicedataservice.status === 2) {
-              service.setStatus("OK");
+              service.setStatus('OK');
             } else if (servicedataservice.status === 4) {
-              service.setStatus("WARNING");
+              service.setStatus('WARNING');
             }
             service.checkresult = servicedataservice.plugin_output;
           } else {
-            service.checkresult = "Check did not run yet.";
+            service.checkresult = 'Check did not run yet.';
           }
           service.host = host.name;
           host.addService(service);

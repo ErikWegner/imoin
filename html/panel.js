@@ -20,6 +20,10 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
             showAndUpdatePanelContent(data);
         }
 
+        if (command === "uisettings") {
+            setupUISettings(data);
+        }
+
     });
 
     postPanelMessage = function (data) {
@@ -43,14 +47,25 @@ var rendered_template = document.createTextNode("");
 
 var filtered_lists_templates = {};
 
+function setupUISettings(data) {
+    let s = document.getElementById('uistyles');
+    if (s) {
+        s.remove();
+    }
+    s = document.createElement('style');
+    s.setAttribute('id', 'uistyles');
+    const t = document.createTextNode('body {font-size:' + data.fontsize + '%}');
+    s.appendChild(t);
+    document.head.appendChild(s);
+}
+
 function showAndUpdatePanelContent(data) {
     const message = data.message;
+    log("Rendering main template")
+    rendered_template = renderMainTemplate(data);
     if (message) {
         log("Message " + message)
-        rendered_template = renderTemplateError(message);
-    } else {
-        log("Rendering main template")
-        rendered_template = renderMainTemplate(data);
+        rendered_template.unshift(renderTemplateError(message));
     }
 
     log("Render prep done");
@@ -80,16 +95,9 @@ function renderTemplateError(message) {
     r.appendChild(img);
     r.appendChild(document.createElement("br"));
     var p = document.createElement("p");
-    p.setAttribute("class", "errormessag");
+    p.setAttribute("class", "errormessage");
     r.appendChild(p);
     p.appendChild(document.createTextNode(message));
-
-    var a = document.createElement("span");
-    a.setAttribute("class", "refresh");
-    a.appendChild(document.createTextNode("↺ Refresh"));
-    p = document.createElement("p");
-    p.appendChild(a);
-    r.appendChild(p);
 
     return r;
 }
@@ -114,6 +122,7 @@ function renderHostTemplate(hostdata) {
     div2.appendChild(span = document.createElement("span"));
     span.setAttribute("class", "actions");
     span.setAttribute("data-hostname", hostdata.name);
+    span.setAttribute("data-instanceindex", hostdata.instanceindex);
     //span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
     span.appendChild(chkimg.cloneNode(true));
@@ -153,6 +162,7 @@ function renderServiceTemplate(servicedata) {
     span = document.createElement("span");
     span.setAttribute("class", "actions");
     span.setAttribute("data-hostname", servicedata.host.name);
+    span.setAttribute("data-instanceindex", servicedata.host.instanceindex);
     span.setAttribute("data-servicename", servicedata.name);
     //span.appendChild(ackimg.cloneNode(true));
     span.appendChild(document.createTextNode(" "));
@@ -196,8 +206,15 @@ function registerEventHanderForClass(handler, classname) {
     });
 }
 
+function registerEventHanderBySelector(handler, selector) {
+    var elements = document.querySelectorAll(selector);
+    Array.prototype.forEach.call(elements, function (element) {
+        element.addEventListener("click", handler);
+    });
+}
+
 function registerMainEventHandlers() {
-    var cbnames = ["r1", "r2", "r3"];
+    var cbnames = ["r1", "r2", "r3", "i"];
     for (var cbname_index in cbnames) {
         var el = document.getElementById(cbnames[cbname_index]);
         if (el) {
@@ -214,6 +231,43 @@ function registerDetailsEventHandlers() {
     registerEventHanderForClass(triggerOpenPage, 'servicename');
     registerEventHanderForClass(triggerCmdExec, 'recheck');
     registerEventHanderForClass(triggerCmdExec, 'ack');
+    registerEventHanderBySelector(triggerRefresh, '.instance .refresh');
+}
+
+function renderInstancesList(statusdata) {
+    var r = document.createElement("div");
+    if (statusdata.instances) {
+        var table = document.createElement("div");
+        r.appendChild(table);
+        Object.keys(statusdata.instances).forEach((key) => {
+            var instance = statusdata.instances[key];
+            var tr = document.createElement('div');
+            tr.setAttribute("class", "instance");
+            var td, a;
+
+            // Instance label
+            tr.appendChild(td = document.createElement('span'));
+            td.setAttribute("class", "instancename");
+            td.appendChild(document.createTextNode(instance.instancelabel));
+
+            // Instance update time
+            tr.appendChild(td = document.createElement('span'));
+            td.setAttribute("class", "instanceupdatetime")
+            td.appendChild(document.createTextNode(instance.updatetime));
+
+            // Instance actions
+            tr.appendChild(td = document.createElement('span'));
+            td.setAttribute("class", "actions")
+            td.setAttribute("data-instanceindex", key);
+            td.appendChild(a = document.createElement("span"));
+            a.setAttribute("class", "refresh");
+            a.appendChild(document.createTextNode("↺"));
+
+            table.appendChild(tr);
+        });
+    }
+
+    return r;
 }
 
 function renderMainTemplate(statusdata) {
@@ -270,10 +324,13 @@ function renderMainTemplate(statusdata) {
         html3.appendChild(renderHostTemplate(hostdetail));
     }
 
+    var html4 = renderInstancesList(statusdata);
+
     filtered_lists_templates = {
         filter0: html1,
         filter1: html2,
-        filter2: html3
+        filter2: html3,
+        instances: html4
     };
 
 
@@ -352,6 +409,10 @@ function renderMainTemplate(statusdata) {
     AddInput(div1, "filter0", "r1", "Errors/Warnings").setAttribute("checked", "checked");
     AddInput(div1, "filter1", "r2", "All Hosts");
     AddInput(div1, "filter2", "r3", "All Services");
+    
+    if (statusdata.instances && Object.keys(statusdata.instances).length > 1) {
+        AddInput(div1, "instances", "i", "Instances");
+    }
 
     div1 = document.createElement("div");
     div1.setAttribute("class", "content");
@@ -385,8 +446,20 @@ function AddCellToTr(tr, text, tdclass) {
     return tr;
 }
 
-function triggerRefresh() {
-    postPanelMessage({ command: "triggerRefresh" });
+function triggerRefresh(e) {
+    const el = e.target;
+    const message = { command: "triggerRefresh" };
+    if (el) {
+        const parentElement = el.parentElement;
+        if (parentElement) {
+            const instanceindex = parentElement.getAttribute("data-instanceindex");
+            if (instanceindex != null) {
+                message['instanceindex'] = instanceindex;
+            }
+        }
+    }
+
+    postPanelMessage(message);
 }
 
 function triggerCmdExec(e) {
@@ -400,12 +473,14 @@ function triggerCmdExec(e) {
 
     const hostname = parentElement.getAttribute("data-hostname");
     const servicename = parentElement.getAttribute("data-servicename") || "";
+    const instanceindex = parentElement.getAttribute("data-instanceindex");
 
     postPanelMessage({
         command: "triggerCmdExec",
         hostname: hostname,
         servicename: servicename,
-        remoteCommand: command
+        remoteCommand: command,
+        instanceindex: instanceindex
     });
 }
 

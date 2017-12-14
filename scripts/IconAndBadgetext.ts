@@ -5,10 +5,10 @@ export interface IBadgeIcon {
 }
 export class IconAndBadgetext {
     constructor(
-        public badgeText = "",
-        public badgeColor = "",
-        public badgeIcon: IBadgeIcon = {16:"",24:"",32:""}
-        ) {
+        public badgeText = '',
+        public badgeColor = '',
+        public badgeIcon: IBadgeIcon = { 16: '', 24: '', 32: '' }
+    ) {
 
     }
 }
