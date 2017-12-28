@@ -1,6 +1,6 @@
 {
   "name": "imoin",
-  "version": "18.0.1",
+  "version": "18.0.2rc1",
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {

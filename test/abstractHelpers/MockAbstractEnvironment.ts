@@ -3,6 +3,7 @@ import { Settings } from '../../scripts/Settings';
 import * as sinon from 'sinon';
 
 export class MockAbstractEnvironment extends AbstractEnvironment {
+  public loadCallback: (url: string, username: string, password: string) => Promise<string> = null;
   public trySendDataToPopupSpy: sinon.SinonSpy;
   constructor() {
     super();
@@ -22,8 +23,13 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
   }
 
   load(url: string, username: string, password: string): Promise<string> {
-    throw new Error("Method not implemented.");
+    if (this.loadCallback) {
+      return this.loadCallback(url, username, password);
+    } else {
+      return Promise.reject("Method not implemented.");
+    }
   }
+
   post(url: string, data: any, username: string, password: string): Promise<string> {
     throw new Error("Method not implemented.");
   }

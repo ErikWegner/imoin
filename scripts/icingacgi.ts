@@ -32,11 +32,9 @@ export class IcingaCgi extends AbstractMonitor {
     }
 
     fetchStatus(): Promise<Monitor.MonitorData> {
-        console.log('fetchStatus');
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
                 let requesturl = Settings.urlNoTrailingSlash(this.settings) + '/status.cgi?host=all&style=hostservicedetail&jsonoutput';
-                console.log('Loading ' + requesturl);
                 if (this.settings.hostgroup) {
                     requesturl += '&hostgroup=' + this.settings.hostgroup;
                 }
@@ -44,12 +42,8 @@ export class IcingaCgi extends AbstractMonitor {
                 let cgirequest = this.environment.load(requesturl, this.settings.username, this.settings.password);
 
                 cgirequest
-                    .then(a => {
-                        resolve(this.processData(JSON.parse(a)));
-                    })
-                    .catch(a => {
-                        resolve(Monitor.ErrorMonitorData('Connection error. Check settings. ' + a));
-                    })
+                    .then((a) => resolve(this.processData(JSON.parse(a))))
+                    .catch((a) => resolve(Monitor.ErrorMonitorData('Connection error. Check settings. ' + a)))
             }
         );
     }
@@ -97,15 +91,15 @@ export class IcingaCgi extends AbstractMonitor {
     }
 
     private ProcessResponse_1_10(response: IIcingaCgiJson, status: Monitor.MonitorData) {
-        var hso;
+        const instanceindex = this.index;
 
         function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, instance: ImoinMonitorInstance): Monitor.Host {
-            hso = new Monitor.Host(hoststatus.host_display_name);
+            const hso = new Monitor.Host(hoststatus.host_display_name);
             hso.status = hoststatus.status;
             hso.checkresult = hoststatus.status_information;
             hso.has_been_acknowledged = hoststatus.has_been_acknowledged;
             hso.hostlink = Settings.urlNoTrailingSlash(instance) + '/extinfo.cgi?type=1&host=' + hoststatus.host_name;
-            hso.instanceindex = this.instanceindex;
+            hso.instanceindex = instanceindex;
             return hso;
         }
 
