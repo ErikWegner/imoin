@@ -49,6 +49,16 @@ describe('NagiosHtml', () => {
           expect(monitordata.hosts.length).to.equal(54);
           expect(monitordata.hosts.filter((h) => h.status !== 'UP').length).to.equal(8);
           expect(monitordata.hosts[0].checkresult).to.equal('OK - 127.0.0.1: rta 0.023ms, lost 0%');
+
+          const h = monitordata.hosts[1];
+          expect(h.name).to.equal('Log-Server.nagios.local');
+          expect(h.services.length).to.equal(23);
+          expect(h.services[0].name).to.equal('/ Disk Usage');
+          expect(h.services[0].status).to.equal('CRITICAL');
+
+          expect(h.services[1].name).to.equal('Apache 404 Errors');
+          expect(h.services[1].status).to.equal('OK');
+          expect(h.services[1].checkresult).to.equal('OK: 17 matching entries found');
           done();
         }).catch((err) => {
           fail(err);

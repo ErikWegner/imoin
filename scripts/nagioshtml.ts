@@ -34,22 +34,33 @@ export class NagiosHtml extends AbstractMonitor {
     const m = new Monitor.MonitorData();
     const hostByName: { [name: string]: Monitor.Host } = {};
     const index = this.index;
-    const r1 = new RegExp('<td align.*status(HOSTUP|HOSTDOWN|PENDING).*extinfo.cgi.*?>(.*)<\/a>', 'gi');
+    const r1 = /extinfo.cgi.*?>(.*?)<\/a>[\s\S]*?>(UP|DOWN|PENDING|UNREACHABLE)[\s\S]*?valign='center'>(.*?)<\/td>/gi;
     let hostmatches;
     while (hostmatches = r1.exec(hosthtml)) {
-      const host = new Monitor.Host(hostmatches[2]);
+      const host = new Monitor.Host(hostmatches[1]);
       host.instanceindex = index;
-      host.setState(hostmatches[1] == 'HOSTUP' ? 'UP' : 'DOWN');
-      const i1 = hosthtml.indexOf('</table>', hostmatches.index);
-      const i2 = hosthtml.indexOf('</table>', i1 + 1);
-      const i3 = hosthtml.indexOf('</table>', i2 + 1);
-      const i4 = hosthtml.indexOf("valign='center'>", i3 + 1);
-      const il = hosthtml.indexOf('</td>', i4);
-      host.checkresult = hosthtml.substring(i4 + 16, il).replace('&nbsp;', ' ').trim();
+      host.setState(hostmatches[2] === 'UP' ? 'UP' : 'DOWN');
+      host.checkresult = hostmatches[3].replace('&nbsp;', ' ').trim();
       hostByName[host.name] = host;
       m.addHost(host);
     }
-    
+
+    const r2 = /extinfo\.cgi.*?host=(.*?)&service=(.*?)'>(.*?)<\/a>[\s\S]*?>(CRITICAL|OK|WARNING|PENDING|UNKNOWN)<\/td>[\s\S]*?valign='center'>(.*?)<\/td>/gi;
+    let servicematches;
+    while (servicematches = r2.exec(servicehtml)) {
+      const host = hostByName[servicematches[1]];
+      if (!host) {
+        continue;
+      }
+
+      const service = new Monitor.Service(servicematches[3]);
+      const status = servicematches[4];
+      service.checkresult = servicematches[5].replace('&nbsp;', ' ').trim()
+      service.setStatus(status === 'OK' ? 'OK' : status === 'WARNING' ? 'WARNING' : 'CRITICAL')
+
+      host.addService(service);
+    }
+
     return m;
   }
 }
