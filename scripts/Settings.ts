@@ -1,4 +1,4 @@
-export type IcingaOptionsVersion = 'cgi' | 'api1' | 'nagioscore';
+export type IcingaOptionsVersion = 'cgi' | 'api1' | 'nagioscore' | 'nagioshtml';
 
 export interface ImoinMonitorInstance {
     instancelabel: string;
