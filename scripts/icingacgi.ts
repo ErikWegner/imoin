@@ -34,7 +34,7 @@ export class IcingaCgi extends AbstractMonitor {
     fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
-                let requesturl = Settings.urlNoTrailingSlash(this.settings) + '/status.cgi?host=all&style=hostservicedetail&jsonoutput';
+                let requesturl = this.settings.url + '/status.cgi?host=all&style=hostservicedetail&jsonoutput';
                 if (this.settings.hostgroup) {
                     requesturl += '&hostgroup=' + this.settings.hostgroup;
                 }

@@ -157,6 +157,9 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
             settings.fontsize = storedSettings.fontsize;
         }
 
+        // Remove trailing slash for all instances
+        settings.instances.forEach((i) => i.url = Settings.urlNoTrailingSlash(i));
+
         return settings;
     }
 }
