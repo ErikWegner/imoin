@@ -55,12 +55,24 @@ export class NagiosHtml extends AbstractMonitor {
 
       const service = new Monitor.Service(servicematches[4]);
       const status = servicematches[5];
-      service.checkresult = servicematches[6].replace('&nbsp;', ' ').trim();
+      service.checkresult = this.decodeNumericEntities(servicematches[6].replace('&nbsp;', ' ').trim());
       service.setStatus(status === 'OK' ? 'OK' : status === 'WARNING' ? 'WARNING' : 'CRITICAL')
 
       host.addService(service);
     }
 
     return m;
+  }
+
+  /**
+   * Replace numeric html entities with their characters,
+   * e.g. &#34; ⇒ "
+   * @param i Input string
+   * @returns The decoded string
+   */
+  private decodeNumericEntities(i: string) {
+    return i.replace(/&#(\d+);/g, function(m, charCode) {
+      return String.fromCharCode(charCode);
+    });
   }
 }
