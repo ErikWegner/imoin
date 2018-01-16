@@ -66,5 +66,61 @@ describe('NagiosHtml', () => {
         });
       });
     })
-  })
+  });
+
+  it('should decode html entities', (done) => {
+    const hostshtml = "extinfo.cgi?type=1&host=Digital-Library' title='127.0.0.1'>Digital-Library</a>&nbsp;</td></tr></table></td>" + 
+    "<td align=right valign=center><table border=0 cellpadding=0 cellspacing=0><tr><td><a href='status.cgi?host=Digital-Library'>" + 
+    "<img src='/nagios/images/status2.gif' border=0 alt='View Service Details For This Host' title='View Service Details For This Host'></a></td>" +
+    "</tr></table></td></tr></table></td><td class='statusHOSTUP'>UP</td><td class='statusEven' nowrap>01-07-2018 08:36:52</td>" +
+    "<td class='statusEven' nowrap> 0d  0h 36m 36s+</td><td class='statusEven' valign='center'>OK - 127.0.0.1: rta 0.023ms, lost 0%&nbsp;</td>";
+
+    fs.readFile('test/data/nagioshtml/services_entities.html', (err, serviceshtml) => {
+      if (err) {
+        fail(err.message);
+        done();
+        return;
+      }
+      
+      const e = new MockAbstractEnvironment();
+      const u = new NagiosHtml();
+      e.loadCallback = (url, user, passwd): Promise<string> => {
+        if (url === '/unittest/cgi-bin/status.cgi?hostgroup=all&style=hostdetail&limit=0') {
+          return Promise.resolve(hostshtml);
+        }
+        if (url === '/unittest/cgi-bin/status.cgi?hostgroup=all&style=detail&limit=0') {
+          return Promise.resolve(serviceshtml.toString());
+        }
+        const errtext = 'Url ' + url + ' not found';
+        console.log(errtext);
+        return Promise.reject(errtext);
+      };
+      const settings: ImoinMonitorInstance = {
+        icingaversion: 'nagioshtml',
+        instancelabel: 'unittest',
+        url: '/unittest',
+        timerPeriod: 5,
+        username: 'user',
+        password: 'pass',
+      }
+      u.init(e, settings, 0);
+      u.fetchStatus().then((monitordata) => {
+        if (monitordata.hosts.length < 1) {
+          fail('No host detected');
+          done();
+          return;
+        }
+        expect(monitordata.hosts.length).to.equal(1);
+        const h = monitordata.hosts[0];
+        expect(h.name).to.equal('Digital-Library');
+        expect(h.services.length).to.equal(1);
+        expect(h.services[0].name).to.equal('INDEXER');
+        expect(h.services[0].checkresult).to.equal("HTTP CRITICAL: Status line output matched \"200\" - string 'indexer: running' not found on '[URL_REMOVED]' - 878 bytes in 0.520 second response time");
+        done();
+      }).catch((err) => {
+        fail(err);
+        done();
+      });
+    });
+  });
 });

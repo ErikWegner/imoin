@@ -45,7 +45,7 @@ export class NagiosHtml extends AbstractMonitor {
       m.addHost(host);
     }
 
-    const r2 = /extinfo\.cgi.*?host=(.*?)&service=(.*?)'>(.*?)<\/a>[\s\S]*?>(CRITICAL|OK|WARNING|PENDING|UNKNOWN)<\/td>[\s\S]*?valign='center'>(.*?)<\/td>/gi;
+    const r2 = /extinfo\.cgi.*?host=(.*?)&(amp;)?service=(.*?)['"]>(.*?)<\/a>[\s\S]*?>(CRITICAL|OK|WARNING|PENDING|UNKNOWN)<\/td>[\s\S]*?valign=['"]center['"]>(.*?)<\/td>/gi;
     let servicematches;
     while (servicematches = r2.exec(servicehtml)) {
       const host = hostByName[servicematches[1]];
@@ -53,9 +53,9 @@ export class NagiosHtml extends AbstractMonitor {
         continue;
       }
 
-      const service = new Monitor.Service(servicematches[3]);
-      const status = servicematches[4];
-      service.checkresult = servicematches[5].replace('&nbsp;', ' ').trim()
+      const service = new Monitor.Service(servicematches[4]);
+      const status = servicematches[5];
+      service.checkresult = servicematches[6].replace('&nbsp;', ' ').trim();
       service.setStatus(status === 'OK' ? 'OK' : status === 'WARNING' ? 'WARNING' : 'CRITICAL')
 
       host.addService(service);
