@@ -40,7 +40,7 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
     throw new Error("Method not implemented.");
   }
   error(o: any): void {
-    throw new Error("Method not implemented.");
+    //no op
   }
   loadSettings(): Promise<Settings> {
     throw new Error("Method not implemented.");

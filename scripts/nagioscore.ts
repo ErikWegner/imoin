@@ -1,6 +1,7 @@
 import { AbstractMonitor } from './AbstractMonitor';
 import { Monitor } from './MonitorData';
 import { UICommand } from './UICommand';
+import { Constants } from './constants';
 
 interface IHostJsonData {
   data: {
@@ -44,13 +45,33 @@ export class NagiosCore extends AbstractMonitor {
         Promise
           .all([hostsrequest, servicesrequest])
           .then(a => {
-            const hostdata = JSON.parse(a[0]);
-            const servicedata = JSON.parse(a[1]);
+            let hostdata, servicedata;
+            try {
+              hostdata = JSON.parse(a[0]);
+            } catch (hosterr) {
+              this.environment.error(hosterr);
+              resolve(Monitor.ErrorMonitorData('Could not parse host data.', Constants.UrlDebug));
+              return;
+            }
+
+            try {
+              servicedata = JSON.parse(a[1]);
+            } catch (servicerrror) {
+              this.environment.error(servicerrror);
+              resolve(Monitor.ErrorMonitorData('Could not parse service data.', Constants.UrlDebug));
+              return;
+            }
             const m = this.processData(hostdata, servicedata);
             resolve(m);
           })
           .catch(a => {
-            resolve(Monitor.ErrorMonitorData('Connection error. Check settings and log. ' + a[0] + '|' + a[1]));
+            let msg = 'Connection error: ';
+            if (typeof a === 'string') {
+              msg += a;
+            } else {
+              msg += 'Check settings and log.';
+            }
+            resolve(Monitor.ErrorMonitorData(msg));
           });
       });
   }
