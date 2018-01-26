@@ -19,7 +19,7 @@ Supported versions:
 
 * Icinga 2
 * Nagios Core 4.0.7+
-
+* Nagios 3+
 
 Done
 ====

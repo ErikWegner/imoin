@@ -233,5 +233,7 @@ body {
 }
 
 .errormessage {
+    max-height: 100px;
+    overflow-y: auto;
     white-space: pre;
 }

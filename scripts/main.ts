@@ -4,12 +4,18 @@ import { IMonitor } from './IMonitor';
 import { IcingaApi } from './icingaapi';
 import { IcingaCgi } from './icingacgi';
 import { NagiosCore } from './nagioscore';
+import { NagiosHtml } from './nagioshtml';
 
-/**
+/*
  * Connecting all pieces together
  */
 
-function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
+/**
+ * Create an instance for the given configuration
+ * 
+ * @param instance The instance configuration
+ */
+export function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
     if (instance.icingaversion == 'api1') {
         return new IcingaApi();
     }
@@ -20,6 +26,10 @@ function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
 
     if (instance.icingaversion == 'nagioscore') {
         return new NagiosCore();
+    }
+
+    if (instance.icingaversion == 'nagioshtml') {
+        return new NagiosHtml();
     }
 
     return null;
