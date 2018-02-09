@@ -16,6 +16,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     protected settings: Settings = new Settings();
 
     private alarmListenerRegistered = false;
+    private audioPlayer: HTMLAudioElement;
 
     protected updateIconAndBadgetext() {
         let iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
@@ -161,5 +162,17 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         settings.instances.forEach((i) => i.url = Settings.urlNoTrailingSlash(i));
 
         return settings;
+    }
+
+    public audioNotification(status: Monitor.Status): void {
+        this.debug(status);
+        if (this.audioPlayer) {
+            this.audioPlayer.pause();
+            this.audioPlayer = null;
+        }
+
+        const source = 'alarm.mp3';
+        this.audioPlayer = new Audio(source);
+        this.audioPlayer.play();
     }
 }

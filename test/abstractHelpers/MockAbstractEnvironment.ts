@@ -1,13 +1,17 @@
 import { AbstractEnvironment } from '../../scripts/AbstractEnvironment';
 import { Settings } from '../../scripts/Settings';
 import * as sinon from 'sinon';
+import { Monitor } from '../../scripts/MonitorData';
 
 export class MockAbstractEnvironment extends AbstractEnvironment {
   public loadCallback: (url: string, username: string, password: string) => Promise<string> = null;
   public trySendDataToPopupSpy: sinon.SinonSpy;
+  public audioNotificationSpy: sinon.SinonSpy;
+
   constructor() {
     super();
     this.trySendDataToPopupSpy = sinon.spy();
+    this.audioNotificationSpy = sinon.spy(this, 'audioNotification');
   }
 
   public registerAlarmCallbackPublic(alarmName: string, callback: () => void) {
@@ -59,5 +63,8 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
   }
   protected updateIconAndBadgetext(): void {
     // no op
+  }
+  audioNotification(status: Monitor.Status): void {
+    // this function is spied on
   }
 } 

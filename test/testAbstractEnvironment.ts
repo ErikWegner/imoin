@@ -4,6 +4,7 @@ import * as sinon from 'sinon';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { Monitor } from '../scripts/MonitorData';
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
+import { fail } from 'assert';
 
 describe('AbstractEnvironnment', () => {
   it('should register and handle one alarm', () => {
@@ -233,5 +234,153 @@ describe('AbstractEnvironnment', () => {
     expect(buf.instances).to.be.an('object');
     expect(buf.instances[index]).to.be.an('object');
     expect(buf.instances[index].updatetime).to.equal('cat fish dog');
-  })
+  });
+
+  describe('on first refresh should call audioNotification with isNew == true', () => {
+    //it('should play sound on first refresh', () => {
+    function testPlaySoundOnFirstRefresh(testValue: Monitor.Status) {
+      const index = 5;
+      const mae = new MockAbstractEnvironment();
+      mae.registerMonitorInstance(index, { instancelabel: 't1' });
+      const callCount1 = mae.audioNotificationSpy.callCount;
+      const m = new Monitor.MonitorData();
+      m.instanceLabel = 'U2';
+      const service = new Monitor.Service("S");
+      service.setStatus(testValue == Monitor.Status.GREEN ? 'OK' : testValue == Monitor.Status.YELLOW ? 'WARNING' : 'CRITICAL');
+      const host = new Monitor.Host("H");
+      host.setState('UP');
+      host.services.push(service);
+      m.hosts.push(host);
+      m.updateCounters();
+
+      mae.displayStatus(index, m);
+
+      // The monitoring instance is GREEN
+      expect(m.getState()).to.equal(testValue);
+      // No audioNotification has been called at the beginng
+      expect(callCount1).to.equal(0);
+      // audioNotification has been called now (after displayStatus)
+      if (mae.audioNotificationSpy.callCount != 1) {
+        fail(mae.audioNotificationSpy.callCount, 1, "audioNotification call count");
+      } else {
+        const spyCall = mae.audioNotificationSpy.getCall(0);
+        expect(spyCall.args[0]).to.equal(testValue);
+        expect(spyCall.args[1]).to.equal(true);
+      }
+    }
+
+    it('should play sound on state GREEN', () => {
+      testPlaySoundOnFirstRefresh(Monitor.Status.GREEN);
+    });
+    it('should play sound on state YELLOW', () => {
+      testPlaySoundOnFirstRefresh(Monitor.Status.YELLOW);
+    });
+    it('should play sound on state RED', () => {
+      testPlaySoundOnFirstRefresh(Monitor.Status.RED);
+    });
+
+  });
+
+  describe('on second refresh should call audioNotification with isNew == false', () => {
+    function testPlaySoundOnSecondRefresh(testValue: Monitor.Status) {
+      const index = 5;
+      const mae = new MockAbstractEnvironment();
+      mae.registerMonitorInstance(index, { instancelabel: 't1' });
+      const callCount1 = mae.audioNotificationSpy.callCount;
+      const m = new Monitor.MonitorData();
+      m.instanceLabel = 'U2';
+      const service = new Monitor.Service("S");
+      service.setStatus(testValue == Monitor.Status.GREEN ? 'OK' : testValue == Monitor.Status.YELLOW ? 'WARNING' : 'CRITICAL');
+      const host = new Monitor.Host("H");
+      host.setState('UP');
+      host.services.push(service);
+      m.hosts.push(host);
+      m.updateCounters();
+
+      // first update
+      mae.displayStatus(index, m);
+      // second update, no change
+      mae.displayStatus(index, m);
+
+      // The monitoring instance is GREEN
+      expect(m.getState()).to.equal(testValue);
+      // No audioNotification has been called at the beginng
+      expect(callCount1).to.equal(0);
+      // audioNotification has been called now (after displayStatus)
+      if (mae.audioNotificationSpy.callCount != 2) {
+        fail(mae.audioNotificationSpy.callCount, 2, "audioNotification call count");
+      } else {
+        const spyCall1 = mae.audioNotificationSpy.getCall(0);
+        expect(spyCall1.args[0]).to.equal(testValue);
+        expect(spyCall1.args[1]).to.equal(true);
+        const spyCall2 = mae.audioNotificationSpy.getCall(1);
+        expect(spyCall2.args[0]).to.equal(testValue);
+        expect(spyCall2.args[1]).to.equal(false);
+      }
+    }
+
+    it('should call audioNotification on state GREEN', () => {
+      testPlaySoundOnSecondRefresh(Monitor.Status.GREEN);
+    });
+    it('should call audioNotification on state YELLOW', () => {
+      testPlaySoundOnSecondRefresh(Monitor.Status.YELLOW);
+    });
+    it('should call audioNotification on state RED', () => {
+      testPlaySoundOnSecondRefresh(Monitor.Status.RED);
+    });
+  });
+
+  describe('on third refresh should call audioNotification with isNew == false', () => {
+    function testPlaySoundOnSecondRefresh(testValue: Monitor.Status) {
+      const index = 5;
+      const mae = new MockAbstractEnvironment();
+      mae.registerMonitorInstance(index, { instancelabel: 't1' });
+      const callCount1 = mae.audioNotificationSpy.callCount;
+      const m = new Monitor.MonitorData();
+      m.instanceLabel = 'U2';
+      const service = new Monitor.Service("S");
+      service.setStatus(testValue == Monitor.Status.GREEN ? 'OK' : testValue == Monitor.Status.YELLOW ? 'WARNING' : 'CRITICAL');
+      const host = new Monitor.Host("H");
+      host.setState('UP');
+      host.services.push(service);
+      m.hosts.push(host);
+      m.updateCounters();
+
+      // first update
+      mae.displayStatus(index, m);
+      // second update, no change
+      mae.displayStatus(index, m);
+      // third update, no change
+      mae.displayStatus(index, m);
+
+      // The monitoring instance is GREEN
+      expect(m.getState()).to.equal(testValue);
+      // No audioNotification has been called at the beginng
+      expect(callCount1).to.equal(0);
+      // audioNotification has been called now (after displayStatus)
+      if (mae.audioNotificationSpy.callCount != 3) {
+        fail(mae.audioNotificationSpy.callCount, 3, "audioNotification call count");
+      } else {
+        const spyCall1 = mae.audioNotificationSpy.getCall(0);
+        expect(spyCall1.args[0]).to.equal(testValue);
+        expect(spyCall1.args[1]).to.equal(true);
+        const spyCall2 = mae.audioNotificationSpy.getCall(1);
+        expect(spyCall2.args[0]).to.equal(testValue);
+        expect(spyCall2.args[1]).to.equal(false);
+        const spyCall3 = mae.audioNotificationSpy.getCall(2);
+        expect(spyCall3.args[0]).to.equal(testValue);
+        expect(spyCall3.args[1]).to.equal(false);
+      }
+    }
+
+    it('should call audioNotification on state GREEN', () => {
+      testPlaySoundOnSecondRefresh(Monitor.Status.GREEN);
+    });
+    it('should call audioNotification on state YELLOW', () => {
+      testPlaySoundOnSecondRefresh(Monitor.Status.YELLOW);
+    });
+    it('should call audioNotification on state RED', () => {
+      testPlaySoundOnSecondRefresh(Monitor.Status.RED);
+    });
+  });
 });

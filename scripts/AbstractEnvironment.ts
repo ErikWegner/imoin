@@ -15,6 +15,14 @@ export abstract class AbstractEnvironment implements IEnvironment {
     abstract loadSettings(): Promise<Settings>;
     abstract initTimer(index: number, delay: number, callback: () => void): void;
     abstract stopTimer(index: number): void;
+    
+    /**
+     * Play a notification sound
+     * @param status The summarized state of all instances
+     * @param isNew True, when this is a state change. False, when the
+     *  last call to this function has had the equal value for status
+     */
+    protected abstract audioNotification(status: Monitor.Status, isNew: boolean): void;
     protected abstract trySendDataToPopup(): void;
     protected abstract openWebPage(url: string): void;
     protected abstract updateIconAndBadgetext(): void;
@@ -25,6 +33,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
     private alarmCallbacks: { [alarmName: string]: () => void } = {};
     private dataBuffers: { [index: number]: Monitor.MonitorData } = {};
     private panelMonitorData: { [index: number]: IPanelMonitorData } = {};
+    private lastState: Monitor.Status = null;
 
     protected static alarmName(index: number): string {
         return 'imoin-' + index;
@@ -110,6 +119,12 @@ export abstract class AbstractEnvironment implements IEnvironment {
         this.dataBuffer.instances = this.panelMonitorData;
         this.updateIconAndBadgetext();
         this.trySendDataToPopup();
+        this.detectStateTransition(this.dataBuffer.getState());
+    }
+
+    public detectStateTransition(newState: Monitor.Status) {
+        this.audioNotification(newState, this.lastState != newState);
+        this.lastState = newState;
     }
 
     protected handleMessage(request: any, sender?: any, sendResponse?: (message: any) => void) {
