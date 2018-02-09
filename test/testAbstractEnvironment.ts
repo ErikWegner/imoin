@@ -331,7 +331,7 @@ describe('AbstractEnvironnment', () => {
   });
 
   describe('on third refresh should call audioNotification with isNew == false', () => {
-    function testPlaySoundOnSecondRefresh(testValue: Monitor.Status) {
+    function testPlaySoundOnThirdRefresh(testValue: Monitor.Status) {
       const index = 5;
       const mae = new MockAbstractEnvironment();
       mae.registerMonitorInstance(index, { instancelabel: 't1' });
@@ -374,13 +374,13 @@ describe('AbstractEnvironnment', () => {
     }
 
     it('should call audioNotification on state GREEN', () => {
-      testPlaySoundOnSecondRefresh(Monitor.Status.GREEN);
+      testPlaySoundOnThirdRefresh(Monitor.Status.GREEN);
     });
     it('should call audioNotification on state YELLOW', () => {
-      testPlaySoundOnSecondRefresh(Monitor.Status.YELLOW);
+      testPlaySoundOnThirdRefresh(Monitor.Status.YELLOW);
     });
     it('should call audioNotification on state RED', () => {
-      testPlaySoundOnSecondRefresh(Monitor.Status.RED);
+      testPlaySoundOnThirdRefresh(Monitor.Status.RED);
     });
   });
 });
