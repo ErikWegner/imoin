@@ -7,6 +7,50 @@ let instances = [];
 let selectedInstance = -1;
 let fontsize = 100;
 
+/*    ---- Custom elements   ---- */
+
+// Create a class for the element
+class SoundFileSelector extends HTMLElement {
+  constructor() {
+    // Always call super first in constructor
+    super();
+
+    // Create a shadow root
+    var shadow = this.attachShadow({mode: 'open'});
+
+    // Create spans
+    var wrapper = document.createElement('span');
+    wrapper.setAttribute('class','wrapper');
+    var icon = document.createElement('span');
+    icon.setAttribute('class','icon');
+    icon.setAttribute('tabindex', 0);
+    var info = document.createElement('span');
+    info.setAttribute('class','info');
+
+    // Take attribute content and put it inside the info span
+    var text = this.getAttribute('text');
+    info.textContent = text;
+
+    // Insert icon
+    var imgUrl;
+    if(this.hasAttribute('img')) {
+      imgUrl = this.getAttribute('img');
+    } else {
+      imgUrl = 'img/default.png';
+    }
+    var img = document.createElement('img');
+    img.src = imgUrl;
+    icon.appendChild(img);
+
+    // attach the created elements to the shadow dom
+
+    shadow.appendChild(style);
+    shadow.appendChild(wrapper);
+    wrapper.appendChild(icon);
+    wrapper.appendChild(info);
+  }
+}
+
 /*    ---- Library functions ---- */
 
 function createInstance(title) {
@@ -37,6 +81,7 @@ function restoreOptions() {
     fontsize = storageData.fontsize || fontsize;
     updateDOMforInstances();
     updateDOMforMisc();
+    SoundFileSelectors.setFiles(JSON.parse(storageData.sounds || '{}'));
   }, onError);
 }
 
@@ -133,6 +178,7 @@ function saveOptions() {
   host.storage.local.set({
     instances: JSON.stringify(instances),
     fontsize: parseInt(document.getElementById('fontsize').value),
+    sounds: JSON.stringify(SoundFileSelectors.getFiles())
   });
   var myPort = host.runtime.connect({ name: 'port-from-options' });
   myPort.postMessage({ command: 'SettingsChanged' });
@@ -140,7 +186,7 @@ function saveOptions() {
 }
 
 function loadOptions() {
-  const optionKeys = ['instances', 'fontsize'];
+  const optionKeys = ['instances', 'fontsize', 'sounds'];
   return new Promise((resolve, reject) => {
     if (!host.storage) {
       resolve(null);
@@ -163,7 +209,12 @@ function addDropdownEventHandler(callback) {
   ddl.addEventListener('change', callback);
 }
 
+function initializeCustomElements() {
+  
+}
+
 /*    ---- Initialize ---- */
+initializeCustomElements();
 document.addEventListener('DOMContentLoaded', restoreOptions);
 addClickHandler('#addInstance', addInstance);
 addClickHandler('#updateSettings', updateSettings);

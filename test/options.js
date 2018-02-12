@@ -3,6 +3,7 @@ describe('options html', () => {
   const documentQuerySelectorStub = sinon.stub(document, 'querySelector');
   const documentGetElementByIdStub = sinon.stub(document, 'getElementById');
   const saveOptionsSpy = sinon.spy(window, 'saveOptions');
+  const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
 
   beforeEach(() => {
     // Re-Init global variables
@@ -13,6 +14,7 @@ describe('options html', () => {
     // Reset all stubs
     getFormTextValueStub.reset();
     documentQuerySelectorStub.reset();
+    documentGetElementsByClassNameStub.reset();
     documentGetElementByIdStub.withArgs('fontsize').returns({ value: "100" });
     loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
     port = {
@@ -256,6 +258,161 @@ describe('options html', () => {
 
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
-    expect(arg[0].instances).toBe(JSON.stringify([{"instancelabel":"Instance 0","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Call #instancelabel","timerPeriod":17,"icingaversion":"Call #icingaversion","url":"Call #url","username":"Call #username","password":"Call #password"},{"instancelabel":"Instance 2","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 3","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""}]));
+    expect(arg[0].instances).toBe(JSON.stringify([{ "instancelabel": "Instance 0", "timerPeriod": 5, "icingaversion": "cgi", "url": "", "username": "", "password": "" }, { "instancelabel": "Call #instancelabel", "timerPeriod": 17, "icingaversion": "Call #icingaversion", "url": "Call #url", "username": "Call #username", "password": "Call #password" }, { "instancelabel": "Instance 2", "timerPeriod": 5, "icingaversion": "cgi", "url": "", "username": "", "password": "" }, { "instancelabel": "Instance 3", "timerPeriod": 5, "icingaversion": "cgi", "url": "", "username": "", "password": "" }]));
+  });
+
+  describe('Sound selection', () => {
+    beforeEach(() => {
+      documentGetElementsByClassNameStub.reset();
+    });
+
+    it('should provide functions', () => {
+      expect(window.SoundFileSelectors).toBeDefined();
+      expect(typeof (window.SoundFileSelectors.setFiles)).toBe('function');
+      expect(typeof (window.SoundFileSelectors.getFiles)).toBe('function');
+      expect(typeof (window.SoundFileSelectors.init)).toBe('function');
+    });
+
+    /** When querying for dom elements, return something usable */
+    function fakeSoundFileSelectors(arr) {
+      documentGetElementsByClassNameStub
+        .withArgs('soundfileselector')
+        .returns({
+          length: arr.length,
+          item: (index) => {
+            return {
+              getAttribute: (attributeName) => {
+                if (attributeName == 'data-soundevent') {
+                  return arr[index];
+                }
+              },
+              appendChild: () => { }
+            }
+          }
+        });
+      SoundFileSelectors.init();
+    }
+
+    it('should set and get files', () => {
+      const filedata = {
+        'a': {
+          id: 'a',
+          filename: 'FILE-A',
+          data: '1234'
+        },
+        'x': {
+          id: 'x',
+          filename: 'FILE-X',
+          data: '1a2b'
+        }
+      };
+
+      fakeSoundFileSelectors(['a', 'x']);
+
+      window.SoundFileSelectors.init();
+      window.SoundFileSelectors.setFiles(filedata);
+      const r = window.SoundFileSelectors.getFiles();
+      expect(r).toEqual(filedata);
+    });
+
+    it('should update filenameTextNode', () => {
+      const c = new SoundFileSelectorControl('a');
+      const m = { textContent: '' };
+      c.setUIFilename(m);
+
+      c.setFilename('jewp');
+
+      expect(m.textContent).toBe('jewp');
+    });
+
+    it('should update filenameTextNode on restore', () => {
+      const c = new SoundFileSelectorControl('a');
+      const m = { textContent: 'gfdg8' };
+      c.setUIFilename(m);
+
+      c.restore({ filename: '5g9d', data: 'l' })
+
+      expect(m.textContent).toBe('5g9d');
+    });
+
+    it('should update filename on delete', () => {
+      const c = new SoundFileSelectorControl('a');
+      const m = { textContent: 'kdlsa' };
+      c.setUIFilename(m);
+      c.setFilename('jewp');
+
+      c.deleteFile();
+
+      expect(m.textContent).toBe(SoundFileSelectorControl.noFileSetText);
+    });
+
+    it('should update filedata', () => {
+      const c = new SoundFileSelectorControl('a');
+
+      c.filedata = 'jkluoi';
+
+      const r = c.toObject();
+      expect(r.data).toBe('jkluoi');
+    });
+
+    it('should update filedata on restore', () => {
+      const c = new SoundFileSelectorControl('a');
+      c.restore({ filename: '5g9d', data: 'djlsajdlsal' });
+
+      const r = c.toObject();
+      expect(r.data).toBe('djlsajdlsal');
+    });
+
+    it('should respond false to hasAudioData', () => {
+      const c = new SoundFileSelectorControl('a');
+
+      expect(c.hasAudioData).toBeFalsy();
+    });
+
+    it('should respond true to hasAudioData', () => {
+      const c = new SoundFileSelectorControl('a');
+      c.filedata = 'abbd';
+
+      expect(c.hasAudioData).toBeTruthy();
+    });
+
+
+    it('should respond false to hasAudioData after delete', () => {
+      const c = new SoundFileSelectorControl('a');
+      c.filedata = 'abbd';
+      c.deleteFile();
+
+      expect(c.hasAudioData).toBeFalsy();
+    });
+
+    it('should restore settings from options', (done) => {
+      loadOptions = sinon.stub().resolves({ sounds: '{"sGREEN":{"id":"sGREEN","filename":"","data":null},"xRED":{"id":"xRED","filename":"","data":null}}' });
+      const stub = sinon.stub(SoundFileSelectors, 'setFiles');
+      restoreOptions().then(() => {
+        expect(stub.callCount).toBe(1);
+        expect(stub.args[0][0]).toEqual({ sGREEN: Object({ id: 'sGREEN', filename: '', data: null }), xRED: Object({ id: 'xRED', filename: '', data: null }) });
+        stub.restore();
+        done();
+      });
+    });
+
+    it('should update empty settings from options', () => {
+      const setSpy = host.storage.local.set;
+      addInstance();
+      getFormTextValueStub.callsFake((selector, defaultValue) => {
+        if ('#timerPeriod' === selector) {
+          return '17'
+        }
+        return "Call " + selector;
+      });
+
+      fakeSoundFileSelectors(['sGREEN', 'xRED']);
+
+      updateSettings();
+
+      expect(setSpy.callCount).toBe(1);
+      const arg = setSpy.args[0];
+      expect(arg[0].sounds).toEqual(JSON.stringify({ sGREEN: Object({ id: 'sGREEN', filename: '', data: null }), xRED: Object({ id: 'xRED', filename: '', data: null }) }));
+    });
   });
 });

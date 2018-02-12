@@ -15,6 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'html/options_sound.js',
       'html/options.js',
       'test/*.js'
     ],

@@ -21,10 +21,10 @@
       </div>
       <div class="splitter"></div>
       <div class="group">
-          <label for="instancelabel">Label</label>
-          <input type="text" id="instancelabel" name="instancelabel" />
-        </div>
-        <div class="group">
+        <label for="instancelabel">Label</label>
+        <input type="text" id="instancelabel" name="instancelabel" />
+      </div>
+      <div class="group">
         <label for="icingaversion">Version</label>
         <select id="icingaversion" name="icingaversion">
           <option value="cgi">CGI (Icinga 1.x)</option>
@@ -56,6 +56,33 @@
       </div>
     </fieldset>
     <fieldset>
+      <legend>Notifications</legend>
+      <div class="group">
+        <label>Recurring GREEN</label>
+        <div class="soundfileselector" data-soundevent="GREEN"></div>
+      </div>
+      <div class="group">
+        <label>Switching to GREEN</label>
+        <div class="soundfileselector" data-soundevent="ToGREEN"></div>
+      </div>
+      <div class="group">
+        <label>Recurring YELLOW</label>
+        <div class="soundfileselector" data-soundevent="YELLOW"></div>
+      </div>
+      <div class="group">
+        <label>Switching to YELLOW</label>
+        <div class="soundfileselector" data-soundevent="ToYELLOW"></div>
+      </div>
+      <div class="group">
+        <label>Recurring RED</label>
+        <div class="soundfileselector" data-soundevent="RED"></div>
+      </div>
+      <div class="group">
+        <label>Switching to RED</label>
+        <div class="soundfileselector" data-soundevent="ToRED"></div>
+      </div>
+    </fieldset>
+    <fieldset>
       <legend>Misc</legend>
       <div class="group">
         <label for="fontsize">Font size adjustment (percentage)</label>
@@ -66,9 +93,11 @@
       <label></label>
       <button type="button" id="updateSettings">Update settings</button>
     </div>
-</form>
+  </form>
 
+  <script src="options_sound.js"></script>
   <script src="options.js"></script>
+  <script src="options_init.js"></script>
 
 </body>
 
