@@ -10,10 +10,17 @@ export interface ImoinMonitorInstance {
     hostgroup?: string;
 }
 
+export interface Sound {
+    id: string;
+    filename: string;
+    data: string;
+}
+
 export class Settings {
 
     public instances: ImoinMonitorInstance[] = [];
     public fontsize: number = 100;
+    public sounds: { [id: string]: Sound } = {};
 
     static urlNoTrailingSlash(instance: ImoinMonitorInstance): string {
         let url = instance.url;

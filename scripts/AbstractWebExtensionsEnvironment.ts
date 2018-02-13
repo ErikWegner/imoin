@@ -12,11 +12,12 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     protected portFromPanel: WebExtension.Port;
     protected abstract host: WebExtension.WebExtensionBrowser;
     protected abstract console: Console;
-    protected static optionKeys = ['instances', 'fontsize'];
+    protected static optionKeys = ['instances', 'fontsize', 'sounds'];
     protected settings: Settings = new Settings();
 
     private alarmListenerRegistered = false;
-    private audioPlayer: HTMLAudioElement;
+    private audioPlayer: HTMLAudioElement = new Audio();
+    private audioPlayerSoundid: string = '';
 
     protected updateIconAndBadgetext() {
         let iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
@@ -157,6 +158,9 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         if (storedSettings.fontsize && storedSettings.fontsize > 0) {
             settings.fontsize = storedSettings.fontsize;
         }
+        if (storedSettings.sounds) {
+            settings.sounds = JSON.parse(storedSettings.sounds);
+        }
 
         // Remove trailing slash for all instances
         settings.instances.forEach((i) => i.url = Settings.urlNoTrailingSlash(i));
@@ -164,15 +168,39 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         return settings;
     }
 
-    public audioNotification(status: Monitor.Status): void {
-        this.debug(status);
-        if (this.audioPlayer) {
+    /**
+     * Build the id to lookup the sound settings
+     * @param status The overall status
+     * @param isNew A flag indicating that the status is different to the last call
+     */
+    public static buildSoundId(status: Monitor.Status, isNew: boolean): string {
+        return (isNew ? 'To' : '') + Monitor.Status[status];
+    }
+
+    public audioNotification(status: Monitor.Status, isNew: boolean): void {
+        // Build the key
+        const soundid = AbstractWebExtensionsEnvironment.buildSoundId(status, isNew);
+
+        // Is it still playing?
+        if (this.audioPlayer.paused == false) {
+            // Is it still playing the last sound?
+            if (this.audioPlayerSoundid === soundid) {
+                // do nothing
+                return;
+            }
+            // Stop running player
             this.audioPlayer.pause();
-            this.audioPlayer = null;
         }
 
-        const source = 'alarm.mp3';
-        this.audioPlayer = new Audio(source);
-        this.audioPlayer.play();
+
+        // Lookup settings
+        if (this.settings.sounds[soundid]) {
+            // Remember sound id
+            this.audioPlayerSoundid = soundid;
+
+            // Start player
+            this.audioPlayer.src = this.settings.sounds[soundid].data;
+            this.audioPlayer.play();
+        }
     }
 }
