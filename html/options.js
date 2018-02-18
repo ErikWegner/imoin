@@ -1,5 +1,9 @@
 var hosttype = chrome ? 'chrome' : browser ? 'browser' : 'na'
 var host = chrome || browser;
+// Edge browser
+if (typeof browser !== "undefined" && browser.runtime !== null) {
+  host = browser;
+}
 
 /*    ---- Global variables ---- */
 

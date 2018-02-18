@@ -4,6 +4,7 @@ import { AbstractEnvironment } from './AbstractEnvironment';
 import { Settings } from './Settings';
 import { Monitor } from './MonitorData';
 import Status = Monitor.Status;
+import { IBadgeIcon } from './IconAndBadgetext';
 
 /**
  * A common implementation
@@ -19,9 +20,13 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     private audioPlayer: HTMLAudioElement = new Audio();
     private audioPlayerSoundid: string = '';
 
+    protected setIcon(icon: IBadgeIcon) {
+        this.host.browserAction.setIcon({ path: icon });
+    }
+
     protected updateIconAndBadgetext() {
         let iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
-        this.host.browserAction.setIcon({ path: iAndB.badgeIcon });
+        this.setIcon(iAndB.badgeIcon);
         this.host.browserAction.setBadgeText({ text: iAndB.badgeText });
         this.host.browserAction.setBadgeBackgroundColor({ color: iAndB.badgeColor });
     }
@@ -50,30 +55,40 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         this.trySendDataToPopup();
     }
 
-    addAlarm(index: number, delay: number, callback: () => void): void {
-        this.debug('Adding alarm every ' + delay + ' minutes');
-        const alarmName = AbstractEnvironment.alarmName(index);
-
+    protected createHostAlarm(alarmName: string, delay: number) {
         this.host.alarms.create(
             alarmName,
             {
                 periodInMinutes: delay
             }
         );
+
         this.debug('Adding alarm listener');
-        this.registerAlarmCallback(alarmName, callback);
-        const me = this;
         if (!this.alarmListenerRegistered) {
             this.alarmListenerRegistered = true;
             this.host.alarms.onAlarm.addListener(this.handleAlarm.bind(this));
         }
+    }
+
+    protected removeHostAlarm(alarmName: string) {
+        this.host.alarms.clear(alarmName);
+    }
+
+    addAlarm(index: number, delay: number, callback: () => void): void {
+        this.debug('Adding alarm every ' + delay + ' minutes');
+        const alarmName = AbstractEnvironment.alarmName(index);
+
+        this.createHostAlarm(alarmName, delay);
+
+        this.registerAlarmCallback(alarmName, callback);
+
         this.debug('Triggering immediate update');
         this.handleAlarm({ name: alarmName });
     }
 
     removeAlarm(index: number) {
-        const alarmName = 'imoin-' + index;
-        this.host.alarms.clear(alarmName);
+        const alarmName = AbstractEnvironment.alarmName(index);
+        this.removeHostAlarm(alarmName);
     }
 
     load(url: string, username: string, password: string): Promise<string> {

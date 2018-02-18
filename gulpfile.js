@@ -36,6 +36,12 @@ gulp.task('chrome-setpaths', function () {
     targetpaths.html = targetpaths.target + '/html'
 });
 
+gulp.task('edge-setpaths', function () {
+    tsProject = 'scripts/edge.ts';
+    targetpaths.target = 'release/edge';
+    targetpaths.icons = targetpaths.target + '/icons'
+    targetpaths.html = targetpaths.target + '/html'
+});
 gulp.task('copy-icons', function () {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
 })
@@ -45,6 +51,21 @@ gulp.task('copy-html', function () {
         .src(['html/**/*'])
         .pipe(gulp.dest(targetpaths.html))
 })
+
+gulp.task('firefox', [
+    'firefox-setpaths',
+    'copy-icons',
+    'ts-scripts',
+    'copy-html',
+], function () {
+    return es.concat(
+        gulp
+            .src([
+                'firefox/manifest.json'
+            ])
+            .pipe(gulp.dest(targetpaths.target))
+    )
+});
 
 gulp.task('chrome', [
     'chrome-setpaths',
@@ -61,8 +82,8 @@ gulp.task('chrome', [
     )
 })
 
-gulp.task('firefox', [
-    'firefox-setpaths',
+gulp.task('edge', [
+    'edge-setpaths',
     'copy-icons',
     'ts-scripts',
     'copy-html',
@@ -70,13 +91,11 @@ gulp.task('firefox', [
     return es.concat(
         gulp
             .src([
-                'firefox/manifest.json'
+                'edge/manifest.json'
             ])
             .pipe(gulp.dest(targetpaths.target))
     )
-
-})
-
+});
 
 gulp.task('firefox-watch', [
     'firefox-setpaths',
@@ -98,12 +117,14 @@ gulp.task('chrome-watch', [
 
 })
 
-gulp.task('chrome-package', [
-    'chrome'
+gulp.task('edge-watch', [
+    'edge-setpaths',
+    'ts-scripts',
 ], function () {
-    return gulp.src(targetpaths.target + '/**/*')
-        .pipe(zip('imoin.zip'))
-        .pipe(gulp.dest(targetpaths.target + '/artifacts/'));
+
+    gulp.watch('scripts/*.ts', ['ts-scripts'])
+    gulp.watch('html/*', ['copy-html'])
+
 });
 
 // bump versions on package/manifest
@@ -150,9 +171,15 @@ gulp.task('clean-chrome', ['chrome-setpaths'], function () {
         .pipe(clean());
 })
 
+gulp.task('clean-edge', ['edge-setpaths'], function () {
+    return gulp.src(targetpaths.target, { read: false })
+        .pipe(clean());
+});
+
 gulp.task('clean', [
     'clean-firefox',
     'clean-chrome',
+    'clean-edge',
 ], function () {
 
 })

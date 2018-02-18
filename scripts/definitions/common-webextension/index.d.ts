@@ -34,13 +34,13 @@ declare namespace WebExtension {
     }
 
     class Tabs {
-        create(params: {url?: string}): void
+        create(params: { url?: string }): void
     }
 
     class Runtime {
         onInstalled: InstalledEvent;
         onConnect: RuntimeEvent;
-        connect(extensionId?: string, connectInfo? : {name?: string, includeTlsChannelId?: boolean}): Port;
+        connect(extensionId?: string, connectInfo?: { name?: string, includeTlsChannelId?: boolean }): Port;
         openOptionsPage(): void;
         getURL(url: string): string;
     }
@@ -50,7 +50,7 @@ declare namespace WebExtension {
     }
 
     interface InstalledEventDetails {
-        id? : string;
+        id?: string;
         previousVersion?: string;
         reason: string;
         temporary: boolean;
@@ -82,8 +82,8 @@ declare namespace WebExtension {
     }
 
     class BrowserAction {
-        setIcon(icon: {path: {32: string, 24?: string, 16: string}}): void
-        setBadgeText(badge: {text: string}): void
-        setBadgeBackgroundColor(details: {color: string}): void
+        setIcon(icon: { path: { 40?: string, 32?: string, 24?: string, 20?: string, 16?: string } }): void
+        setBadgeText(badge: { text: string }): void
+        setBadgeBackgroundColor(details: { color: string }): void
     }
 }

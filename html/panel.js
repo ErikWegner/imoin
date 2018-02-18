@@ -9,9 +9,13 @@ function postPanelMessage(data) {
 if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     // Web extension in Chrome or Firefox
     var host = chrome || browser;
+    // Edge browser
+    if (typeof browser !== "undefined" && browser.runtime !== null) {
+        host = browser;
+    }
 
     // This script runs at the moment that the popup is displayed
-    const myPort = host.runtime.connect({ name: "port-from-panel", includeTlsChannelId: false });
+    const myPort = host.runtime.connect();
     myPort.onMessage.addListener(function (message) {
         var command = message.command || "";
         var data = message.data || {};

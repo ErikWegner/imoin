@@ -14,10 +14,11 @@
     "bump-version-minor": "gulp bump-minor",
     "build:firefox": "gulp firefox",
     "build:chrome": "gulp chrome",
+    "build:edge": "gulp edge",
     "watch:firefox": "npm run build:firefox && gulp firefox-watch",
     "watch:chrome": "npm run build:chrome && gulp chrome-watch",
+    "watch:edge": "npm run build:edge && gulp edge-watch",
     "package:firefox": "npm run build:firefox && cd release/firefox && web-ext build",
-    "package:chrome": "gulp clean-chrome && gulp chrome-package",
     "sign:firefox": "npm run package:firefox && web-ext sign --source-dir release/firefox --api-key=${npm_config_AMO_JWT_ISSUER} --api-secret=${npm_config_AMO_JWT_SECRET}",
     "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
     "clean": "gulp clean"

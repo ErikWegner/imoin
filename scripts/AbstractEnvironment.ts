@@ -65,8 +65,10 @@ export abstract class AbstractEnvironment implements IEnvironment {
         iAndB.badgeColor = badgeColor;
         iAndB.badgeIcon = {
             '16': 'icons/icon-16' + path + '.png',
+            '20': 'icons/icon-32' + path + '.png',
             '24': 'icons/icon-32' + path + '.png',
-            '32': 'icons/icon-32' + path + '.png'
+            '32': 'icons/icon-32' + path + '.png',
+            '40': 'icons/icon-40' + path + '.png'
         };
         return iAndB;
     }

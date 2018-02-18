@@ -69,7 +69,7 @@ export class IcingaApi extends AbstractMonitor {
                     })
                     .catch(a => {
                         let msg = 'Connection error: ';
-                        if (typeof a === 'string') {
+                        if (typeof a === 'string' && a !== '') {
                             msg += a;
                         } else {
                             msg += 'Check settings and log.';
