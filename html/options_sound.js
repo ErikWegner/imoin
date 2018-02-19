@@ -152,7 +152,7 @@ class SoundFileSelectorControl {
         audio.pause();
       }
       control.deleteFile();
-      filename.textContent = noFileSetText;
+      filename.textContent = SoundFileSelectorControl.noFileSetText;
     });
 
     // A file is selected

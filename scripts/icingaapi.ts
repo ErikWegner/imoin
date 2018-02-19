@@ -39,11 +39,11 @@ export class IcingaApi extends AbstractMonitor {
             let data = {
                 type: 'Host',
                 force_check: true,
-                filter: 'host.name==\'' + param.hostname + '\''
+                filter: 'host.name==\"' + param.hostname + '\"'
             };
             if (param.servicename) {
                 data.type = 'Service';
-                data.filter = 'service.name==\'' + param.servicename + '\'';
+                data.filter = 'service.name==\"' + param.servicename + '\"';
             }
 
             this.environment.post(url, data, this.settings.username, this.settings.password);

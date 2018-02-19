@@ -1,8 +1,8 @@
 {
 
   "manifest_version": 2,
-  "name": "imoin WebExtensions",
-  "version": "20.0.0alpha1",
+  "name": "imoin",
+  "version": "20.0.0alpha2",
 
   "description": "Monitor your icinga or nagios instance.",
 
