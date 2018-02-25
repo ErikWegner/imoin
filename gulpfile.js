@@ -42,6 +42,14 @@ gulp.task('edge-setpaths', function () {
     targetpaths.icons = targetpaths.target + '/icons'
     targetpaths.html = targetpaths.target + '/html'
 });
+
+gulp.task('opera-setpaths', function () {
+    tsProject = 'scripts/opera.ts';
+    targetpaths.target = 'release/opera';
+    targetpaths.icons = targetpaths.target + '/icons'
+    targetpaths.html = targetpaths.target + '/html'
+});
+
 gulp.task('copy-icons', function () {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
 })
@@ -80,7 +88,7 @@ gulp.task('chrome', [
             ])
             .pipe(gulp.dest(targetpaths.target))
     )
-})
+});
 
 gulp.task('edge', [
     'edge-setpaths',
@@ -97,6 +105,21 @@ gulp.task('edge', [
     )
 });
 
+gulp.task('opera', [
+    'opera-setpaths',
+    'copy-icons',
+    'ts-scripts',
+    'copy-html',
+], function () {
+    return es.concat(
+        gulp
+            .src([
+                'opera/manifest.json'
+            ])
+            .pipe(gulp.dest(targetpaths.target))
+    )
+});
+
 gulp.task('firefox-watch', [
     'firefox-setpaths',
     'ts-scripts',
@@ -105,7 +128,7 @@ gulp.task('firefox-watch', [
     gulp.watch('scripts/*.ts', ['ts-scripts'])
     gulp.watch('html/*', ['copy-html'])
 
-})
+});
 
 gulp.task('chrome-watch', [
     'chrome-setpaths',
@@ -115,10 +138,20 @@ gulp.task('chrome-watch', [
     gulp.watch('scripts/*.ts', ['ts-scripts'])
     gulp.watch('html/*', ['copy-html'])
 
-})
+});
 
 gulp.task('edge-watch', [
     'edge-setpaths',
+    'ts-scripts',
+], function () {
+
+    gulp.watch('scripts/*.ts', ['ts-scripts'])
+    gulp.watch('html/*', ['copy-html'])
+
+});
+
+gulp.task('opera-watch', [
+    'opera-setpaths',
     'ts-scripts',
 ], function () {
 
@@ -137,6 +170,8 @@ gulp.task('bump', function () {
     return gulp.src([
         './chrome/manifest.json',
         './firefox/manifest.json',
+        './edge/manifest.json',
+        './opera/manifest.json',
         './package.json'], { base: './' })
         .pipe(bump({
             version: newVer
@@ -154,6 +189,8 @@ gulp.task('bump-minor', function () {
     return gulp.src([
         './chrome/manifest.json',
         './firefox/manifest.json',
+        './edge/manifest.json',
+        './opera/manifest.json',
         './package.json'], { base: './' })
         .pipe(bump({
             version: newVer
@@ -164,14 +201,19 @@ gulp.task('bump-minor', function () {
 gulp.task('clean-firefox', ['firefox-setpaths'], function () {
     return gulp.src(targetpaths.target, { read: false })
         .pipe(clean());
-})
+});
 
 gulp.task('clean-chrome', ['chrome-setpaths'], function () {
     return gulp.src(targetpaths.target, { read: false })
         .pipe(clean());
-})
+});
 
 gulp.task('clean-edge', ['edge-setpaths'], function () {
+    return gulp.src(targetpaths.target, { read: false })
+        .pipe(clean());
+});
+
+gulp.task('clean-opera', ['opera-setpaths'], function () {
     return gulp.src(targetpaths.target, { read: false })
         .pipe(clean());
 });
@@ -180,6 +222,7 @@ gulp.task('clean', [
     'clean-firefox',
     'clean-chrome',
     'clean-edge',
+    'clean-opera',
 ], function () {
 
-})
+});
