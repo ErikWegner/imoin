@@ -3,8 +3,6 @@ Imoin
 
 This is a browser add-on that monitors your Nagios or Icinga instance.
 
-This is the branch for the WebExtenions version, which is currently under development.
-
 Homepage is at https://ewus.de/en/sw/imoin
 
 ![Screenshot](docs/photo1.png)
@@ -34,6 +32,7 @@ Done
 ☑ Reschedule next host check  
 ☑ Support for Nagios Core 4.0.7 and later  
 ☑ Support multiple instances  
+☑ Play configurable sounds on events  
 
 To do
 =====
