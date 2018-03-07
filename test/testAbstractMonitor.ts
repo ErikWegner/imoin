@@ -7,6 +7,7 @@ import { Monitor } from '../scripts/MonitorData';
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 import { fail } from 'assert';
 import { ImoinMonitorInstance, IcingaOptionsVersion } from '../scripts/Settings';
+import { AbstractMonitor } from '../scripts/AbstractMonitor';
 
 describe('AbstractMonitor', () => {
   function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {
@@ -58,7 +59,6 @@ describe('AbstractMonitor', () => {
     const mae = new MockAbstractEnvironment();
     const mam = new MockAbstractMonitor();
     const instance = buildInstance("api1");
-    mae.registerMonitorInstance(0, { instancelabel: 't1' });
     mam.init(mae, instance, 0);
     mam.startTimer();
     const timerCallback = mae.initTimerSpy.getCall(0).args[2];
@@ -68,5 +68,45 @@ describe('AbstractMonitor', () => {
     }
 
     timerCallback();
+  });
+
+  it('should apply filter settings on timer callback', (done) => {
+    const mae = new MockAbstractEnvironment();
+    const mam = new MockAbstractMonitor();
+    const instance = buildInstance("api1");
+    mam.init(mae, instance, 0);
+    mam.startTimer();
+    const timerCallback = mae.initTimerSpy.getCall(0).args[2];
+
+    const filterStatusSpy = sinon.spy(AbstractMonitor, 'filterStatus');
+
+    mae.displayStatusNotify = () => {
+      expect(filterStatusSpy.callCount).to.equal(1);
+      filterStatusSpy.restore();
+      done();
+    }
+
+    timerCallback();
+  });
+
+  describe('filterStatus', () => {
+    function buildHostAck(title: string) {
+      const host = new Monitor.Host(title);
+      host.has_been_acknowledged = true;
+      return host;
+    }
+    it('should filter acknowledged hosts', () => {
+      const status = new Monitor.MonitorData();
+      status.addHost(new Monitor.Host("Not ack 1"));
+      status.addHost(new Monitor.Host("Not ack 2"));
+      status.addHost(buildHostAck("ack=true 1"));
+      status.addHost(new Monitor.Host("Not ack 3"));
+      status.addHost(buildHostAck("ack=true 2"));
+      status.addHost(new Monitor.Host("Not ack 4"));
+
+      const filtered = AbstractMonitor.filterStatus(status);
+
+      expect(filtered.hosts.length).to.equal(4);
+    });
   });
 });

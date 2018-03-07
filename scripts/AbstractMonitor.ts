@@ -23,7 +23,8 @@ export abstract class AbstractMonitor implements IMonitor {
             this.settings.timerPeriod,
             () => {
                 this.fetchStatus().then(
-                    (status: Monitor.MonitorData) => {
+                    (rawstatus: Monitor.MonitorData) => {
+                        const status = AbstractMonitor.filterStatus(rawstatus);
                         status.updateCounters();
                         status.instanceLabel = this.settings.instancelabel;
                         this.environment.displayStatus(this.index, status);
@@ -34,6 +35,33 @@ export abstract class AbstractMonitor implements IMonitor {
 
     shutdown() {
         this.environment.stopTimer(this.index);
+    }
+
+    public static filterStatus(status: Monitor.MonitorData): Monitor.MonitorData {
+        let result = status;
+        result = AbstractMonitor.filterOutAcknowledged(status);
+        // filterOutDisabledNotifications: boolean;
+        // filterOutDisabledChecks: boolean;
+        // filterOutSoftStates: boolean;
+        // filterOutDowntime: boolean;
+        // filterOutServicesOnDownHosts: boolean;
+        // filterOutServicesOnAcknowledgedHosts: boolean;
+        // filterOutFlapping: boolean;
+        // filterOutAllDown: boolean;
+        // filterOutAllUnreachable: boolean;
+        // filterOutAllUnknown: boolean;
+        // filterOutAllWarning: boolean;
+        // filterOutAllCritical: boolean;
+        // filterHosts: RegExMatchSettings;
+        // filterServices: RegExMatchSettings;
+        // filterInformation: RegExMatchSettings;
+        return result;
+    }
+
+    private static filterOutAcknowledged(status: Monitor.MonitorData): Monitor.MonitorData {
+        let result = status;
+        result.hosts = result.hosts.filter((host) => !host.has_been_acknowledged);
+        return result;
     }
 
     abstract fetchStatus(): Promise<Monitor.MonitorData>;
