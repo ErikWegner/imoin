@@ -18,22 +18,17 @@ export abstract class AbstractMonitor implements IMonitor {
     }
 
     startTimer() {
-        const fetchfunc = this.fetchStatus.bind(this);
-        const e = this.environment;
-        const index = this.index;
-        const instanceLabel = this.settings.instancelabel;
-
-        e.initTimer(
-            index,
+        this.environment.initTimer(
+            this.index,
             this.settings.timerPeriod,
-            function () {
-                fetchfunc().then(
+            () => {
+                this.fetchStatus().then(
                     (status: Monitor.MonitorData) => {
                         status.updateCounters();
-                        status.instanceLabel = instanceLabel;
-                        e.displayStatus(index, status);
+                        status.instanceLabel = this.settings.instancelabel;
+                        this.environment.displayStatus(this.index, status);
                     }
-                )
+                );
             });
     }
 

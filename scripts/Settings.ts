@@ -16,6 +16,30 @@ export interface Sound {
     data: string;
 }
 
+export interface RegExMatchSettings {
+    re: RegExp;
+    filterOut: boolean;
+}
+
+export interface FilterSettings {
+    filterOutAcknowledged: boolean;
+    filterOutDisabledNotifications: boolean;
+    filterOutDisabledChecks: boolean;
+    filterOutSoftStates: boolean;
+    filterOutDowntime: boolean;
+    filterOutServicesOnDownHosts: boolean;
+    filterOutServicesOnAcknowledgedHosts: boolean;
+    filterOutFlapping: boolean;
+    filterOutAllDown: boolean;
+    filterOutAllUnreachable: boolean;
+    filterOutAllUnknown: boolean;
+    filterOutAllWarning: boolean;
+    filterOutAllCritical: boolean;
+    filterHosts: RegExMatchSettings;
+    filterServices: RegExMatchSettings;
+    filterInformation: RegExMatchSettings;
+}
+
 export class Settings {
 
     public instances: ImoinMonitorInstance[] = [];

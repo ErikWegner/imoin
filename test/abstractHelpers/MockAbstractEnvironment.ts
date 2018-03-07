@@ -7,11 +7,16 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
   public loadCallback: (url: string, username: string, password: string) => Promise<string> = null;
   public trySendDataToPopupSpy: sinon.SinonSpy;
   public audioNotificationSpy: sinon.SinonSpy;
-
+  public initTimerSpy: sinon.SinonSpy;
+  public displayStatusSpy: sinon.SinonSpy;
+  public displayStatusNotify: () => void;
+  
   constructor() {
     super();
     this.trySendDataToPopupSpy = sinon.spy();
     this.audioNotificationSpy = sinon.spy(this, 'audioNotification');
+    this.initTimerSpy = sinon.spy(this, 'initTimer');
+    this.displayStatusSpy = sinon.spy(this, 'displayStatus');
   }
 
   public registerAlarmCallbackPublic(alarmName: string, callback: () => void) {
@@ -49,9 +54,7 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
   loadSettings(): Promise<Settings> {
     throw new Error("Method not implemented.");
   }
-  initTimer(index: number, delay: number, callback: () => void): void {
-    throw new Error("Method not implemented.");
-  }
+  initTimer(index: number, delay: number, callback: () => void): void { }
   stopTimer(index: number): void {
     throw new Error("Method not implemented.");
   }
@@ -66,5 +69,12 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
   }
   audioNotification(status: Monitor.Status): void {
     // this function is spied on
+  }
+
+  public displayStatus(index: number, data: Monitor.MonitorData): void {
+    super.displayStatus(index, data);
+    if (typeof(this.displayStatusNotify) == 'function') {
+      this.displayStatusNotify();
+    }
   }
 } 
