@@ -4,7 +4,7 @@ import { fail } from 'assert';
 import { assert, expect } from 'chai';
 
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
-import { NagiosHtml } from '../scripts/nagioshtml';
+import { NagiosHtml } from '../scripts/monitors';
 import { ImoinMonitorInstance } from '../scripts/Settings';
 
 describe('NagiosHtml', () => {

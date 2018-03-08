@@ -1,7 +1,7 @@
-import { AbstractMonitor } from './AbstractMonitor';
 import { Monitor } from './MonitorData';
-import { UICommand } from './UICommand';
-import { Constants } from './constants';
+import { AbstractMonitor } from './AbstractMonitor';
+import { UICommand } from '../UICommand';
+import { Constants } from '../constants';
 
 interface IHostJsonData {
   data: {
@@ -12,7 +12,7 @@ interface IHostJsonData {
         plugin_output: string
       }
     };
-  }
+  };
 }
 
 interface IServiceJsonData {
@@ -28,24 +28,29 @@ interface IServiceJsonData {
         }
       }
     }
-  }
+  };
 
 }
 
 export class NagiosCore extends AbstractMonitor {
-  fetchStatus(): Promise<Monitor.MonitorData> {
+  protected fetchStatus(): Promise<Monitor.MonitorData> {
     return new Promise<Monitor.MonitorData>(
       (resolve, reject) => {
-        const hosturl = this.settings.url + '/cgi-bin/statusjson.cgi?query=hostlist&formatoptions=whitespace&details=true';
-        const servicesurl = this.settings.url + '/cgi-bin/statusjson.cgi?query=servicelist&formatoptions=whitespace&details=true';
+        const hosturl = this.settings.url +
+          '/cgi-bin/statusjson.cgi?query=hostlist&formatoptions=whitespace&details=true';
+        const servicesurl = this.settings.url +
+          '/cgi-bin/statusjson.cgi?query=servicelist&formatoptions=whitespace&details=true';
 
-        const hostsrequest = this.environment.load(hosturl, this.settings.username, this.settings.password);
-        const servicesrequest = this.environment.load(servicesurl, this.settings.username, this.settings.password);
+        const hostsrequest = this.environment.load(
+          hosturl, this.settings.username, this.settings.password);
+        const servicesrequest = this.environment.load(
+          servicesurl, this.settings.username, this.settings.password);
 
         Promise
           .all([hostsrequest, servicesrequest])
-          .then(a => {
-            let hostdata, servicedata;
+          .then((a) => {
+            let hostdata;
+            let servicedata;
             try {
               hostdata = JSON.parse(a[0]);
             } catch (hosterr) {
@@ -58,13 +63,15 @@ export class NagiosCore extends AbstractMonitor {
               servicedata = JSON.parse(a[1]);
             } catch (servicerrror) {
               this.environment.error(servicerrror);
-              resolve(Monitor.ErrorMonitorData('Could not parse service data.', Constants.UrlDebug));
+              resolve(
+                Monitor.ErrorMonitorData(
+                  'Could not parse service data.', Constants.UrlDebug));
               return;
             }
             const m = this.processData(hostdata, servicedata);
             resolve(m);
           })
-          .catch(a => {
+          .catch((a) => {
             let msg = 'Connection error: ';
             if (typeof a === 'string') {
               msg += a;
@@ -75,11 +82,15 @@ export class NagiosCore extends AbstractMonitor {
           });
       });
   }
-  handleUICommand(param: UICommand): void {
+
+  protected handleUICommand(param: UICommand): void {
     throw new Error('Method not implemented.');
   }
 
-  protected processData(hostdata: IHostJsonData, servicedata: IServiceJsonData): Monitor.MonitorData {
+  protected processData(
+    hostdata: IHostJsonData,
+    servicedata: IServiceJsonData
+  ): Monitor.MonitorData {
     if (hostdata == null || servicedata == null) {
       return Monitor.ErrorMonitorData('Result empty');
     }
@@ -91,7 +102,7 @@ export class NagiosCore extends AbstractMonitor {
       const host = new Monitor.Host(hostdatahost.name);
       host.instanceindex = index;
       hostByName[host.name] = host;
-      host.setState(hostdatahost.status == 2 ? 'UP' : 'DOWN');
+      host.setState(hostdatahost.status === 2 ? 'UP' : 'DOWN');
       host.checkresult = hostdatahost.plugin_output;
       m.addHost(host);
     });

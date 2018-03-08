@@ -2,7 +2,7 @@ import 'mocha';
 import { assert, expect } from 'chai';
 import * as sinon from 'sinon';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
-import { Monitor } from '../scripts/MonitorData';
+import { Monitor } from '../scripts/monitors';
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 import { fail } from 'assert';
 

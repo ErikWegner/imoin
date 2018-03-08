@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import 'mocha';
 import { assert, expect } from 'chai';
-import { IcingaCgi } from '../scripts/icingacgi';
+import { IcingaCgi } from '../scripts/monitors';
 import { IEnvironment } from '../scripts/IEnvironment';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { ImoinMonitorInstance } from '../scripts/Settings';

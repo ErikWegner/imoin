@@ -2,7 +2,7 @@ import 'mocha';
 import { assert, expect } from 'chai';
 
 import { AbstractWebExtensionsEnvironment } from '../scripts/AbstractWebExtensionsEnvironment';
-import { Monitor } from '../scripts/MonitorData';
+import { Monitor } from '../scripts/monitors';
 
 describe('AbstractWebExtensionsEnvironment', () => {
   it('should remove slashes', () => {

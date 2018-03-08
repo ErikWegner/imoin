@@ -1,3 +1,3 @@
 /// <reference path="../common-webextension/index.d.ts" />
 
-declare const browser: WebExtension.WebExtensionBrowser;
+export const browser: WebExtension.WebExtensionBrowser;

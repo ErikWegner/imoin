@@ -1,8 +1,9 @@
-import { IPanelMonitorData } from './IPanelMonitorData';
+import { IPanelMonitorData } from '../IPanelMonitorData';
 
+// tslint:disable-next-line:no-namespace
 export namespace Monitor {
-    export type HostState = 'UP' | 'DOWN'
-    export type ServiceState = 'OK' | 'WARNING' | 'CRITICAL'
+    export type HostState = 'UP' | 'DOWN';
+    export type ServiceState = 'OK' | 'WARNING' | 'CRITICAL';
 
     export enum Status {
         GREEN,
@@ -19,38 +20,57 @@ export namespace Monitor {
         constructor(readonly name: string) {
         }
 
-        setStatus(value: Monitor.ServiceState) {
+        public setStatus(value: Monitor.ServiceState) {
             this.status = value;
         }
     }
 
+    // tslint:disable-next-line:max-classes-per-file
     export class Host {
         public status: HostState = 'DOWN';
-        public services: Array<Service> = [];
+        public services: Service[] = [];
         public hostlink: string;
-        public has_been_acknowledged: boolean = false;
+        public hasBeenAcknowledged: boolean = false;
         public checkresult: string;
         public instanceindex: number;
 
         constructor(readonly name: string) {
         }
 
-        setState(state: HostState) {
+        public setState(state: HostState) {
             this.status = state;
         }
 
-        getState() {
-            return this.status
+        public getState() {
+            return this.status;
         }
 
-        addService(service: Service) {
+        public addService(service: Service) {
             this.services.push(service);
         }
     }
 
     /* This class must be serializable */
+    // tslint:disable-next-line:max-classes-per-file
     export class MonitorData {
-        public hosts: Array<Host> = [];
+        public static renderDate(indate?: Date) {
+            if (!indate) {
+                indate = new Date();
+            }
+            const s00 = (s: number) => {
+                const r = s.toString();
+                return (r.length < 2 ? '0' + r : r);
+            };
+
+            return indate.getFullYear() + '-' +
+                s00(indate.getMonth() + 1) + '-' +
+                s00(indate.getDate()) + ' ' +
+                s00(indate.getHours()) + ':' +
+                s00(indate.getMinutes()) + ':' +
+                s00(indate.getSeconds());
+        }
+
+        public hosts: Host[] = [];
         public state: Status;
         public message: string;
         public url: string;
@@ -65,70 +85,71 @@ export namespace Monitor {
         public updatetime: string;
         public instanceLabel: string;
 
-        setState(state: Status) {
+        public setState(state: Status) {
             this.state = state;
         }
 
-        getState() {
-            return this.state
+        public getState() {
+            return this.state;
         }
 
-        setMessage(message: string) {
-            this.message = message
+        public setMessage(message: string) {
+            this.message = message;
         }
 
-        getMessage() {
-            return this.message
+        public getMessage() {
+            return this.message;
         }
 
-        addHost(host: Host) {
-            this.hosts.push(host)
+        public addHost(host: Host) {
+            this.hosts.push(host);
         }
 
-        getHosts() {
+        public getHosts() {
             return this.hosts;
         }
 
-        getHostByName(name: string): Host {
-            let a = this.hosts.filter(h => h.name == name);
+        public getHostByName(name: string): Host {
+            const a = this.hosts.filter((h) => h.name === name);
             if (a.length > 0) {
                 return a[0];
             }
 
-            let b = new Host(name);
+            const b = new Host(name);
             this.addHost(b);
 
             return b;
         }
 
-        updateCounters() {
-            this.totalservices = this.hosts.map(host => host.services.length).reduce((acc, val) => acc += val, 0);
-            this.serviceok = this.hosts.map(host => host.services.filter(service => service.status == 'OK').length).reduce((acc, val) => acc += val, 0);
-            this.servicewarnings = this.hosts.map(host => host.services.filter(service => service.status == 'WARNING').length).reduce((acc, val) => acc += val, 0);
+        public updateCounters() {
+            this.totalservices = this
+                .hosts
+                .map((host) => host.services.length)
+                .reduce((acc, val) => acc += val, 0);
+
+            this.serviceok = this
+                .hosts
+                .map((host) => host.services.filter(
+                    (service) => service.status === 'OK').length)
+                .reduce((acc, val) => acc += val, 0);
+
+            this.servicewarnings = this
+                .hosts
+                .map((host) => host.services.filter(
+                    (service) => service.status === 'WARNING').length)
+                .reduce((acc, val) => acc += val, 0);
             this.serviceerrors = this.totalservices - this.serviceok - this.servicewarnings;
 
             this.totalhosts = this.hosts.length;
-            this.hostup = this.hosts.filter(host => host.status == 'UP').length;
+            this.hostup = this.hosts.filter((host) => host.status === 'UP').length;
             this.hosterrors = this.totalhosts - this.hostup;
 
             this.setUpdatetime();
             this.updateState();
         }
 
-        static renderDate(indate?: Date) {
-            if (!indate) {
-                indate = new Date();
-            }
-            let s00 = function (s: number) {
-                let r = s.toString();
-                return (r.length < 2 ? '0' + r : r);
-            };
-
-            return indate.getFullYear() + '-' + s00(indate.getMonth() + 1) + '-' + s00(indate.getDate()) + ' ' + s00(indate.getHours()) + ':' + s00(indate.getMinutes()) + ':' + s00(indate.getSeconds());
-        }
-
         private setUpdatetime() {
-            let d = new Date;
+            const d = new Date();
             this.updatetime = Monitor.MonitorData.renderDate(d);
         }
 
@@ -146,14 +167,15 @@ export namespace Monitor {
     export function ErrorMonitorData(
         message: string,
         url?: string): MonitorData {
-        let m = new MonitorData();
+        const m = new MonitorData();
         m.setState(Status.RED);
         m.setMessage(message);
         m.url = url;
         m.updatetime = MonitorData.renderDate();
-        return m
+        return m;
     }
 
+    // tslint:disable-next-line:max-classes-per-file
     export class PanelMonitorData extends MonitorData {
         public instances: { [index: number]: IPanelMonitorData } = {};
     }

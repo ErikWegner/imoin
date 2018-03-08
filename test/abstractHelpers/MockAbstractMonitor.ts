@@ -1,7 +1,7 @@
 import * as sinon from 'sinon';
 
-import { AbstractMonitor } from '../../scripts/AbstractMonitor';
-import { Monitor } from '../../scripts/MonitorData';
+import { Monitor, AbstractMonitor } from '../../scripts/monitors';
+
 import { UICommand } from '../../scripts/UICommand';
 import { IEnvironment } from '../../scripts/IEnvironment';
 import { ImoinMonitorInstance } from '../../scripts/Settings';

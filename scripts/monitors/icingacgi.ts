@@ -1,7 +1,7 @@
-import { AbstractMonitor } from './AbstractMonitor';
 import { Monitor } from './MonitorData';
-import { UICommand } from './UICommand';
-import { Settings, ImoinMonitorInstance } from './Settings';
+import { AbstractMonitor } from './AbstractMonitor';
+import { UICommand } from '../UICommand';
+import { Settings, ImoinMonitorInstance } from '../Settings';
 
 interface IIcingaCgiHostStatusJson {
     host_name: string;
@@ -19,35 +19,38 @@ interface IIcingaCgiServiceStatusJson {
 }
 
 interface IIcingaCgiJson {
-    cgi_json_version: string
+    cgi_json_version: string;
     status: {
-        host_status: Array<IIcingaCgiHostStatusJson>,
-        service_status: Array<IIcingaCgiServiceStatusJson>
-    }
-    service_status: Array<IIcingaCgiServiceStatusJson>
+        host_status: IIcingaCgiHostStatusJson[],
+        service_status: IIcingaCgiServiceStatusJson[]
+    };
+    service_status: IIcingaCgiServiceStatusJson[];
 }
 
 export class IcingaCgi extends AbstractMonitor {
-    handleUICommand(param: UICommand): void {
+    protected handleUICommand(param: UICommand): void {
+        // do nothing
     }
 
-    fetchStatus(): Promise<Monitor.MonitorData> {
+    protected fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
-                let requesturl = this.settings.url + '/status.cgi?host=all&style=hostservicedetail&jsonoutput';
+                let requesturl = this.settings.url +
+                    '/status.cgi?host=all&style=hostservicedetail&jsonoutput';
                 if (this.settings.hostgroup) {
                     requesturl += '&hostgroup=' + this.settings.hostgroup;
                 }
 
-                let cgirequest = this.environment.load(requesturl, this.settings.username, this.settings.password);
+                const cgirequest = this.environment.load(
+                    requesturl, this.settings.username, this.settings.password);
 
                 cgirequest
                     .then((a) => resolve(this.processData(JSON.parse(a))))
-                    .catch((a) => resolve(Monitor.ErrorMonitorData('Connection error. Check settings. ' + a)))
+                    .catch((a) => resolve(
+                        Monitor.ErrorMonitorData('Connection error. Check settings. ' + a)));
             }
         );
     }
-
 
     private processData(response: IIcingaCgiJson): Monitor.MonitorData {
         let m = new Monitor.MonitorData();
@@ -57,16 +60,16 @@ export class IcingaCgi extends AbstractMonitor {
             m.hostgroupinfo = '(' + this.settings.hostgroup + ')';
         }
 
-        var processed = false;
+        let processed = false;
 
         // process different icinga versions
         if (response.cgi_json_version) {
-            var version_parts = response.cgi_json_version.split('.');
-            if (version_parts.length >= 2) {
-                var major_version = parseInt(version_parts[0]);
-                var minor_version = parseInt(version_parts[1]);
-                if (major_version === 1) {
-                    if (minor_version >= 8) {
+            const versionParts = response.cgi_json_version.split('.');
+            if (versionParts.length >= 2) {
+                const majorVersion = parseInt(versionParts[0], 10);
+                const minorVersion = parseInt(versionParts[1], 10);
+                if (majorVersion === 1) {
+                    if (minorVersion >= 8) {
                         this.ProcessResponse_1_10(response, m);
                         processed = true;
                     }
@@ -93,19 +96,26 @@ export class IcingaCgi extends AbstractMonitor {
     private ProcessResponse_1_10(response: IIcingaCgiJson, status: Monitor.MonitorData) {
         const instanceindex = this.index;
 
-        function processHoststatus(hoststatus: IIcingaCgiHostStatusJson, instance: ImoinMonitorInstance): Monitor.Host {
+        function processHoststatus(
+            hoststatus: IIcingaCgiHostStatusJson,
+            instance: ImoinMonitorInstance
+        ): Monitor.Host {
             const hso = new Monitor.Host(hoststatus.host_display_name);
             hso.status = hoststatus.status;
             hso.checkresult = hoststatus.status_information;
-            hso.has_been_acknowledged = hoststatus.has_been_acknowledged;
-            hso.hostlink = Settings.urlNoTrailingSlash(instance) + '/extinfo.cgi?type=1&host=' + hoststatus.host_name;
+            hso.hasBeenAcknowledged = hoststatus.has_been_acknowledged;
+            hso.hostlink = Settings.urlNoTrailingSlash(instance) +
+                '/extinfo.cgi?type=1&host=' + hoststatus.host_name;
             hso.instanceindex = instanceindex;
             return hso;
         }
 
-        function processServicestatus(servicestatus: IIcingaCgiServiceStatusJson, instance: ImoinMonitorInstance) {
-            let hoststatus = status.getHostByName(servicestatus.host_name);
-            let service = new Monitor.Service(servicestatus.service_description);
+        function processServicestatus(
+            servicestatus: IIcingaCgiServiceStatusJson,
+            instance: ImoinMonitorInstance
+        ) {
+            const hoststatus = status.getHostByName(servicestatus.host_name);
+            const service = new Monitor.Service(servicestatus.service_description);
             hoststatus.addService(service);
             service.checkresult = servicestatus.status_information;
             service.status = servicestatus.status;
@@ -118,11 +128,13 @@ export class IcingaCgi extends AbstractMonitor {
         if (response != null) {
             if (response.status) {
                 if (response.status.host_status) {
-                    response.status.host_status.forEach(h => status.addHost(processHoststatus(h, settings)), this);
+                    response.status.host_status.forEach(
+                        (h) => status.addHost(processHoststatus(h, settings)), this);
                 }
 
                 if (response.status.service_status) {
-                    response.status.service_status.forEach(s => processServicestatus(s, settings));
+                    response.status.service_status.forEach(
+                        (s) => processServicestatus(s, settings));
                     status.totalservices = response.status.service_status.length;
                 }
             }

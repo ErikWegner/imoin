@@ -2,10 +2,9 @@ import 'mocha';
 import { fail } from 'assert';
 import { assert, expect } from 'chai';
 
-import { NagiosCore } from '../scripts/nagioscore';
+import { Monitor, NagiosCore } from '../scripts/monitors';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { ImoinMonitorInstance } from '../scripts/Settings';
-import { Monitor } from '../scripts/MonitorData';
 
 describe('NagiosCore', () => {
   it('should handle JSON.parse-excetion for host data', (done) => {

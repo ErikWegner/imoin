@@ -1,7 +1,7 @@
 import { AbstractEnvironment } from '../../scripts/AbstractEnvironment';
 import { Settings } from '../../scripts/Settings';
 import * as sinon from 'sinon';
-import { Monitor } from '../../scripts/MonitorData';
+import { Monitor } from '../../scripts/monitors';
 
 export class MockAbstractEnvironment extends AbstractEnvironment {
   public loadCallback: (url: string, username: string, password: string) => Promise<string> = null;

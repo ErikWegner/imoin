@@ -3,11 +3,10 @@ import { assert, expect } from 'chai';
 import * as sinon from 'sinon';
 import { MockAbstractMonitor } from './abstractHelpers/MockAbstractMonitor';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
-import { Monitor } from '../scripts/MonitorData';
+import { Monitor, AbstractMonitor } from '../scripts/monitors';
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 import { fail } from 'assert';
 import { ImoinMonitorInstance, IcingaOptionsVersion } from '../scripts/Settings';
-import { AbstractMonitor } from '../scripts/AbstractMonitor';
 
 describe('AbstractMonitor', () => {
   function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {
@@ -92,7 +91,7 @@ describe('AbstractMonitor', () => {
   describe('filterStatus', () => {
     function buildHostAck(title: string) {
       const host = new Monitor.Host(title);
-      host.has_been_acknowledged = true;
+      host.hasBeenAcknowledged = true;
       return host;
     }
     it('should filter acknowledged hosts', () => {

@@ -1,5 +1,5 @@
 import { IEnvironment } from './IEnvironment';
-import { Monitor } from './MonitorData';
+import { Monitor } from './monitors';
 import { UICommand } from './UICommand';
 import { Settings } from './Settings';
 import { IconAndBadgetext } from './IconAndBadgetext';
@@ -7,33 +7,30 @@ import Status = Monitor.Status;
 import { IPanelMonitorData } from './IPanelMonitorData';
 
 export abstract class AbstractEnvironment implements IEnvironment {
-    abstract load(url: string, username: string, password: string): Promise<string>;
-    abstract post(url: string, data: any, username: string, password: string): Promise<string>;
-    abstract debug(o: any): void;
-    abstract log(o: any): void;
-    abstract error(o: any): void;
-    abstract loadSettings(): Promise<Settings>;
-    abstract initTimer(index: number, delay: number, callback: () => void): void;
-    abstract stopTimer(index: number): void;
-    
-    /**
-     * Play a notification sound
-     * @param status The summarized state of all instances
-     * @param isNew True, when this is a state change. False, when the
-     *  last call to this function has had the equal value for status
-     */
-    protected abstract audioNotification(status: Monitor.Status, isNew: boolean): void;
-    protected abstract trySendDataToPopup(): void;
-    protected abstract openWebPage(url: string): void;
-    protected abstract updateIconAndBadgetext(): void;
+    public static mergeResultsFromAllInstances(
+        buffers: { [index: number]: Monitor.MonitorData }
+    ): Monitor.PanelMonitorData {
+        const sources = Object.keys(buffers).map((key) => buffers[parseInt(key, 10)]);
 
-    protected dataBuffer = AbstractEnvironment.createUpdatePendingResult();
-    protected onSettingsChangedCallback: () => void;
-    private onUICommandCallbacks: { [index: number]: (param: UICommand) => void } = {};
-    private alarmCallbacks: { [alarmName: string]: () => void } = {};
-    private dataBuffers: { [index: number]: Monitor.MonitorData } = {};
-    private panelMonitorData: { [index: number]: IPanelMonitorData } = {};
-    private lastState: Monitor.Status = null;
+        if (sources.length === 0) {
+            return AbstractEnvironment.createUpdatePendingResult();
+        }
+
+        const r = new Monitor.PanelMonitorData();
+
+        r.setState(AbstractEnvironment.mergeStateFromAllInstances(sources));
+        const allMessages = AbstractEnvironment.mergeMessagesFromAllInstances(sources);
+        r.setMessage(allMessages.join('\n'));
+
+        sources
+            .map((source) => source.hosts)
+            .forEach((hosts) => r.hosts = r.hosts.concat(hosts));
+
+        r.updateCounters();
+        r.hosterrors += allMessages.length;
+
+        return r;
+    }
 
     protected static alarmName(index: number): string {
         return 'imoin-' + index;
@@ -60,18 +57,114 @@ export abstract class AbstractEnvironment implements IEnvironment {
                 badgeColor = '#b25425';
                 break;
         }
-        let iAndB = new IconAndBadgetext();
+        const iAndB = new IconAndBadgetext();
         iAndB.badgeText = badgeText;
         iAndB.badgeColor = badgeColor;
         iAndB.badgeIcon = {
-            '16': 'icons/icon-16' + path + '.png',
-            '20': 'icons/icon-32' + path + '.png',
-            '24': 'icons/icon-32' + path + '.png',
-            '32': 'icons/icon-32' + path + '.png',
-            '40': 'icons/icon-32' + path + '.png'
+            16: 'icons/icon-16' + path + '.png',
+            20: 'icons/icon-32' + path + '.png',
+            24: 'icons/icon-32' + path + '.png',
+            32: 'icons/icon-32' + path + '.png',
+            40: 'icons/icon-32' + path + '.png'
         };
         return iAndB;
     }
+
+    private static sumFieldFromAllInstances(
+        sources: Monitor.MonitorData[],
+        field: 'hosterrors' | 'serviceerrors' | 'servicewarnings' | 'serviceok' | 'hostup'
+    ): number {
+        return sources
+            .map((monitorData) => monitorData[field])
+            .reduce((acc, val) => acc + val);
+    }
+
+    private static createUpdatePendingResult(): Monitor.PanelMonitorData {
+        const r = new Monitor.PanelMonitorData();
+        r.setState(Monitor.Status.RED);
+        r.setMessage('Update pending');
+        r.hosterrors = 0;
+        r.servicewarnings = 0;
+        r.serviceerrors = 0;
+        return r;
+    }
+
+    private static mergeMessagesFromAllInstances(sources: Monitor.MonitorData[]): string[] {
+        return sources
+            .filter((monitorData) =>
+                typeof (monitorData.message) === 'string' && monitorData.message !== '')
+            .map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`);
+    }
+
+    private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {
+        if (sources.every((monitorData) => monitorData.getState() !== Monitor.Status.RED)) {
+            if (sources.every((monitorData) => monitorData.getState() === Monitor.Status.GREEN)) {
+                return Monitor.Status.GREEN;
+            }
+
+            return Monitor.Status.YELLOW;
+        }
+        return Monitor.Status.RED;
+    }
+
+    protected dataBuffer = AbstractEnvironment.createUpdatePendingResult();
+    protected onSettingsChangedCallback: () => void;
+
+    private onUICommandCallbacks: { [index: number]: (param: UICommand) => void } = {};
+    private alarmCallbacks: { [alarmName: string]: () => void } = {};
+    private dataBuffers: { [index: number]: Monitor.MonitorData } = {};
+    private panelMonitorData: { [index: number]: IPanelMonitorData } = {};
+    private lastState: Monitor.Status = null;
+
+    public abstract load(url: string, username: string, password: string): Promise<string>;
+    public abstract post(
+        url: string, data: any, username: string, password: string): Promise<string>;
+    public abstract loadSettings(): Promise<Settings>;
+    public abstract initTimer(index: number, delay: number, callback: () => void): void;
+    public abstract stopTimer(index: number): void;
+
+    public registerMonitorInstance(index: number, monitor: IPanelMonitorData) {
+        this.panelMonitorData[index] = monitor;
+    }
+
+    public onSettingsChanged(callback: () => void) {
+        this.onSettingsChangedCallback = callback;
+    }
+
+    public onUICommand(index: number, callback: (param: UICommand) => void): void {
+        this.onUICommandCallbacks[index] = callback;
+    }
+
+    public displayStatus(index: number, data: Monitor.MonitorData): void {
+        this.debug('displayStatus');
+        this.dataBuffers[index] = data;
+        this.panelMonitorData[index].updatetime = data.updatetime;
+        this.dataBuffer = AbstractEnvironment.mergeResultsFromAllInstances(this.dataBuffers);
+        this.dataBuffer.instances = this.panelMonitorData;
+        this.updateIconAndBadgetext();
+        this.trySendDataToPopup();
+        this.detectStateTransition(this.dataBuffer.getState());
+    }
+
+    public detectStateTransition(newState: Monitor.Status) {
+        this.audioNotification(newState, this.lastState !== newState);
+        this.lastState = newState;
+    }
+
+    protected abstract debug(o: any): void;
+    protected abstract log(o: any): void;
+    protected abstract error(o: any): void;
+
+    /**
+     * Play a notification sound
+     * @param status The summarized state of all instances
+     * @param isNew True, when this is a state change. False, when the
+     *  last call to this function has had the equal value for status
+     */
+    protected abstract audioNotification(status: Monitor.Status, isNew: boolean): void;
+    protected abstract trySendDataToPopup(): void;
+    protected abstract openWebPage(url: string): void;
+    protected abstract updateIconAndBadgetext(): void;
 
     protected registerAlarmCallback(alarmName: string, callback: () => void) {
         this.alarmCallbacks[alarmName] = callback;
@@ -82,18 +175,6 @@ export abstract class AbstractEnvironment implements IEnvironment {
         if (!alarm) { return; }
         if (!this.alarmCallbacks[alarm.name]) { return; }
         this.alarmCallbacks[alarm.name]();
-    }
-
-    public registerMonitorInstance(index: number, monitor: IPanelMonitorData) {
-        this.panelMonitorData[index] = monitor;
-    }
-
-    public onSettingsChanged(callback: () => void) {
-        this.onSettingsChangedCallback = callback
-    }
-
-    public onUICommand(index: number, callback: (param: UICommand) => void): void {
-        this.onUICommandCallbacks[index] = callback;
     }
 
     protected emitUICommand(index: number, param: UICommand) {
@@ -113,29 +194,13 @@ export abstract class AbstractEnvironment implements IEnvironment {
         }
     }
 
-    public displayStatus(index: number, data: Monitor.MonitorData): void {
-        this.debug('displayStatus');
-        this.dataBuffers[index] = data;
-        this.panelMonitorData[index].updatetime = data.updatetime;
-        this.dataBuffer = AbstractEnvironment.mergeResultsFromAllInstances(this.dataBuffers);
-        this.dataBuffer.instances = this.panelMonitorData;
-        this.updateIconAndBadgetext();
-        this.trySendDataToPopup();
-        this.detectStateTransition(this.dataBuffer.getState());
-    }
-
-    public detectStateTransition(newState: Monitor.Status) {
-        this.audioNotification(newState, this.lastState != newState);
-        this.lastState = newState;
-    }
-
     protected handleMessage(request: any, sender?: any, sendResponse?: (message: any) => void) {
         const command = request.command || '';
 
-        if (command == 'triggerRefresh') {
+        if (command === 'triggerRefresh') {
             const tf = (alarmName: string) => {
                 this.handleAlarm({ name: alarmName });
-            }
+            };
 
             if (request.instanceindex) {
                 const alarmName = AbstractEnvironment.alarmName(request.instanceindex);
@@ -145,13 +210,13 @@ export abstract class AbstractEnvironment implements IEnvironment {
             }
         }
 
-        if (command == 'triggerOpenPage') {
-            if (typeof (request.url) !== 'undefined' && request.url != '') {
-                this.openWebPage(request.url)
+        if (command === 'triggerOpenPage') {
+            if (typeof (request.url) !== 'undefined' && request.url !== '') {
+                this.openWebPage(request.url);
             }
         }
-        if (command == 'triggerCmdExec') {
-            let c = new UICommand;
+        if (command === 'triggerCmdExec') {
+            const c = new UICommand();
             c.command = request.remoteCommand;
             c.hostname = request.hostname;
             c.servicename = request.servicename;
@@ -159,64 +224,8 @@ export abstract class AbstractEnvironment implements IEnvironment {
             this.emitUICommand(request.instanceindex, c);
         }
 
-        if (command == 'SettingsChanged') {
+        if (command === 'SettingsChanged') {
             this.notifySettingsChanged();
         }
-    }
-
-    public static mergeResultsFromAllInstances(buffers: { [index: number]: Monitor.MonitorData }): Monitor.PanelMonitorData {
-        const sources = Object.keys(buffers).map((key) => buffers[parseInt(key)]);
-
-        if (sources.length === 0) {
-            return AbstractEnvironment.createUpdatePendingResult();
-        }
-
-        const r = new Monitor.PanelMonitorData();
-
-        r.setState(AbstractEnvironment.mergeStateFromAllInstances(sources));
-        const allMessages = AbstractEnvironment.mergeMessagesFromAllInstances(sources);
-        r.setMessage(allMessages.join("\n"));
-
-        sources
-            .map((source) => source.hosts)
-            .forEach((hosts) => r.hosts = r.hosts.concat(hosts));
-
-        r.updateCounters();
-        r.hosterrors += allMessages.length;
-
-        return r;
-    }
-
-    private static sumFieldFromAllInstances(sources: Monitor.MonitorData[], field: "hosterrors" | "serviceerrors" | "servicewarnings" | "serviceok" | "hostup"): number {
-        return sources
-            .map((monitorData) => monitorData[field])
-            .reduce((acc, val) => acc + val);
-    }
-
-    private static createUpdatePendingResult(): Monitor.PanelMonitorData {
-        const r = new Monitor.PanelMonitorData();
-        r.setState(Monitor.Status.RED);
-        r.setMessage('Update pending');
-        r.hosterrors = 0;
-        r.servicewarnings = 0;
-        r.serviceerrors = 0;
-        return r;
-    }
-
-    private static mergeMessagesFromAllInstances(sources: Monitor.MonitorData[]): string[] {
-        return sources
-            .filter((monitorData) => typeof (monitorData.message) === "string" && monitorData.message != "")
-            .map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`);
-    }
-
-    private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {
-        if (sources.every((monitorData) => monitorData.getState() != Monitor.Status.RED)) {
-            if (sources.every((monitorData) => monitorData.getState() === Monitor.Status.GREEN)) {
-                return Monitor.Status.GREEN;
-            }
-
-            return Monitor.Status.YELLOW;
-        }
-        return Monitor.Status.RED;
     }
 }

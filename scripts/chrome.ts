@@ -1,8 +1,7 @@
-/// <reference path='definitions/chrome-webextension/index.d.ts' />
-
+import { chrome } from './definitions/chrome-webextension/index';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
-import { Monitor } from './MonitorData';
+import { Monitor } from './monitors';
 import Status = Monitor.Status;
 import { init } from './main';
 
@@ -11,7 +10,7 @@ import { init } from './main';
  */
 export class Chrome extends AbstractWebExtensionsEnvironment {
 
-    protected host = chrome
+    protected host = chrome;
 
     protected console = chrome.extension.getBackgroundPage().console;
 
@@ -20,7 +19,7 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
         chrome.runtime.onConnect.addListener(this.connected.bind(this));
     }
 
-    loadSettings(): Promise<Settings> {
+    public loadSettings(): Promise<Settings> {
         const i = this;
         return new Promise<Settings>(
             (resolve, reject) => {
@@ -31,14 +30,14 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
                         resolve(i.settings);
                     });
             }
-        )
+        );
     }
 
-    debug(o: any) {
+    protected debug(o: any) {
         // no-op
     }
 
-    log(o: any) {
+    protected log(o: any) {
         // no-op
     }
 }

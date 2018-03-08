@@ -1,6 +1,6 @@
 import 'mocha';
 import { assert, expect } from 'chai';
-import { NagiosCore } from '../scripts/nagioscore';
+import { NagiosCore } from '../scripts/monitors';
 import { IEnvironment } from '../scripts/IEnvironment';
 import * as sinon from 'sinon';
 import { Settings } from '../scripts/Settings';

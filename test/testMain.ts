@@ -5,10 +5,7 @@ import { assert, expect } from 'chai';
 
 import { resolveMonitor } from '../scripts/main';
 import { ImoinMonitorInstance, IcingaOptionsVersion } from '../scripts/Settings';
-import { IcingaCgi } from '../scripts/icingacgi';
-import { IcingaApi } from '../scripts/icingaapi';
-import { NagiosCore } from '../scripts/nagioscore';
-import { NagiosHtml } from '../scripts/nagioshtml';
+import { IcingaCgi, IcingaApi, NagiosCore, NagiosHtml } from '../scripts/monitors';
 
 describe('main', () => {
   describe('resolveMonitor', () => {

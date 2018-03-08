@@ -42,20 +42,16 @@ export interface FilterSettings {
 
 export class Settings {
 
-    public instances: ImoinMonitorInstance[] = [];
-    public fontsize: number = 100;
-    public sounds: { [id: string]: Sound } = {};
-
-    static urlNoTrailingSlash(instance: ImoinMonitorInstance): string {
-        let url = instance.url;
+    public static urlNoTrailingSlash(instance: ImoinMonitorInstance): string {
+        const url = instance.url;
         let l = url.length;
-        if (url[l - 1] == '/') {
+        if (url[l - 1] === '/') {
             l = l - 1;
         }
         return url.substr(0, l);
     }
 
-    static paramsToInstance(
+    public static paramsToInstance(
         instancelabel: string,
         delay: number,
         version: IcingaOptionsVersion,
@@ -66,10 +62,14 @@ export class Settings {
         return {
             timerPeriod: delay,
             icingaversion: version,
-            url: url,
+            url,
             username: user,
-            password: password,
-            instancelabel: instancelabel
-        }
+            password,
+            instancelabel
+        };
     }
+
+    public instances: ImoinMonitorInstance[] = [];
+    public fontsize: number = 100;
+    public sounds: { [id: string]: Sound } = {};
 }
