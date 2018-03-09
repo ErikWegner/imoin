@@ -27,14 +27,14 @@ describe('NagiosCore', () => {
       timerPeriod: 5,
       username: 'user',
       password: 'pass',
-    }
+    };
     u.init(e, settings, 0);
     u.fetchStatus().then((r) => {
       expect(r.getState()).to.equal(Monitor.Status.RED);
       expect(r.getMessage()).to.equal('Could not parse host data.');
       done();
-    }).catch((e) => {
-      fail(e);
+    }).catch((err) => {
+      fail(err);
       done();
     });
   });
@@ -59,14 +59,14 @@ describe('NagiosCore', () => {
       timerPeriod: 5,
       username: 'user',
       password: 'pass',
-    }
+    };
     u.init(e, settings, 0);
     u.fetchStatus().then((r) => {
       expect(r.getState()).to.equal(Monitor.Status.RED);
       expect(r.getMessage()).to.equal('Could not parse service data.');
       done();
-    }).catch((e) => {
-      fail(e);
+    }).catch((err) => {
+      fail(err);
       done();
     });
   });

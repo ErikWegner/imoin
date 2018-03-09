@@ -65,7 +65,7 @@ export abstract class AbstractMonitor implements IMonitor {
         this.environment.stopTimer(this.index);
     }
 
-    protected abstract fetchStatus(): Promise<Monitor.MonitorData>;
+    public abstract fetchStatus(): Promise<Monitor.MonitorData>;
 
     protected abstract handleUICommand(param: UICommand): void;
 }

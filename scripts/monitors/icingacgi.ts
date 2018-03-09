@@ -28,11 +28,7 @@ interface IIcingaCgiJson {
 }
 
 export class IcingaCgi extends AbstractMonitor {
-    protected handleUICommand(param: UICommand): void {
-        // do nothing
-    }
-
-    protected fetchStatus(): Promise<Monitor.MonitorData> {
+    public fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
                 let requesturl = this.settings.url +
@@ -50,6 +46,10 @@ export class IcingaCgi extends AbstractMonitor {
                         Monitor.ErrorMonitorData('Connection error. Check settings. ' + a)));
             }
         );
+    }
+
+    protected handleUICommand(param: UICommand): void {
+        // do nothing
     }
 
     private processData(response: IIcingaCgiJson): Monitor.MonitorData {

@@ -8,6 +8,7 @@ export interface ImoinMonitorInstance {
     username: string;
     password: string;
     hostgroup?: string;
+    filtersettings?: FilterSettings;
 }
 
 export interface Sound {

@@ -33,7 +33,7 @@ interface IServiceJsonData {
 }
 
 export class NagiosCore extends AbstractMonitor {
-  protected fetchStatus(): Promise<Monitor.MonitorData> {
+  public fetchStatus(): Promise<Monitor.MonitorData> {
     return new Promise<Monitor.MonitorData>(
       (resolve, reject) => {
         const hosturl = this.settings.url +
@@ -54,7 +54,6 @@ export class NagiosCore extends AbstractMonitor {
             try {
               hostdata = JSON.parse(a[0]);
             } catch (hosterr) {
-              this.environment.error(hosterr);
               resolve(Monitor.ErrorMonitorData('Could not parse host data.', Constants.UrlDebug));
               return;
             }
@@ -62,7 +61,6 @@ export class NagiosCore extends AbstractMonitor {
             try {
               servicedata = JSON.parse(a[1]);
             } catch (servicerrror) {
-              this.environment.error(servicerrror);
               resolve(
                 Monitor.ErrorMonitorData(
                   'Could not parse service data.', Constants.UrlDebug));

@@ -3,7 +3,7 @@ import { AbstractMonitor } from './AbstractMonitor';
 import { UICommand } from '../UICommand';
 
 export class NagiosHtml extends AbstractMonitor {
-  protected fetchStatus(): Promise<Monitor.MonitorData> {
+  public fetchStatus(): Promise<Monitor.MonitorData> {
     return new Promise<Monitor.MonitorData>(
       (resolve, reject) => {
         const hosturl = this.settings.url +

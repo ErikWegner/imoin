@@ -8,6 +8,7 @@ import { UICommand } from '../UICommand';
 export interface IHostJsonData {
     results: Array<{
         attrs: {
+            acknowledgement?: number
             display_name: string
             last_check_result: {
                 state: number
@@ -56,6 +57,9 @@ export class IcingaApi extends AbstractMonitor {
             hostByName[host.name] = host;
             host.setState(hostdatahost.attrs.last_check_result.state === 0 ? 'UP' : 'DOWN');
             host.checkresult = hostdatahost.attrs.last_check_result.output;
+            if (hostdatahost.attrs.acknowledgement > 0) {
+                host.hasBeenAcknowledged = true;
+            }
             m.addHost(host);
         });
 
@@ -81,28 +85,11 @@ export class IcingaApi extends AbstractMonitor {
         return m;
     }
 
-    protected handleUICommand(param: UICommand): void {
-        if (param.command === 'recheck') {
-            const url = this.settings.url + '/v1/actions/reschedule-check';
-            const data = {
-                type: 'Host',
-                force_check: true,
-                filter: 'host.name==\"' + param.hostname + '\"'
-            };
-            if (param.servicename) {
-                data.type = 'Service';
-                data.filter = 'service.name==\"' + param.servicename + '\"';
-            }
-
-            this.environment.post(url, data, this.settings.username, this.settings.password);
-        }
-    }
-
-    protected fetchStatus(): Promise<Monitor.MonitorData> {
+    public fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
             (resolve, reject) => {
                 const hosturl = this.settings.url +
-                    '/v1/objects/hosts?attrs=display_name&attrs=last_check_result';
+                    '/v1/objects/hosts?' + this.hostAttrs();
                 const servicesurl = this.settings.url +
                     '/v1/objects/services?attrs=display_name&attrs=last_check_result';
 
@@ -130,5 +117,34 @@ export class IcingaApi extends AbstractMonitor {
                     });
             }
         );
+    }
+
+    protected hostAttrs() {
+        const attrs = ['display_name', 'last_check_result'];
+        if (this.settings.filtersettings) {
+            const f = this.settings.filtersettings;
+            if (f.filterOutAcknowledged) {
+                attrs.push('acknowledgement');
+            }
+        }
+
+        return attrs.map((attr) => 'attrs=' + attr).join('&');
+    }
+
+    protected handleUICommand(param: UICommand): void {
+        if (param.command === 'recheck') {
+            const url = this.settings.url + '/v1/actions/reschedule-check';
+            const data = {
+                type: 'Host',
+                force_check: true,
+                filter: 'host.name==\"' + param.hostname + '\"'
+            };
+            if (param.servicename) {
+                data.type = 'Service';
+                data.filter = 'service.name==\"' + param.servicename + '\"';
+            }
+
+            this.environment.post(url, data, this.settings.username, this.settings.password);
+        }
     }
 }

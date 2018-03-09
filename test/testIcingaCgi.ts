@@ -24,16 +24,16 @@ describe('icingacgi', () => {
         timerPeriod: 5,
         username: 'user',
         password: 'pass',
-      }
+      };
       e.loadCallback = (url, user, passwd) => {
         return Promise.resolve(data.toString());
-      }
+      };
       u.init(e, settings, 0);
       u.fetchStatus().then((monitordata) => {
         expect(monitordata.hosts.length).to.be.greaterThan(0);
         done();
-      }).catch((err) => {
-        fail(err);
+      }).catch((err2) => {
+        fail(err2);
         done();
       });
     });
