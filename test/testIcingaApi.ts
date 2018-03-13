@@ -1,7 +1,7 @@
 import 'mocha';
 import { assert, expect } from 'chai';
 import { fail } from 'assert';
-import { IcingaApi } from '../scripts/monitors';
+import { IcingaApi, Monitor, IHostJsonData, IServiceJsonData } from '../scripts/monitors';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { ImoinMonitorInstance } from '../scripts/Settings';
 import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
@@ -23,34 +23,63 @@ describe('IcingaApi', () => {
     };
   }
 
+  function loadCallbackBuilder() {
+    const hosts: { [name: string]: Monitor.Host } = {};
+    const activeHost: Monitor.Host = null;
+    const o = {
+      activeHost,
+      hosts,
+      acknowledgement: false,
+      host: (name: string) => {
+        o.activeHost = o.hosts[name] = new Monitor.Host(name);
+        return o;
+      },
+      down: () => {
+        o.activeHost.setState('DOWN');
+        return o;
+      },
+      hasBeenAcknowledged: () => {
+        o.activeHost.hasBeenAcknowledged = true;
+        return o;
+      },
+      build: () => {
+        const hostdata = (): IHostJsonData => {
+          return {
+            results: Object.keys(o.hosts).map((hostkey) => {
+              const host = o.hosts[hostkey];
+              return {
+                attrs: {
+                  acknowledgement: host.hasBeenAcknowledged ? 1.0 : 0.0,
+                  display_name: host.name,
+                  last_check_result: {
+                    state: host.getState() === 'UP' ? 0 : 1,
+                    output: ''
+                  }
+                },
+                name: host.name
+              };
+            })
+          };
+        };
+
+        const servicedata = (): IServiceJsonData => {
+          return {
+            results: []
+          };
+        };
+
+        return loadCallback(JSON.stringify(hostdata()), JSON.stringify(servicedata()));
+      }
+    };
+
+    return o;
+  }
+
   it('should use minimal query parameters for host request', (done) => {
     const e = new MockAbstractEnvironment();
     const u = new IcingaApi();
     const requestUrls: string[] = [];
     const settings = SettingsBuilder.create('api1').build();
-    e.loadCallback = (url, user, passwd) => {
-      requestUrls.push(url);
-      return Promise.reject('');
-    };
-    u.init(e, settings, 0);
-    u
-      .fetchStatus()
-      .then((v) => {
-        expect(requestUrls).to.have.lengthOf(2);
-        if (requestUrls.length > 0) {
-          expect(requestUrls[0]).to.equal(baseurl);
-        }
-        done();
-      });
-  });
-
-  it('should add acknowledgement to query parameters for host', (done) => {
-    const e = new MockAbstractEnvironment();
-    const u = new IcingaApi();
-    const requestUrls: string[] = [];
-    const settings = SettingsBuilder.create('api1').build();
-    FilterSettingsBuilder.with(settings)
-      .filterOutAcknowledged();
     e.loadCallback = (url, user, passwd) => {
       requestUrls.push(url);
       return Promise.reject('');

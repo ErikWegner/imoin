@@ -7,6 +7,7 @@ import { Monitor, AbstractMonitor } from '../scripts/monitors';
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 import { fail } from 'assert';
 import { ImoinMonitorInstance, IcingaOptionsVersion } from '../scripts/Settings';
+import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
 
 describe('AbstractMonitor', () => {
   function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {
@@ -17,13 +18,13 @@ describe('AbstractMonitor', () => {
       url: '',
       username: '',
       password: '',
-    }
+    };
   }
 
   it('should call initTimer on environment', () => {
     const mae = new MockAbstractEnvironment();
     const mam = new MockAbstractMonitor();
-    mam.init(mae, buildInstance("api1"), 0);
+    mam.init(mae, buildInstance('api1'), 0);
 
     mam.startTimer();
 
@@ -33,7 +34,7 @@ describe('AbstractMonitor', () => {
   it('should provide valid callback function as argument to initTimer', () => {
     const mae = new MockAbstractEnvironment();
     const mam = new MockAbstractMonitor();
-    mam.init(mae, buildInstance("api1"), 0);
+    mam.init(mae, buildInstance('api1'), 0);
 
     mam.startTimer();
 
@@ -44,7 +45,7 @@ describe('AbstractMonitor', () => {
   it('should call abstract fetchStatus function on timer callback', () => {
     const mae = new MockAbstractEnvironment();
     const mam = new MockAbstractMonitor();
-    mam.init(mae, buildInstance("api1"), 0);
+    mam.init(mae, buildInstance('api1'), 0);
     mam.startTimer();
     const timerCallback = mae.initTimerSpy.getCall(0).args[2];
 
@@ -53,18 +54,17 @@ describe('AbstractMonitor', () => {
     expect(mam.fetchStatusSpy.calledOnce).to.equal(true);
   });
 
-
   it('should call display status function on timer callback', (done) => {
     const mae = new MockAbstractEnvironment();
     const mam = new MockAbstractMonitor();
-    const instance = buildInstance("api1");
+    const instance = buildInstance('api1');
     mam.init(mae, instance, 0);
     mam.startTimer();
     const timerCallback = mae.initTimerSpy.getCall(0).args[2];
     mae.displayStatusNotify = () => {
       expect(mae.displayStatusSpy.callCount).to.equal(1);
       done();
-    }
+    };
 
     timerCallback();
   });
@@ -72,18 +72,18 @@ describe('AbstractMonitor', () => {
   it('should apply filter settings on timer callback', (done) => {
     const mae = new MockAbstractEnvironment();
     const mam = new MockAbstractMonitor();
-    const instance = buildInstance("api1");
+    const instance = buildInstance('api1');
     mam.init(mae, instance, 0);
     mam.startTimer();
     const timerCallback = mae.initTimerSpy.getCall(0).args[2];
 
-    const filterStatusSpy = sinon.spy(AbstractMonitor, 'filterStatus');
+    const setPanelVisibilitiesSpy = sinon.spy(AbstractMonitor, 'setPanelVisibilities');
 
     mae.displayStatusNotify = () => {
-      expect(filterStatusSpy.callCount).to.equal(1);
-      filterStatusSpy.restore();
+      expect(setPanelVisibilitiesSpy.callCount).to.equal(1);
+      setPanelVisibilitiesSpy.restore();
       done();
-    }
+    };
 
     timerCallback();
   });
@@ -94,18 +94,23 @@ describe('AbstractMonitor', () => {
       host.hasBeenAcknowledged = true;
       return host;
     }
+
     it('should filter acknowledged hosts', () => {
       const status = new Monitor.MonitorData();
-      status.addHost(new Monitor.Host("Not ack 1"));
-      status.addHost(new Monitor.Host("Not ack 2"));
-      status.addHost(buildHostAck("ack=true 1"));
-      status.addHost(new Monitor.Host("Not ack 3"));
-      status.addHost(buildHostAck("ack=true 2"));
-      status.addHost(new Monitor.Host("Not ack 4"));
+      status.addHost(new Monitor.Host('Not ack 1'));
+      status.addHost(new Monitor.Host('Not ack 2'));
+      status.addHost(buildHostAck('ack=true 1'));
+      status.addHost(new Monitor.Host('Not ack 3'));
+      status.addHost(buildHostAck('ack=true 2'));
+      status.addHost(new Monitor.Host('Not ack 4'));
+      status.hosts.forEach((h) => h.setState('DOWN'));
 
-      const filtered = AbstractMonitor.filterStatus(status);
+      const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
+      const filtered = AbstractMonitor.setPanelVisibilities(status, filtersettings);
 
-      expect(filtered.hosts.length).to.equal(4);
+      expect(filtered.hosts.map((h) => h.appearsInShortlist)).to.deep.equal([
+        true, true, false, true, false, true
+      ]);
     });
   });
 });

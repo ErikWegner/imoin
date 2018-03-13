@@ -289,7 +289,8 @@ function renderMainTemplate(statusdata) {
         hostdetail = hosts[hostindex];
         log("Processing host " + hostdetail.name)
 
-        var show_host_in_list1 = hostdetail.status !== "UP";
+        // Show in list 1?
+        var show_host_in_list1 = hostdetail.appearsInShortlist;
         var all_serviceshtml = [];
         var not_ok_serviceshtml = [];
         var renderbuffer;
@@ -306,6 +307,7 @@ function renderMainTemplate(statusdata) {
 
             all_serviceshtml.push(renderbuffer.cloneNode(true));
 
+            // Show in list 2?
             if (servicedetail.status !== "OK") {
                 show_host_in_list1 = true;
                 not_ok_serviceshtml.push(renderbuffer.cloneNode(true));

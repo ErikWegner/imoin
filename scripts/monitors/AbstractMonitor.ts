@@ -1,14 +1,19 @@
 import { IMonitor } from './IMonitor';
 import { Monitor } from './MonitorData';
 import { IEnvironment } from '../IEnvironment';
-import { ImoinMonitorInstance } from '../Settings';
+import { ImoinMonitorInstance, FilterSettings, RegExMatchSettings } from '../Settings';
 import { UICommand } from '../UICommand';
 
 export abstract class AbstractMonitor implements IMonitor {
 
-    public static filterStatus(status: Monitor.MonitorData): Monitor.MonitorData {
+    public static setPanelVisibilities(
+        status: Monitor.MonitorData,
+        filtersettings?: FilterSettings,
+    ): Monitor.MonitorData {
         let result = status;
-        result = AbstractMonitor.filterOutAcknowledged(status);
+        result = AbstractMonitor.filterOutAcknowledged(
+            status, AbstractMonitor.optionalFiltersettings(
+            filtersettings, 'filterOutAcknowledged'));
         // filterOutDisabledNotifications: boolean;
         // filterOutDisabledChecks: boolean;
         // filterOutSoftStates: boolean;
@@ -27,9 +32,36 @@ export abstract class AbstractMonitor implements IMonitor {
         return result;
     }
 
-    private static filterOutAcknowledged(status: Monitor.MonitorData): Monitor.MonitorData {
+    private static optionalFiltersettings(
+        filtersettings: FilterSettings,
+        p: keyof FilterSettings): boolean {
+        if (filtersettings) {
+            return filtersettings[p] as boolean;
+        }
+
+        return false;
+    }
+
+    private static filterOutAcknowledged(
+        status: Monitor.MonitorData,
+        filterOutAcknowledged: boolean,
+    ): Monitor.MonitorData {
         const result = status;
-        result.hosts = result.hosts.filter((host) => !host.hasBeenAcknowledged);
+        result.hosts.forEach((host) => {
+            if (host.getState() === 'UP') {
+                return;
+            }
+            /*
+            filterOut   Host.Ack    Result
+                T          T          F
+                T          F          T
+                F          T          T
+                F          F          T
+            */
+            if (!(filterOutAcknowledged && host.hasBeenAcknowledged)) {
+                host.appearsInShortlist = true;
+            }
+        });
         return result;
     }
 
@@ -52,7 +84,8 @@ export abstract class AbstractMonitor implements IMonitor {
             () => {
                 this.fetchStatus().then(
                     (rawstatus: Monitor.MonitorData) => {
-                        const status = AbstractMonitor.filterStatus(rawstatus);
+                        const status = AbstractMonitor.setPanelVisibilities(
+                            rawstatus, this.settings.filtersettings);
                         status.updateCounters();
                         status.instanceLabel = this.settings.instancelabel;
                         this.environment.displayStatus(this.index, status);

@@ -120,13 +120,13 @@ export class IcingaApi extends AbstractMonitor {
     }
 
     protected hostAttrs() {
-        const attrs = ['display_name', 'last_check_result'];
-        if (this.settings.filtersettings) {
+        const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
+        /*if (this.settings.filtersettings) {
             const f = this.settings.filtersettings;
             if (f.filterOutAcknowledged) {
                 attrs.push('acknowledgement');
             }
-        }
+        }*/
 
         return attrs.map((attr) => 'attrs=' + attr).join('&');
     }

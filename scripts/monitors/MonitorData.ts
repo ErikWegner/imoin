@@ -33,6 +33,7 @@ export namespace Monitor {
         public hasBeenAcknowledged: boolean = false;
         public checkresult: string;
         public instanceindex: number;
+        public appearsInShortlist: boolean = false;
 
         constructor(readonly name: string) {
         }

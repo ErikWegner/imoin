@@ -1,12 +1,18 @@
-import { ImoinMonitorInstance } from '../../scripts/Settings';
+import { ImoinMonitorInstance, FilterSettings } from '../../scripts/Settings';
 
 export class FilterSettingsBuilder {
+  public static plain() {
+    return new FilterSettingsBuilder();
+  }
+
   public static with(instance: ImoinMonitorInstance) {
     return new FilterSettingsBuilder(instance);
   }
 
-  constructor(private instance: ImoinMonitorInstance) {
-    this.instance.filtersettings = {
+  private filtersettings: FilterSettings;
+
+  constructor(private instance?: ImoinMonitorInstance) {
+    this.filtersettings = {
       filterOutAcknowledged: false,
       filterOutDisabledNotifications: false,
       filterOutDisabledChecks: false,
@@ -24,10 +30,17 @@ export class FilterSettingsBuilder {
       filterServices: null,
       filterInformation: null,
     };
+    if (this.instance) {
+      this.instance.filtersettings = this.filtersettings;
+    }
   }
 
   public filterOutAcknowledged() {
-    this.instance.filtersettings.filterOutAcknowledged = true;
+    this.filtersettings.filterOutAcknowledged = true;
     return this;
+  }
+
+  public build() {
+    return this.filtersettings;
   }
 }
