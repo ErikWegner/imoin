@@ -11,9 +11,10 @@ export abstract class AbstractMonitor implements IMonitor {
         filtersettings?: FilterSettings,
     ): Monitor.MonitorData {
         let result = status;
+        /* filterOutAcknowledged */
         result = AbstractMonitor.filterOutAcknowledged(
             status, AbstractMonitor.optionalFiltersettings(
-            filtersettings, 'filterOutAcknowledged'));
+                filtersettings, 'filterOutAcknowledged'));
         // filterOutDisabledNotifications: boolean;
         // filterOutDisabledChecks: boolean;
         // filterOutSoftStates: boolean;
@@ -48,18 +49,25 @@ export abstract class AbstractMonitor implements IMonitor {
     ): Monitor.MonitorData {
         const result = status;
         result.hosts.forEach((host) => {
-            if (host.getState() === 'UP') {
-                return;
-            }
-            /*
-            filterOut   Host.Ack    Result
-                T          T          F
-                T          F          T
-                F          T          T
-                F          F          T
-            */
-            if (!(filterOutAcknowledged && host.hasBeenAcknowledged)) {
-                host.appearsInShortlist = true;
+            const hostUp = host.getState() === 'UP';
+
+            /* Apply filter rules */
+            if (filterOutAcknowledged) {
+                // If host is not up and not ack ⇒ show in shortlist
+                const hostPart = !hostUp && !host.hasBeenAcknowledged;
+
+                const allServicesWithFailuresAcknowledged =
+                    host.services.filter((service) => service.status !== 'OK')
+                        .every((service) => service.hasBeenAcknowledged);
+
+                host.appearsInShortlist = hostPart || !allServicesWithFailuresAcknowledged;
+            } else {
+                const allServicesOK = host.services.every((service) => service.status === 'OK');
+
+                /* If all services are ok and host is up,
+                   host does not appear in Shortlist */
+                host.appearsInShortlist =
+                    !(hostUp && allServicesOK);
             }
         });
         return result;

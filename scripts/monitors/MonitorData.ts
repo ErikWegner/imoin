@@ -16,6 +16,7 @@ export namespace Monitor {
         public host: string;
         public checkresult: string;
         public servicelink: string;
+        public hasBeenAcknowledged: boolean = false;
 
         constructor(readonly name: string) {
         }

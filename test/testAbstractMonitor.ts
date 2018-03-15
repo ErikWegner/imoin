@@ -8,6 +8,7 @@ import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 import { fail } from 'assert';
 import { ImoinMonitorInstance, IcingaOptionsVersion } from '../scripts/Settings';
 import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
+import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
 
 describe('AbstractMonitor', () => {
   function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {
@@ -89,28 +90,79 @@ describe('AbstractMonitor', () => {
   });
 
   describe('filterStatus', () => {
-    function buildHostAck(title: string) {
-      const host = new Monitor.Host(title);
-      host.hasBeenAcknowledged = true;
-      return host;
-    }
+    describe('filterOutAcknowledged', () => {
+      function buildHostAck(title: string) {
+        const host = new Monitor.Host(title);
+        host.hasBeenAcknowledged = true;
+        return host;
+      }
 
-    it('should filter acknowledged hosts', () => {
-      const status = new Monitor.MonitorData();
-      status.addHost(new Monitor.Host('Not ack 1'));
-      status.addHost(new Monitor.Host('Not ack 2'));
-      status.addHost(buildHostAck('ack=true 1'));
-      status.addHost(new Monitor.Host('Not ack 3'));
-      status.addHost(buildHostAck('ack=true 2'));
-      status.addHost(new Monitor.Host('Not ack 4'));
-      status.hosts.forEach((h) => h.setState('DOWN'));
+      it('should filter acknowledged hosts', () => {
+        const status = new Monitor.MonitorData();
+        status.addHost(new Monitor.Host('Not ack 1'));
+        status.addHost(new Monitor.Host('Not ack 2'));
+        status.addHost(buildHostAck('ack=true 1'));
+        status.addHost(new Monitor.Host('Not ack 3'));
+        status.addHost(buildHostAck('ack=true 2'));
+        status.addHost(new Monitor.Host('Not ack 4'));
+        status.hosts.forEach((h) => h.setState('DOWN'));
 
-      const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
-      const filtered = AbstractMonitor.setPanelVisibilities(status, filtersettings);
+        const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
+        const filtered = AbstractMonitor.setPanelVisibilities(status, filtersettings);
 
-      expect(filtered.hosts.map((h) => h.appearsInShortlist)).to.deep.equal([
-        true, true, false, true, false, true
-      ]);
+        expect(filtered.hosts.map((h) => h.appearsInShortlist)).to.deep.equal([
+          true, true, false, true, false, true
+        ]);
+      });
+
+      it('should filter acknowledged services', () => {
+        const status = new Monitor.MonitorData();
+        status.addHost(new Monitor.Host('Not ack 1'));
+        status.addHost(new Monitor.Host('Not ack 2'));
+        status.addHost(new Monitor.Host('Not ack 3'));
+        status.addHost(new Monitor.Host('Not ack 4'));
+        status.addHost(new Monitor.Host('Not ack 5'));
+        status.addHost(new Monitor.Host('Not ack 6'));
+        /* All hosts are up */
+        status.hosts.forEach((h) => h.setState('UP'));
+
+        ServiceBuilder
+          .create('S1').withStatus('OK')
+          .addToHost(status.hosts[0]);
+        ServiceBuilder
+          .create('S2').withStatus('WARNING')
+          .addToHost(status.hosts[1]);
+        ServiceBuilder
+          .create('S3').withStatus('CRITICAL')
+          .hasBeenAcknowledged()
+          .addToHost(status.hosts[2]);
+        ServiceBuilder
+          .create('S4').withStatus('OK')
+          .addToHost(status.hosts[3]);
+        ServiceBuilder
+          .create('S5').withStatus('WARNING')
+          .hasBeenAcknowledged()
+          .addToHost(status.hosts[4]);
+        ServiceBuilder
+          .create('S6').withStatus('CRITICAL')
+          .addToHost(status.hosts[5]);
+
+        const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
+        const filtered = AbstractMonitor.setPanelVisibilities(status, filtersettings);
+
+        // Host has no problems
+        expect(filtered.hosts[0].appearsInShortlist).to.eq(false);
+        // Host has a service problem and problem is not acknowledged
+        expect(filtered.hosts[1].appearsInShortlist).to.eq(true);
+        // Host has a service problem but problem is acknowledged
+        expect(filtered.hosts[2].appearsInShortlist).to.eq(false);
+        // Host has no problems
+        expect(filtered.hosts[3].appearsInShortlist).to.eq(false);
+        // Host has a service problem but problem is acknowledged
+        expect(filtered.hosts[4].appearsInShortlist).to.eq(false);
+        // Host has a service problem and problem is not acknowledged
+        expect(filtered.hosts[5].appearsInShortlist).to.eq(true);
+      });
     });
   });
 });
