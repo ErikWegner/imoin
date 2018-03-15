@@ -22,6 +22,7 @@ export interface IHostJsonData {
 export interface IServiceJsonData {
     results: Array<{
         attrs: {
+            acknowledgement?: number
             display_name: string
             last_check_result: {
                 /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
@@ -78,6 +79,9 @@ export class IcingaApi extends AbstractMonitor {
                     service.checkresult = 'Check did not run yet.';
                 }
                 service.host = host.name;
+                if (jsonservice.attrs.acknowledgement > 0) {
+                    service.hasBeenAcknowledged = true;
+                }
                 host.addService(service);
             }
         });
@@ -91,7 +95,7 @@ export class IcingaApi extends AbstractMonitor {
                 const hosturl = this.settings.url +
                     '/v1/objects/hosts?' + this.hostAttrs();
                 const servicesurl = this.settings.url +
-                    '/v1/objects/services?attrs=display_name&attrs=last_check_result';
+                    '/v1/objects/services?' + this.serviceAttrs();
 
                 const hostsrequest = this.environment.load(
                     hosturl, this.settings.username, this.settings.password);
@@ -127,6 +131,11 @@ export class IcingaApi extends AbstractMonitor {
                 attrs.push('acknowledgement');
             }
         }*/
+
+        return attrs.map((attr) => 'attrs=' + attr).join('&');
+    }
+    protected serviceAttrs() {
+        const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
 
         return attrs.map((attr) => 'attrs=' + attr).join('&');
     }

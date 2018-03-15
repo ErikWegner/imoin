@@ -6,9 +6,12 @@ import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironme
 import { ImoinMonitorInstance } from '../scripts/Settings';
 import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
 import { SettingsBuilder } from './abstractHelpers/SettingsBuilder';
+import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
+import { LoadCallbackBuilder } from './abstractHelpers/LoadCallbackBuilder';
 
 describe('IcingaApi', () => {
-  const baseurl = 'testurl/v1/objects/hosts?attrs=display_name&attrs=last_check_result';
+  const baseurl = 'testurl/v1/objects/###?' +
+    'attrs=display_name&attrs=last_check_result&attrs=acknowledgement';
 
   function loadCallback(hostsdata: string, servicesdata: string) {
     return (url: string, user: string, passwd: string): Promise<string> => {
@@ -21,58 +24,6 @@ describe('IcingaApi', () => {
 
       Promise.reject('');
     };
-  }
-
-  function loadCallbackBuilder() {
-    const hosts: { [name: string]: Monitor.Host } = {};
-    const activeHost: Monitor.Host = null;
-    const o = {
-      activeHost,
-      hosts,
-      acknowledgement: false,
-      host: (name: string) => {
-        o.activeHost = o.hosts[name] = new Monitor.Host(name);
-        return o;
-      },
-      down: () => {
-        o.activeHost.setState('DOWN');
-        return o;
-      },
-      hasBeenAcknowledged: () => {
-        o.activeHost.hasBeenAcknowledged = true;
-        return o;
-      },
-      build: () => {
-        const hostdata = (): IHostJsonData => {
-          return {
-            results: Object.keys(o.hosts).map((hostkey) => {
-              const host = o.hosts[hostkey];
-              return {
-                attrs: {
-                  acknowledgement: host.hasBeenAcknowledged ? 1.0 : 0.0,
-                  display_name: host.name,
-                  last_check_result: {
-                    state: host.getState() === 'UP' ? 0 : 1,
-                    output: ''
-                  }
-                },
-                name: host.name
-              };
-            })
-          };
-        };
-
-        const servicedata = (): IServiceJsonData => {
-          return {
-            results: []
-          };
-        };
-
-        return loadCallback(JSON.stringify(hostdata()), JSON.stringify(servicedata()));
-      }
-    };
-
-    return o;
   }
 
   it('should use minimal query parameters for host request', (done) => {
@@ -90,7 +41,28 @@ describe('IcingaApi', () => {
       .then((v) => {
         expect(requestUrls).to.have.lengthOf(2);
         if (requestUrls.length > 0) {
-          expect(requestUrls[0]).to.equal(baseurl + '&attrs=acknowledgement');
+          expect(requestUrls[0]).to.equal(baseurl.replace('###', 'hosts'));
+        }
+        done();
+      });
+  });
+
+  it('should use minimal query parameters for service request', (done) => {
+    const e = new MockAbstractEnvironment();
+    const u = new IcingaApi();
+    const requestUrls: string[] = [];
+    const settings = SettingsBuilder.create('api1').build();
+    e.loadCallback = (url, user, passwd) => {
+      requestUrls.push(url);
+      return Promise.reject('');
+    };
+    u.init(e, settings, 0);
+    u
+      .fetchStatus()
+      .then((v) => {
+        expect(requestUrls).to.have.lengthOf(2);
+        if (requestUrls.length > 0) {
+          expect(requestUrls[1]).to.equal(baseurl.replace('###', 'services'));
         }
         done();
       });
@@ -135,6 +107,44 @@ describe('IcingaApi', () => {
           expect(v.hosts[0].name).to.equal('www.qwirl.eu');
           expect(v.hosts[0].hasBeenAcknowledged).to.equal(false);
           expect(v.hosts[1].hasBeenAcknowledged).to.equal(false);
+        }
+        done();
+      });
+  });
+
+  it('should set hasBeenAcknowledged on service', (done) => {
+    const e = new MockAbstractEnvironment();
+    const u = new IcingaApi();
+    const settings = SettingsBuilder.create('api1').build();
+    FilterSettingsBuilder.with(settings)
+      .filterOutAcknowledged();
+
+    const data = new LoadCallbackBuilder()
+      .Host('H1')
+      .Service('S1', (sb) => { sb.hasBeenAcknowledged(); })
+      .Service('S2', (sb) => { /* no setup */ })
+      .Build('api1');
+
+    e.loadCallback = loadCallback(data[0], data[1]);
+
+    u.init(e, settings, 0);
+    u
+      .fetchStatus()
+      .then((v) => {
+        expect(v.hosts).to.have.lengthOf(1);
+        if (v.hosts.length > 0) {
+          expect(v.hosts[0].name).to.equal('H1');
+          expect(v.hosts[0].hasBeenAcknowledged).to.equal(false);
+          const services = v.hosts[0].services;
+          expect(services).to.have.lengthOf(2);
+          if (services.length > 1) {
+            expect(services[0].hasBeenAcknowledged).to.equal(true);
+            expect(services[1].hasBeenAcknowledged).to.equal(false);
+          } else {
+            fail('Services missing');
+          }
+        } else {
+          fail('No host');
         }
         done();
       });

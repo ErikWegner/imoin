@@ -23,5 +23,6 @@ export class ServiceBuilder {
 
   public addToHost(host: Monitor.Host) {
     host.addService(this.service);
+    return this;
   }
 }
