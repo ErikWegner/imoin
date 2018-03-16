@@ -1,4 +1,5 @@
-import { browser } from './definitions/firefox-webextension/index';
+import { Port, WebExtensionBrowser } from './definitions/common-webextension';
+import browser from './definitions/firefox-webextension';
 import { AbstractEnvironment } from './AbstractEnvironment';
 import { Settings } from './Settings';
 import { Monitor } from './monitors';
@@ -38,8 +39,8 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
     protected static optionKeys = ['instances', 'fontsize', 'sounds'];
 
-    protected portFromPanel: WebExtension.Port;
-    protected abstract host: WebExtension.WebExtensionBrowser;
+    protected portFromPanel: Port;
+    protected abstract host: WebExtensionBrowser;
     protected abstract console: Console;
     protected settings: Settings = new Settings();
 
@@ -154,7 +155,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         }
     }
 
-    protected connected(p: WebExtension.Port) {
+    protected connected(p: Port) {
         this.debug('Panel opened');
         const me = this;
         this.portFromPanel = p;

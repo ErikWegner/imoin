@@ -1,4 +1,4 @@
-import { chrome } from './definitions/chrome-webextension/index';
+import chrome from './definitions/chrome-webextension/index';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
 import { Monitor } from './monitors';

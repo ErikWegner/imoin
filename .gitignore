@@ -7,6 +7,6 @@ scripts/*.js.map
 scripts/*.js
 node_modules
 layouts/node_modules
-npm-debug.log
+*.log
 release
 /web/bower_components

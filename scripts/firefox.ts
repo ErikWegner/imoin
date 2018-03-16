@@ -1,4 +1,4 @@
-import { browser } from './definitions/firefox-webextension/index';
+import browser from './definitions/firefox-webextension';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
 import { Monitor } from './monitors';
