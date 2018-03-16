@@ -126,8 +126,10 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
             this.audioPlayerSoundid = soundid;
 
             // Start player
-            this.audioPlayer.src = this.settings.sounds[soundid].data;
-            this.audioPlayer.play();
+            if (this.settings.sounds[soundid].data) {
+                this.audioPlayer.src = this.settings.sounds[soundid].data;
+                this.audioPlayer.play();
+            }
         }
     }
 
