@@ -20,16 +20,16 @@ class SoundFileSelector extends HTMLElement {
     super();
 
     // Create a shadow root
-    var shadow = this.attachShadow({mode: 'open'});
+    var shadow = this.attachShadow({ mode: 'open' });
 
     // Create spans
     var wrapper = document.createElement('span');
-    wrapper.setAttribute('class','wrapper');
+    wrapper.setAttribute('class', 'wrapper');
     var icon = document.createElement('span');
-    icon.setAttribute('class','icon');
+    icon.setAttribute('class', 'icon');
     icon.setAttribute('tabindex', 0);
     var info = document.createElement('span');
-    info.setAttribute('class','info');
+    info.setAttribute('class', 'info');
 
     // Take attribute content and put it inside the info span
     var text = this.getAttribute('text');
@@ -37,7 +37,7 @@ class SoundFileSelector extends HTMLElement {
 
     // Insert icon
     var imgUrl;
-    if(this.hasAttribute('img')) {
+    if (this.hasAttribute('img')) {
       imgUrl = this.getAttribute('img');
     } else {
       imgUrl = 'img/default.png';
@@ -177,8 +177,30 @@ function getFormTextValue(selector, defaultValue) {
   return document.querySelector(selector).value || defaultValue;
 }
 
+function getCheckboxValue(selector, defaultValue) {
+  const cb = document.querySelector(selector);
+  if (cb) {
+    return cb.checked ? 1 : 0;
+  }
+
+  return defaultValue;
+}
+
+function collectFilterSettings() {
+  const settings = [
+    'filterOutAcknowledged'
+  ];
+  const r = {};
+  settings.forEach((settingname) => {
+    r[settingname] = getCheckboxValue('#' + settingname, 0) === 1;
+  });
+  return r;
+}
+
 function saveOptions() {
-  // storage does not save objects
+  const filtersettings = collectFilterSettings();
+  instances.forEach((instance) => instance.filtersettings = filtersettings);
+  // storage does not save objects as values
   host.storage.local.set({
     instances: JSON.stringify(instances),
     fontsize: parseInt(document.getElementById('fontsize').value),
@@ -214,7 +236,7 @@ function addDropdownEventHandler(callback) {
 }
 
 function initializeCustomElements() {
-  
+
 }
 
 /*    ---- Initialize ---- */
