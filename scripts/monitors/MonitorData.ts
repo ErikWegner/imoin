@@ -1,4 +1,5 @@
 import { IPanelMonitorData } from '../IPanelMonitorData';
+import { FHost } from './filters';
 
 // tslint:disable-next-line:no-namespace
 export namespace Monitor {
@@ -12,44 +13,90 @@ export namespace Monitor {
     }
 
     export class Service {
-        public status: ServiceState = 'CRITICAL';
         public host: string;
         public checkresult: string;
         public servicelink: string;
         public hasBeenAcknowledged: boolean = false;
-
-        constructor(readonly name: string) {
-        }
-
-        public setStatus(value: Monitor.ServiceState) {
-            this.status = value;
-        }
-    }
-
-    // tslint:disable-next-line:max-classes-per-file
-    export class Host {
-        public status: HostState = 'DOWN';
-        public services: Service[] = [];
-        public hostlink: string;
-        public hasBeenAcknowledged: boolean = false;
-        public checkresult: string;
-        public instanceindex: number;
         public appearsInShortlist: boolean = false;
+        private status: ServiceState = 'CRITICAL';
+        private filteredStatus: ServiceState = 'CRITICAL';
 
         constructor(readonly name: string) {
         }
 
-        public setState(state: HostState) {
-            this.status = state;
+        public setState(value: Monitor.ServiceState) {
+            this.status = value;
+            this.filteredStatus = value;
         }
 
         public getState() {
             return this.status;
         }
 
+        public setFilteredState(value: Monitor.ServiceState) {
+            this.filteredStatus = value;
+        }
+
+        public getFilteredState() {
+            return this.filteredStatus;
+        }
+    }
+
+    // tslint:disable-next-line:max-classes-per-file
+    export class Host {
+        public static readonly IgnoreServices = false;
+        public services: Service[] = [];
+        public hostlink: string;
+        public hasBeenAcknowledged: boolean = false;
+        public checkresult: string;
+        public instanceindex: number;
+        public appearsInShortlist: boolean = false;
+        private status: HostState = 'DOWN';
+        private filteredStatus: HostState = 'DOWN';
+
+        constructor(readonly name: string) {
+        }
+
+        public setState(state: HostState) {
+            this.status = state;
+            this.filteredStatus = state;
+        }
+
+        public getState() {
+            return this.status;
+        }
+
+        public setFilteredState(state: HostState) {
+            this.filteredStatus = state;
+        }
+
+        public getFilteredState() {
+            return this.filteredStatus;
+        }
+
         public addService(service: Service) {
             this.services.push(service);
         }
+
+        // TODO: remove
+        public filterClone(copyServices: boolean): Host {
+            const r = new Host(this.name);
+            r.status = this.status;
+            r.hasBeenAcknowledged = this.hasBeenAcknowledged;
+            r.appearsInShortlist = this.appearsInShortlist;
+            if (copyServices) {
+                this.services.forEach(r.addService, r);
+            }
+            return r;
+        }
+    }
+
+    export interface MonitorDataSummaryCounters {
+        hostup: number;
+        hosterrors: number;
+        serviceok: number;
+        servicewarnings: number;
+        serviceerrors: number;
     }
 
     /* This class must be serializable */
@@ -73,19 +120,25 @@ export namespace Monitor {
         }
 
         public hosts: Host[] = [];
-        public state: Status;
         public message: string;
         public url: string;
         public hostgroupinfo: string = null;
         public totalhosts: number;
+        public totalservices: number;
         public hostup: number;
         public hosterrors: number;
-        public totalservices: number;
         public serviceok: number;
         public servicewarnings: number;
         public serviceerrors: number;
         public updatetime: string;
         public instanceLabel: string;
+        private state: Status;
+        private filteredState: Status;
+        private filteredHostup: number;
+        private filteredHosterrors: number;
+        private filteredServiceok: number;
+        private filteredServicewarnings: number;
+        private filteredServiceerrors: number;
 
         public setState(state: Status) {
             this.state = state;
@@ -93,6 +146,14 @@ export namespace Monitor {
 
         public getState() {
             return this.state;
+        }
+
+        public setFilteredState(state: Status) {
+            this.filteredState = state;
+        }
+
+        public getFilteredState() {
+            return this.filteredState;
         }
 
         public setMessage(message: string) {
@@ -123,7 +184,17 @@ export namespace Monitor {
             return b;
         }
 
-        public updateCounters() {
+        public updateCounters(filteredHosts?: FHost[]) {
+            this.updateCountersUnmodified();
+            if (filteredHosts !== null) {
+                this.updateCountersFiltered(filteredHosts);
+            }
+
+            this.setUpdatetime();
+            this.updateState();
+        }
+
+        private updateCountersUnmodified() {
             this.totalservices = this
                 .hosts
                 .map((host) => host.services.length)
@@ -132,22 +203,23 @@ export namespace Monitor {
             this.serviceok = this
                 .hosts
                 .map((host) => host.services.filter(
-                    (service) => service.status === 'OK').length)
+                    (service) => service.getState() === 'OK').length)
                 .reduce((acc, val) => acc += val, 0);
 
             this.servicewarnings = this
                 .hosts
                 .map((host) => host.services.filter(
-                    (service) => service.status === 'WARNING').length)
+                    (service) => service.getState() === 'WARNING').length)
                 .reduce((acc, val) => acc += val, 0);
             this.serviceerrors = this.totalservices - this.serviceok - this.servicewarnings;
 
             this.totalhosts = this.hosts.length;
-            this.hostup = this.hosts.filter((host) => host.status === 'UP').length;
+            this.hostup = this.hosts.filter((host) => host.getState() === 'UP').length;
             this.hosterrors = this.totalhosts - this.hostup;
+        }
 
-            this.setUpdatetime();
-            this.updateState();
+        private updateCountersFiltered(filteredHosts: FHost[]) {
+            //
         }
 
         private setUpdatetime() {

@@ -114,9 +114,9 @@ export class NagiosCore extends AbstractMonitor {
           const service = new Monitor.Service(servicedataservice.description);
           if (servicedataservice.last_check !== 0) {
             if (servicedataservice.status === 2) {
-              service.setStatus('OK');
+              service.setState('OK');
             } else if (servicedataservice.status === 4) {
-              service.setStatus('WARNING');
+              service.setState('WARNING');
             }
             service.checkresult = servicedataservice.plugin_output;
           } else {

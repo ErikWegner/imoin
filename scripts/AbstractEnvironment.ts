@@ -40,7 +40,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
         let path = '';
         let badgeText: string = '';
         let badgeColor = '';
-        switch (data.state) {
+        switch (data.getState()) {
             case Status.GREEN:
                 path = 'ok';
                 /*badgeText = '' + data.hostup;*/

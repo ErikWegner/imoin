@@ -309,7 +309,6 @@ function renderMainTemplate(statusdata) {
 
             // Show in list 2?
             if (servicedetail.status !== "OK") {
-                show_host_in_list1 = true;
                 not_ok_serviceshtml.push(renderbuffer.cloneNode(true));
             }
         }

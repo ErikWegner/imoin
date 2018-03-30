@@ -1,0 +1,28 @@
+aknowledged-filter:
+
+filteredStatus = AbstractMonitor.setPanelVisibilities(rawstatus, this.settings.filtersettings);
+filteredStatus.updateCounters();
+filterStatus.copyStatusSummaryTo(rawstatus)
+...
+this.environment.displayStatus(this.index, rawstatus);
+
+
+# setPanelVisibilities
+aknowledged => status=OK/UP
+
+
+# copyStatusSummaryTo
+dest.stats = src.stats
+dest.host.appearsInShortlist = src.host.appearsInShortlist
+
+######################
+
+
+alleHosts/alleServices
+  -> Filter1
+  -> Filter2
+  -> Filter3
+  -> verbleibendeHosts/Services:
+      -showInShortList
+      -counter
+      -badge

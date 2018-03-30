@@ -21,14 +21,16 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
     public static processStoredSettings(storedSettings: any): Settings {
         const settings = new Settings();
-        if (storedSettings.instances) {
-            settings.instances = JSON.parse(storedSettings.instances);
-        }
-        if (storedSettings.fontsize && storedSettings.fontsize > 0) {
-            settings.fontsize = storedSettings.fontsize;
-        }
-        if (storedSettings.sounds) {
-            settings.sounds = JSON.parse(storedSettings.sounds);
+        if (storedSettings) {
+            if (storedSettings.instances) {
+                settings.instances = JSON.parse(storedSettings.instances);
+            }
+            if (storedSettings.fontsize && storedSettings.fontsize > 0) {
+                settings.fontsize = storedSettings.fontsize;
+            }
+            if (storedSettings.sounds) {
+                settings.sounds = JSON.parse(storedSettings.sounds);
+            }
         }
 
         // Remove trailing slash for all instances

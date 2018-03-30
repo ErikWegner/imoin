@@ -78,10 +78,10 @@ describe('nagioscore', () => {
       monitor.fetchStatus().then((data) => {
         const firsthost = data.hosts[0];
         expect(firsthost.name).to.equal('Firewall');
-        expect(firsthost.status).to.equal('UP');
+        expect(firsthost.getState()).to.equal('UP');
         const downhost = data.hosts[14];
         expect(downhost.name).to.equal('europa.nagios.local');
-        expect(downhost.status).to.equal('DOWN');
+        expect(downhost.getState()).to.equal('DOWN');
         done();
       });
     });
@@ -104,7 +104,7 @@ describe('nagioscore', () => {
         const host = data.hosts[1];
         const service1 = host.services[0];
         expect(service1.name).to.equal('/ Disk Usage');
-        expect(service1.status).to.equal('WARNING');
+        expect(service1.getState()).to.equal('WARNING');
         done();
       });
     });

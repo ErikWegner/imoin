@@ -19,7 +19,8 @@
         "-r",
         "ts-node/register",
         "--no-timeouts",
-        "test/**/*.ts"
+        "test/**/*.ts",
+        "test/filters/*Tests.ts"
       ],
       "sourceMaps": true,
       "stopOnEntry": false,

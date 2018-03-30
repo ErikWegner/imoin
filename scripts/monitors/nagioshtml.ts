@@ -68,7 +68,7 @@ export class NagiosHtml extends AbstractMonitor {
       const status = servicematches[5];
       service.checkresult = this.decodeNumericEntities(
         servicematches[6].replace('&nbsp;', ' ').trim());
-      service.setStatus(status === 'OK' ? 'OK' : status === 'WARNING' ? 'WARNING' : 'CRITICAL');
+      service.setState(status === 'OK' ? 'OK' : status === 'WARNING' ? 'WARNING' : 'CRITICAL');
 
       host.addService(service);
     }

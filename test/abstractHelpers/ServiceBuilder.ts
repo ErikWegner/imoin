@@ -12,7 +12,7 @@ export class ServiceBuilder {
   }
 
   public withStatus(state: Monitor.ServiceState) {
-    this.service.setStatus(state);
+    this.service.setState(state);
     return this;
   }
 

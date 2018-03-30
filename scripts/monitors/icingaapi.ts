@@ -70,9 +70,9 @@ export class IcingaApi extends AbstractMonitor {
                 const service = new Monitor.Service(jsonservice.attrs.display_name);
                 if (jsonservice.attrs.last_check_result) {
                     if (jsonservice.attrs.last_check_result.state === 0) {
-                        service.setStatus('OK');
+                        service.setState('OK');
                     } else if (jsonservice.attrs.last_check_result.state === 1) {
-                        service.setStatus('WARNING');
+                        service.setState('WARNING');
                     }
                     service.checkresult = jsonservice.attrs.last_check_result.output;
                 } else {

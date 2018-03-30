@@ -32,6 +32,10 @@ export class LoadCallbackBuilder {
     return this;
   }
 
+  public GetHosts() {
+    return Object.keys(this.hosts).map((key) => this.hosts[key]);
+  }
+
   public Build(i: IcingaOptionsVersion): string[] {
     if (i === 'api1') {
       return this.buildIcingaApi();

@@ -3,18 +3,32 @@ import { Monitor } from './MonitorData';
 import { IEnvironment } from '../IEnvironment';
 import { ImoinMonitorInstance, FilterSettings, RegExMatchSettings } from '../Settings';
 import { UICommand } from '../UICommand';
+import {
+    FHost,
+    filterUp,
+    filterAcknowledged,
+} from './filters';
+import { hostname } from 'os';
 
 export abstract class AbstractMonitor implements IMonitor {
 
-    public static setPanelVisibilities(
+    /**
+     * Apply all filter settings. Take the list of hosts and
+     * their services and apply each filter. After each filter
+     * stage, the list may be reduced. At the end, the list
+     * only contains failures.
+     * @param status The unfiltered instance status
+     * @param filtersettings The filter settings
+     */
+    public static applyFilters(
         status: Monitor.MonitorData,
         filtersettings?: FilterSettings,
-    ): Monitor.MonitorData {
-        let result = status;
+    ) {
+        let result = status.getHosts().map((host) => new FHost(host));
+        /* filterOutUP */
+        result = filterUp(result);
         /* filterOutAcknowledged */
-        result = AbstractMonitor.filterOutAcknowledged(
-            status, AbstractMonitor.optionalFiltersettings(
-                filtersettings, 'filterOutAcknowledged'));
+        result = filterAcknowledged(result, filtersettings);
         // filterOutDisabledNotifications: boolean;
         // filterOutDisabledChecks: boolean;
         // filterOutSoftStates: boolean;
@@ -30,45 +44,12 @@ export abstract class AbstractMonitor implements IMonitor {
         // filterHosts: RegExMatchSettings;
         // filterServices: RegExMatchSettings;
         // filterInformation: RegExMatchSettings;
-        return result;
-    }
-
-    private static optionalFiltersettings(
-        filtersettings: FilterSettings,
-        p: keyof FilterSettings): boolean {
-        if (filtersettings) {
-            return filtersettings[p] as boolean;
-        }
-
-        return false;
-    }
-
-    private static filterOutAcknowledged(
-        status: Monitor.MonitorData,
-        filterOutAcknowledged: boolean,
-    ): Monitor.MonitorData {
-        const result = status;
-        result.hosts.forEach((host) => {
-            const hostUp = host.getState() === 'UP';
-
-            /* Apply filter rules */
-            if (filterOutAcknowledged) {
-                // If host is not up and not ack ⇒ show in shortlist
-                const hostPart = !hostUp && !host.hasBeenAcknowledged;
-
-                const allServicesWithFailuresAcknowledged =
-                    host.services.filter((service) => service.status !== 'OK')
-                        .every((service) => service.hasBeenAcknowledged);
-
-                host.appearsInShortlist = hostPart || !allServicesWithFailuresAcknowledged;
-            } else {
-                const allServicesOK = host.services.every((service) => service.status === 'OK');
-
-                /* If all services are ok and host is up,
-                   host does not appear in Shortlist */
-                host.appearsInShortlist =
-                    !(hostUp && allServicesOK);
-            }
+        result.forEach((fhost) => {
+            const host = fhost.getHost();
+            host.appearsInShortlist = true;
+            fhost.getFServices().forEach((service) => {
+                service.appearsInShortlist = true;
+            });
         });
         return result;
     }
@@ -91,10 +72,10 @@ export abstract class AbstractMonitor implements IMonitor {
             this.settings.timerPeriod,
             () => {
                 this.fetchStatus().then(
-                    (rawstatus: Monitor.MonitorData) => {
-                        const status = AbstractMonitor.setPanelVisibilities(
-                            rawstatus, this.settings.filtersettings);
-                        status.updateCounters();
+                    (status: Monitor.MonitorData) => {
+                        const filteredHosts = AbstractMonitor.applyFilters(
+                            status, this.settings.filtersettings);
+                        status.updateCounters(filteredHosts);
                         status.instanceLabel = this.settings.instancelabel;
                         this.environment.displayStatus(this.index, status);
                     }

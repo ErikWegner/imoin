@@ -101,7 +101,7 @@ export class IcingaCgi extends AbstractMonitor {
             instance: ImoinMonitorInstance
         ): Monitor.Host {
             const hso = new Monitor.Host(hoststatus.host_display_name);
-            hso.status = hoststatus.status;
+            hso.setState(hoststatus.status);
             hso.checkresult = hoststatus.status_information;
             hso.hasBeenAcknowledged = hoststatus.has_been_acknowledged;
             hso.hostlink = Settings.urlNoTrailingSlash(instance) +
@@ -118,7 +118,7 @@ export class IcingaCgi extends AbstractMonitor {
             const service = new Monitor.Service(servicestatus.service_description);
             hoststatus.addService(service);
             service.checkresult = servicestatus.status_information;
-            service.status = servicestatus.status;
+            service.setState(servicestatus.status);
             service.servicelink = Settings.urlNoTrailingSlash(instance) +
                 '/extinfo.cgi?type=2&host=' + servicestatus.host_name +
                 '&service=' + servicestatus.service_description;
