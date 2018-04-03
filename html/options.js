@@ -11,6 +11,10 @@ let instances = [];
 let selectedInstance = -1;
 let fontsize = 100;
 
+const filterSettingsNames = [
+  'filterOutAcknowledged'
+];
+
 /*    ---- Custom elements   ---- */
 
 // Create a class for the element
@@ -85,6 +89,7 @@ function restoreOptions() {
     fontsize = storageData.fontsize || fontsize;
     updateDOMforInstances();
     updateDOMforMisc();
+    updateDOMforFilters();
     SoundFileSelectors.setFiles(JSON.parse(storageData.sounds || '{}'));
   }, onError);
 }
@@ -164,6 +169,13 @@ function updateDOMforMisc() {
   document.getElementById('fontsize').value = fontsize;
 }
 
+function updateDOMforFilters() {
+  const filtersettings = (instances[0] || {}).filtersettings || {};
+  filterSettingsNames.forEach((settingname) => {
+    setCheckboxValue('#' + settingname, filtersettings[settingname]);
+  });
+}
+
 function addClickHandler(selector, handler) {
   element = document.querySelector(selector);
   if (!element || !element.addEventListener) {
@@ -177,6 +189,13 @@ function getFormTextValue(selector, defaultValue) {
   return document.querySelector(selector).value || defaultValue;
 }
 
+function setCheckboxValue(selector, checked) {
+  const cb = document.querySelector(selector);
+  if (cb) {
+    cb.checked = checked;
+  }
+}
+
 function getCheckboxValue(selector, defaultValue) {
   const cb = document.querySelector(selector);
   if (cb) {
@@ -187,11 +206,8 @@ function getCheckboxValue(selector, defaultValue) {
 }
 
 function collectFilterSettings() {
-  const settings = [
-    'filterOutAcknowledged'
-  ];
   const r = {};
-  settings.forEach((settingname) => {
+  filterSettingsNames.forEach((settingname) => {
     r[settingname] = getCheckboxValue('#' + settingname, 0) === 1;
   });
   return r;

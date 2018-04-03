@@ -40,7 +40,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
         let path = '';
         let badgeText: string = '';
         let badgeColor = '';
-        switch (data.getState()) {
+        switch (data.getFilteredState()) {
             case Status.GREEN:
                 path = 'ok';
                 /*badgeText = '' + data.hostup;*/
@@ -48,12 +48,15 @@ export abstract class AbstractEnvironment implements IEnvironment {
                 break;
             case Status.YELLOW:
                 path = 'warn';
-                badgeText = '' + data.servicewarnings;
+                badgeText = '' + data.filteredServicewarnings;
                 badgeColor = '#b29a25';
                 break;
             case Status.RED:
                 path = 'err';
-                badgeText = '' + (data.hosterrors + data.servicewarnings + data.serviceerrors);
+                badgeText = '' + (
+                    data.filteredHosterrors +
+                    data.filteredServicewarnings +
+                    data.filteredServiceerrors);
                 badgeColor = '#b25425';
                 break;
         }
@@ -97,8 +100,8 @@ export abstract class AbstractEnvironment implements IEnvironment {
     }
 
     private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {
-        if (sources.every((monitorData) => monitorData.getState() !== Monitor.Status.RED)) {
-            if (sources.every((monitorData) => monitorData.getState() === Monitor.Status.GREEN)) {
+        if (sources.every((md) => md.getFilteredState() !== Monitor.Status.RED)) {
+            if (sources.every((md) => md.getFilteredState() === Monitor.Status.GREEN)) {
                 return Monitor.Status.GREEN;
             }
 

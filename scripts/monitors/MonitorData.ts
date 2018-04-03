@@ -202,6 +202,13 @@ export namespace Monitor {
 
         private updateCountersFiltered(filteredHosts: FHost[]) {
             if (filteredHosts == null) {
+                // copy values to filtered fields
+                this.filteredServiceerrors = this.serviceerrors;
+                this.filteredServicewarnings = this.servicewarnings;
+                this.filteredServiceok = this.serviceok;
+                this.filteredHostup = this.hostup;
+                this.filteredHosterrors = this.hosterrors;
+
                 return;
             }
 

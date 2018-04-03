@@ -1,9 +1,11 @@
 describe('options html', () => {
   const getFormTextValueStub = sinon.stub(window, 'getFormTextValue');
   const getCheckboxValueStub = sinon.stub(window, 'getCheckboxValue');
+  const setCheckboxValueStub = sinon.stub(window, 'setCheckboxValue');
   const documentQuerySelectorStub = sinon.stub(document, 'querySelector');
   const documentGetElementByIdStub = sinon.stub(document, 'getElementById');
   const saveOptionsSpy = sinon.spy(window, 'saveOptions');
+  const updateDOMforFiltersSpy = sinon.spy(window, 'updateDOMforFilters');
   const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
 
   beforeEach(() => {
@@ -12,9 +14,12 @@ describe('options html', () => {
     selectedInstance = -1;
     // Stub browser interactions
     updateDOMforInstances = sinon.spy();
-    // Reset all stubs
+    // Reset all spies and stubs
+    saveOptionsSpy.reset();
+    updateDOMforFiltersSpy.reset();
     getFormTextValueStub.reset();
     getCheckboxValueStub.reset();
+    setCheckboxValueStub.reset();
     documentQuerySelectorStub.reset();
     documentGetElementsByClassNameStub.reset();
     documentGetElementByIdStub.withArgs('fontsize').returns({ value: "100" });
@@ -205,6 +210,23 @@ describe('options html', () => {
     expect(i.length).toBe(1);
     expect(i[0].filtersettings).toBeDefined();
     expect(i[0].filtersettings.filterOutAcknowledged).toBe(true);
+  });
+
+  it('should restore options and update DOM for filters', (done) => {
+    restoreOptions().then(() => {
+      expect(updateDOMforFilters.calledOnce).toBe(true);
+      done();
+    });
+  });
+
+  it('should set filterOutAcknowledged checkbox when updating DOM for filters', () => {
+    const a0 = setCheckboxValueStub.callCount;
+    
+    updateDOMforFilters();
+    
+    expect(a0).toBe(0);
+    expect(setCheckboxValueStub.callCount).toBe(1);
+    expect(setCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
   });
 
   /**
