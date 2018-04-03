@@ -135,12 +135,10 @@ describe('AbstractMonitor', () => {
         const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
         const result = AbstractMonitor.applyFilters(status, filtersettings);
 
-        expect(result.map((h) => h.getHost().getFilteredState())).to.deep.equal([
-          'DOWN', 'DOWN', 'DOWN', 'DOWN'
-        ]);
+        expect(result).to.have.lengthOf(4);
       });
 
-      it('should filter acknowledged services (appearsInShortlist)', () => {
+      it('should filter acknowledged services (host appearsInShortlist)', () => {
         const status = new Monitor.MonitorData();
         status.addHost(new Monitor.Host('Not ack 1'));
         status.addHost(new Monitor.Host('Not ack 2'));
@@ -192,7 +190,7 @@ describe('AbstractMonitor', () => {
         expect(status.hosts[5].appearsInShortlist).to.eq(true);
       });
 
-      it('should filter acknowledged services (filteredState)', () => {
+      it('should filter acknowledged services (service appearsInShortlist)', () => {
         const status = new Monitor.MonitorData();
         status.addHost(new Monitor.Host('Not ack 1'));
         status.addHost(new Monitor.Host('Not ack 2'));
@@ -208,29 +206,37 @@ describe('AbstractMonitor', () => {
           .addToHost(status.hosts[0]);
         ServiceBuilder
           .create('S2').withStatus('WARNING')
-          .addToHost(status.hosts[1]);
+          .addToHost(status.hosts[0]);
         ServiceBuilder
           .create('S3').withStatus('CRITICAL')
           .hasBeenAcknowledged()
-          .addToHost(status.hosts[2]);
+          .addToHost(status.hosts[0]);
         ServiceBuilder
           .create('S4').withStatus('OK')
-          .addToHost(status.hosts[3]);
+          .addToHost(status.hosts[1]);
         ServiceBuilder
           .create('S5').withStatus('WARNING')
           .hasBeenAcknowledged()
-          .addToHost(status.hosts[4]);
+          .addToHost(status.hosts[1]);
         ServiceBuilder
           .create('S6').withStatus('CRITICAL')
-          .addToHost(status.hosts[5]);
+          .addToHost(status.hosts[1]);
 
         const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
         const result = AbstractMonitor.applyFilters(status, filtersettings);
 
-        // Host has a service problem and problem is not acknowledged
-        expect(result[0].getHost().services[0].getFilteredState()).to.eq('WARNING');
-        // Host has a service problem and problem is not acknowledged
-        expect(result[1].getHost().services[0].getFilteredState()).to.eq('CRITICAL');
+        // S1 service has no problem
+        expect(result[0].getHost().services[0].appearsInShortlist).to.eq(false);
+        // S2 has a problem and problem is not acknowledged
+        expect(result[0].getHost().services[1].appearsInShortlist).to.eq(true);
+        // S3 has a problem and problem is acknowledged
+        expect(result[0].getHost().services[2].appearsInShortlist).to.eq(false);
+        // S4 service has no problem
+        expect(result[1].getHost().services[0].appearsInShortlist).to.eq(false);
+        // S5 has a problem and problem is acknowledged
+        expect(result[1].getHost().services[1].appearsInShortlist).to.eq(false);
+        // S6 has a problem and problem is not acknowledged
+        expect(result[1].getHost().services[2].appearsInShortlist).to.eq(true);
       });
     });
   });

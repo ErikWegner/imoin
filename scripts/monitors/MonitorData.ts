@@ -32,14 +32,6 @@ export namespace Monitor {
         public getState() {
             return this.status;
         }
-
-        public setFilteredState(value: Monitor.ServiceState) {
-            this.filteredStatus = value;
-        }
-
-        public getFilteredState() {
-            return this.filteredStatus;
-        }
     }
 
     // tslint:disable-next-line:max-classes-per-file
@@ -64,14 +56,6 @@ export namespace Monitor {
 
         public getState() {
             return this.status;
-        }
-
-        public setFilteredState(state: HostState) {
-            this.filteredStatus = state;
-        }
-
-        public getFilteredState() {
-            return this.filteredStatus;
         }
 
         public addService(service: Service) {
