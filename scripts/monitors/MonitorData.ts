@@ -116,13 +116,13 @@ export namespace Monitor {
         public serviceerrors: number;
         public updatetime: string;
         public instanceLabel: string;
-        private state: Status;
-        private filteredState: Status;
-        private filteredHostup: number;
-        private filteredHosterrors: number;
-        private filteredServiceok: number;
-        private filteredServicewarnings: number;
-        private filteredServiceerrors: number;
+        public state: Status;
+        public filteredState: Status;
+        public filteredHostup: number;
+        public filteredHosterrors: number;
+        public filteredServiceok: number;
+        public filteredServicewarnings: number;
+        public filteredServiceerrors: number;
 
         public setState(state: Status) {
             this.state = state;
@@ -170,9 +170,7 @@ export namespace Monitor {
 
         public updateCounters(filteredHosts?: FHost[]) {
             this.updateCountersUnmodified();
-            if (filteredHosts !== null) {
-                this.updateCountersFiltered(filteredHosts);
-            }
+            this.updateCountersFiltered(filteredHosts);
 
             this.setUpdatetime();
             this.updateState();
@@ -203,7 +201,33 @@ export namespace Monitor {
         }
 
         private updateCountersFiltered(filteredHosts: FHost[]) {
-            //
+            if (filteredHosts == null) {
+                return;
+            }
+
+            const servicecounters: {[key in ServiceState]: number } = {
+                OK: 0,
+                WARNING: 0,
+                CRITICAL: 0
+            };
+
+            filteredHosts.forEach((fhost) => {
+                fhost.getFServices().forEach((fservice) => {
+                    const index = fservice.getState();
+                    servicecounters[index] = servicecounters[index] + 1;
+                });
+            });
+
+            this.filteredServiceerrors = servicecounters['CRITICAL'];
+            this.filteredServicewarnings = servicecounters['WARNING'];
+            this.filteredServiceok =
+                this.totalservices -
+                this.filteredServiceerrors -
+                this.filteredServicewarnings;
+
+            this.filteredHosterrors = filteredHosts
+                .filter((fhost) => fhost.getHost().getState() !== 'UP').length;
+            this.filteredHostup = this.totalhosts - this.filteredHosterrors;
         }
 
         private setUpdatetime() {
@@ -218,6 +242,13 @@ export namespace Monitor {
             }
             if (this.serviceerrors > 0 || this.hosterrors > 0 || this.message) {
                 this.state = Status.RED;
+            }
+            this.filteredState = Status.GREEN;
+            if (this.filteredServicewarnings > 0) {
+                this.filteredState = Status.YELLOW;
+            }
+            if (this.filteredServiceerrors > 0 || this.filteredHosterrors > 0 || this.message) {
+                this.filteredState = Status.RED;
             }
         }
     }

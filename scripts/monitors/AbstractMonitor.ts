@@ -44,6 +44,9 @@ export abstract class AbstractMonitor implements IMonitor {
         // filterHosts: RegExMatchSettings;
         // filterServices: RegExMatchSettings;
         // filterInformation: RegExMatchSettings;
+        /* filterOutUP again */
+        result = filterUp(result);
+        // last step
         result.forEach((fhost) => {
             const host = fhost.getHost();
             host.appearsInShortlist = true;
