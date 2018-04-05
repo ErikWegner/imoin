@@ -18,15 +18,12 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
         const r = new Monitor.PanelMonitorData();
 
-        r.setState(AbstractEnvironment.mergeStateFromAllInstances(sources));
+        sources.forEach((source) => {
+            r.addCountersAndMergeState(source);
+        });
+
         const allMessages = AbstractEnvironment.mergeMessagesFromAllInstances(sources);
         r.setMessage(allMessages.join('\n'));
-
-        sources
-            .map((source) => source.hosts)
-            .forEach((hosts) => r.hosts = r.hosts.concat(hosts));
-
-        r.updateCounters();
         r.hosterrors += allMessages.length;
 
         return r;
@@ -99,17 +96,6 @@ export abstract class AbstractEnvironment implements IEnvironment {
             .map((monitorData) => `(${monitorData.instanceLabel}) ${monitorData.getMessage()}`);
     }
 
-    private static mergeStateFromAllInstances(sources: Monitor.MonitorData[]): Monitor.Status {
-        if (sources.every((md) => md.getFilteredState() !== Monitor.Status.RED)) {
-            if (sources.every((md) => md.getFilteredState() === Monitor.Status.GREEN)) {
-                return Monitor.Status.GREEN;
-            }
-
-            return Monitor.Status.YELLOW;
-        }
-        return Monitor.Status.RED;
-    }
-
     protected dataBuffer = AbstractEnvironment.createUpdatePendingResult();
     protected onSettingsChangedCallback: () => void;
 
@@ -146,7 +132,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
         this.dataBuffer.instances = this.panelMonitorData;
         this.updateIconAndBadgetext();
         this.trySendDataToPopup();
-        this.detectStateTransition(this.dataBuffer.getState());
+        this.detectStateTransition(this.dataBuffer.getFilteredState());
     }
 
     public detectStateTransition(newState: Monitor.Status) {

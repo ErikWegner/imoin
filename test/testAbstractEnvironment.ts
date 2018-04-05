@@ -5,6 +5,7 @@ import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironme
 import { Monitor } from '../scripts/monitors';
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 import { fail } from 'assert';
+import { FHost } from '../scripts/monitors/filters';
 
 describe('AbstractEnvironnment', () => {
   it('should register and handle one alarm', () => {
@@ -104,6 +105,8 @@ describe('AbstractEnvironnment', () => {
 
       h.setState('UP');
       s.setState(i % 2 === 1 ? 'WARNING' : 'OK');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -132,6 +135,8 @@ describe('AbstractEnvironnment', () => {
       m.addHost(h);
 
       h.setState('DOWN');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -148,6 +153,8 @@ describe('AbstractEnvironnment', () => {
       m.addHost(h);
 
       h.setState('UP');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -166,6 +173,8 @@ describe('AbstractEnvironnment', () => {
       h.addService(s);
 
       s.setState('CRITICAL');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -184,6 +193,8 @@ describe('AbstractEnvironnment', () => {
       h.addService(s);
 
       s.setState('WARNING');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -202,6 +213,8 @@ describe('AbstractEnvironnment', () => {
       h.addService(s);
 
       s.setState('OK');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -217,6 +230,54 @@ describe('AbstractEnvironnment', () => {
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
     expect(r.hosterrors).to.equal(2);
+  });
+
+  it('should merge results and keep filtered values', () => {
+    // Create two instance results and merge them
+    const m0 = new Monitor.MonitorData();
+    const host = new Monitor.Host('H1');
+    const service = new Monitor.Service('S1');
+    m0.addHost(host);
+    host.addService(service);
+    host.setState('UP');
+    service.setState('CRITICAL');
+
+    const m1 = new Monitor.MonitorData();
+    const host2 = new Monitor.Host('H2');
+    const service2 = new Monitor.Service('S2');
+    m1.addHost(host2);
+    host2.addService(service2);
+    host2.setState('UP');
+    service2.setState('CRITICAL');
+
+    m0.updateCounters([]);
+    const c00 = m0.filteredServiceerrors;
+    const c01 = m0.serviceerrors;
+    m1.updateCounters([]);
+    const c10 = m1.filteredServiceerrors;
+    const c11 = m1.serviceerrors;
+
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[0] = m0;
+    b[1] = m1;
+    const mmerge = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    const cm0 = mmerge.filteredServiceerrors;
+    const cm1 = mmerge.serviceerrors;
+
+    expect(m1.totalservices).to.equal(1);
+    // no host after filtering means no service error
+    expect(c00).to.equal(0);
+    // service error exists in unfiltered value
+    expect(c01).to.equal(1);
+    // no host after filtering means no service error
+    expect(c10).to.equal(0);
+    // service error exists in unfiltered value
+    expect(c11).to.equal(1);
+
+    // after merge, still no service error
+    expect(cm0).to.equal(0);
+    // after merge, two service error exists in unfiltered value
+    expect(cm1).to.equal(2);
   });
 
   it('should update time when displayStatus() is called', () => {
@@ -245,8 +306,8 @@ describe('AbstractEnvironnment', () => {
       const service = new Monitor.Service('S');
       service.setState(
         testValue === Monitor.Status.GREEN ? 'OK' :
-        testValue === Monitor.Status.YELLOW ? 'WARNING' :
-        'CRITICAL');
+          testValue === Monitor.Status.YELLOW ? 'WARNING' :
+            'CRITICAL');
       const host = new Monitor.Host('H');
       host.setState('UP');
       host.services.push(service);
@@ -292,8 +353,8 @@ describe('AbstractEnvironnment', () => {
       const service = new Monitor.Service('S');
       service.setState(
         testValue === Monitor.Status.GREEN ? 'OK' :
-        testValue === Monitor.Status.YELLOW ? 'WARNING' :
-        'CRITICAL');
+          testValue === Monitor.Status.YELLOW ? 'WARNING' :
+            'CRITICAL');
       const host = new Monitor.Host('H');
       host.setState('UP');
       host.services.push(service);
@@ -344,8 +405,8 @@ describe('AbstractEnvironnment', () => {
       const service = new Monitor.Service('S');
       service.setState(
         testValue === Monitor.Status.GREEN ? 'OK' :
-        testValue === Monitor.Status.YELLOW ? 'WARNING' :
-        'CRITICAL');
+          testValue === Monitor.Status.YELLOW ? 'WARNING' :
+            'CRITICAL');
       const host = new Monitor.Host('H');
       host.setState('UP');
       host.services.push(service);

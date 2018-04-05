@@ -75,14 +75,6 @@ export namespace Monitor {
         }
     }
 
-    export interface MonitorDataSummaryCounters {
-        hostup: number;
-        hosterrors: number;
-        serviceok: number;
-        servicewarnings: number;
-        serviceerrors: number;
-    }
-
     /* This class must be serializable */
     // tslint:disable-next-line:max-classes-per-file
     export class MonitorData {
@@ -107,22 +99,22 @@ export namespace Monitor {
         public message: string;
         public url: string;
         public hostgroupinfo: string = null;
-        public totalhosts: number;
-        public totalservices: number;
-        public hostup: number;
-        public hosterrors: number;
-        public serviceok: number;
-        public servicewarnings: number;
-        public serviceerrors: number;
+        public totalhosts: number = 0;
+        public totalservices: number = 0;
+        public hostup: number = 0;
+        public hosterrors: number = 0;
+        public serviceok: number = 0;
+        public servicewarnings: number = 0;
+        public serviceerrors: number = 0;
         public updatetime: string;
         public instanceLabel: string;
-        public state: Status;
-        public filteredState: Status;
-        public filteredHostup: number;
-        public filteredHosterrors: number;
-        public filteredServiceok: number;
-        public filteredServicewarnings: number;
-        public filteredServiceerrors: number;
+        public state: Status = Status.GREEN;
+        public filteredState: Status = Status.GREEN;
+        public filteredHostup: number = 0;
+        public filteredHosterrors: number = 0;
+        public filteredServiceok: number = 0;
+        public filteredServicewarnings: number = 0;
+        public filteredServiceerrors: number = 0;
 
         public setState(state: Status) {
             this.state = state;
@@ -174,6 +166,25 @@ export namespace Monitor {
 
             this.setUpdatetime();
             this.updateState();
+        }
+
+        public addCountersAndMergeState(other: MonitorData) {
+            this.totalhosts += other.totalhosts;
+            this.hostup += other.hostup;
+            this.filteredHostup += other.filteredHostup;
+            this.hosterrors += other.hosterrors;
+            this.filteredHosterrors += other.filteredHosterrors;
+
+            this.totalservices += other.totalservices;
+            this.serviceok += other.serviceok;
+            this.filteredServiceok += other.filteredServiceok;
+            this.servicewarnings += other.servicewarnings;
+            this.filteredServicewarnings += other.filteredServicewarnings;
+            this.serviceerrors += other.serviceerrors;
+            this.filteredServiceerrors += other.filteredServiceerrors;
+
+            this.state = Math.max(this.state, other.state);
+            this.filteredState = Math.max(this.filteredState, other.filteredState);
         }
 
         private updateCountersUnmodified() {
