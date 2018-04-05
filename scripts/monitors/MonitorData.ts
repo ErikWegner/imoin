@@ -185,6 +185,8 @@ export namespace Monitor {
 
             this.state = Math.max(this.state, other.state);
             this.filteredState = Math.max(this.filteredState, other.filteredState);
+
+            this.setUpdatetime();
         }
 
         private updateCountersUnmodified() {

@@ -232,6 +232,24 @@ describe('AbstractEnvironnment', () => {
     expect(r.hosterrors).to.equal(2);
   });
 
+  it('should merge and update time stamp', () => {
+    const m0 = new Monitor.MonitorData();
+    const host = new Monitor.Host('H1');
+    const service = new Monitor.Service('S1');
+    m0.addHost(host);
+    host.addService(service);
+    host.setState('UP');
+    service.setState('CRITICAL');
+    m0.updateCounters([]);
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[0] = m0;
+
+    const mmerge = AbstractEnvironment.mergeResultsFromAllInstances(b);
+
+    // tslint:disable-next-line:no-unused-expression
+    expect(mmerge.updatetime).to.not.be.undefined;
+  });
+
   it('should merge results and keep filtered values', () => {
     // Create two instance results and merge them
     const m0 = new Monitor.MonitorData();

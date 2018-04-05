@@ -20,6 +20,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
         sources.forEach((source) => {
             r.addCountersAndMergeState(source);
+            r.hosts = r.hosts.concat(source.hosts);
         });
 
         const allMessages = AbstractEnvironment.mergeMessagesFromAllInstances(sources);
