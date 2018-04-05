@@ -251,12 +251,7 @@ function addDropdownEventHandler(callback) {
   ddl.addEventListener('change', callback);
 }
 
-function initializeCustomElements() {
-
-}
-
 /*    ---- Initialize ---- */
-initializeCustomElements();
 document.addEventListener('DOMContentLoaded', restoreOptions);
 addClickHandler('#addInstance', addInstance);
 addClickHandler('#updateSettings', updateSettings);
