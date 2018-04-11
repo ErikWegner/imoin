@@ -9,7 +9,8 @@ interface IHostJsonData {
       [hostname: string]: {
         name: string,
         status: number,
-        plugin_output: string
+        plugin_output: string,
+        problem_has_been_acknowledged: boolean,
       }
     };
   };
@@ -24,7 +25,8 @@ interface IServiceJsonData {
           description: string,
           status: number,
           last_check: number,
-          plugin_output: string
+          plugin_output: string,
+          problem_has_been_acknowledged: boolean,
         }
       }
     }
@@ -102,6 +104,7 @@ export class NagiosCore extends AbstractMonitor {
       hostByName[host.name] = host;
       host.setState(hostdatahost.status === 2 ? 'UP' : 'DOWN');
       host.checkresult = hostdatahost.plugin_output;
+      host.hasBeenAcknowledged = hostdatahost.problem_has_been_acknowledged;
       m.addHost(host);
     });
 
@@ -122,6 +125,7 @@ export class NagiosCore extends AbstractMonitor {
           } else {
             service.checkresult = 'Check did not run yet.';
           }
+          service.hasBeenAcknowledged = servicedataservice.problem_has_been_acknowledged;
           service.host = host.name;
           host.addService(service);
         }
