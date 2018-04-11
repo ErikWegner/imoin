@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "imoin",
-  "version": "21.0.0rc1",
+  "version": "21.0.0rc2",
 
   "description": "Monitor your icinga or nagios instance.",
 
