@@ -27,10 +27,12 @@
       <div class="group">
         <label for="icingaversion">Version</label>
         <select id="icingaversion" name="icingaversion">
-          <option value="cgi">CGI (Icinga 1.x)</option>
           <option value="api1">Icinga 2 API</option>
           <option value="nagioscore">Nagios Core 4.0.7+</option>
-          <option value="nagioshtml">Nagios HTML parsing</option>
+          <optgroup label="deprecated">
+            <option value="cgi">CGI (Icinga 1.x)</option>
+            <option value="nagioshtml">Nagios HTML parsing</option>
+          </optgroup>
         </select>
       </div>
       <div class="group">
