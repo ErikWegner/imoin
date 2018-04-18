@@ -1,8 +1,7 @@
-/// <reference path='definitions/firefox-webextension/index.d.ts' />
-
+import browser from './definitions/firefox-webextension';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
-import { Monitor } from './MonitorData';
+import { Monitor } from './monitors';
 import { init } from './main';
 
 /**
@@ -16,27 +15,21 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
     constructor() {
         super();
         browser.runtime.onConnect.addListener(this.connected.bind(this));
-        // temporary update notification
-        browser.runtime.onInstalled.addListener((details) => {
-            if (details.reason === 'update') {
-                //this.openWebPage('https://github.com/ErikWegner/imoin/releases/tag/17.1.0');
-                this.migrateSettings().then(this.notifySettingsChanged.bind(this));
-            }
-        });
     }
 
-    loadSettings(): Promise<Settings> {
+    public loadSettings(): Promise<Settings> {
         const i = this;
         i.debug('Loading settings');
         return new Promise<Settings>(
             (resolve, reject) => {
                 /* Change the array of keys to match the options.js */
-                const storagePromise = browser.storage.local.get(AbstractWebExtensionsEnvironment.optionKeys);
+                const storagePromise = browser.storage.local.get(
+                    AbstractWebExtensionsEnvironment.optionKeys);
                 if (storagePromise) {
-                    storagePromise.then(function (data: any) {
+                    storagePromise.then((data: any) => {
                         i.settings = AbstractWebExtensionsEnvironment.processStoredSettings(data);
                         resolve(i.settings);
-                    }, function (error: any) {
+                    }, (error: any) => {
                         i.error('Loading settings failed');
                         i.error(error);
                         reject(error);
@@ -51,20 +44,20 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
 
     protected migrateSettings(): Promise<void> {
         const i = this;
-        i.debug("Migrating settings");
+        i.debug('Migrating settings');
         return new Promise<void>((resolve, reject) => {
             // load old single instance settings
             browser.storage.local
                 .get(['timerPeriod', 'icingaversion', 'url', 'username', 'password', 'instances'])
                 .then((data) => {
-                    i.debug("Old settings loaded")
+                    i.debug('Old settings loaded');
                     if (data.instances) {
                         // instances already present
-                        i.debug("Instances already present, skipping");
+                        i.debug('Instances already present, skipping');
                         reject();
                     }
                     const s = new Settings();
-                    data.instancelabel = "Default";
+                    data.instancelabel = 'Default';
                     s.instances.push(data);
                     // update settings
                     i.debug('Saving new settings');

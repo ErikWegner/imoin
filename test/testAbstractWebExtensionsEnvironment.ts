@@ -2,7 +2,7 @@ import 'mocha';
 import { assert, expect } from 'chai';
 
 import { AbstractWebExtensionsEnvironment } from '../scripts/AbstractWebExtensionsEnvironment';
-import { Monitor } from '../scripts/MonitorData';
+import { Monitor } from '../scripts/monitors';
 
 describe('AbstractWebExtensionsEnvironment', () => {
   it('should remove slashes', () => {
@@ -16,13 +16,13 @@ describe('AbstractWebExtensionsEnvironment', () => {
   });
 
   it('should restore sounds not set', () => {
-    const i = {}
+    const i = {};
     const r = AbstractWebExtensionsEnvironment.processStoredSettings(i);
     expect(r.sounds).to.deep.eq({});
   });
 
   it('should restore sounds is null', () => {
-    const i = { sounds: <any>null }
+    const i = { sounds: null as any };
     const r = AbstractWebExtensionsEnvironment.processStoredSettings(i);
     expect(r.sounds).to.deep.eq({});
   });
@@ -34,7 +34,7 @@ describe('AbstractWebExtensionsEnvironment', () => {
     };
     const i = {
       sounds: JSON.stringify(storedData)
-    }
+    };
     const r = AbstractWebExtensionsEnvironment.processStoredSettings(i);
     expect(r.sounds).to.deep.eq(storedData);
   });
@@ -63,8 +63,6 @@ describe('AbstractWebExtensionsEnvironment', () => {
     it('red', () => {
       testRun(Monitor.Status.RED, false, 'RED');
     });
-  })
-
+  });
 
 });
-

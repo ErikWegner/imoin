@@ -1,4 +1,4 @@
 export interface IPanelMonitorData {
-  instancelabel: string
-  updatetime?: string
+  instancelabel: string;
+  updatetime?: string;
 }

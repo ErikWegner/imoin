@@ -1,35 +1,33 @@
 import 'mocha';
 import { assert, expect } from 'chai';
-import { NagiosCore } from '../scripts/nagioscore';
+import { NagiosCore } from '../scripts/monitors';
 import { IEnvironment } from '../scripts/IEnvironment';
 import * as sinon from 'sinon';
 import { Settings } from '../scripts/Settings';
 import * as fs from 'fs';
 
-describe('Array', function () {
-  describe('#indexOf()', function () {
-    it('should return -1 when the value is not present', function () {
+describe('Array', () => {
+  describe('#indexOf()', () => {
+    it('should return -1 when the value is not present', () => {
       assert.equal(-1, [1, 2, 3].indexOf(4));
     });
   });
 });
 
-describe('nagioscore', function () {
+describe('nagioscore', () => {
   let monitor: NagiosCore;
   let mockEnvLoad: sinon.SinonStub;
   let mockEnv: IEnvironment;
 
   beforeEach(() => {
-    const settings = Settings.paramsToInstance('unittest instance', 0, "nagioscore", "http://unittest", "mochauser", "mochapassword");
+    const settings = Settings.paramsToInstance(
+      'unittest instance', 0, 'nagioscore', 'http://unittest', 'mochauser', 'mochapassword');
     mockEnvLoad = sinon.stub();
     mockEnv = {
       initTimer: sinon.spy(),
       stopTimer: sinon.spy(),
-      debug: sinon.spy(),
       displayStatus: sinon.spy(),
-      error: sinon.spy(),
       loadSettings: sinon.spy(),
-      log: sinon.spy(),
       onSettingsChanged: sinon.spy(),
       post: sinon.spy(),
       onUICommand: sinon.spy(),
@@ -46,9 +44,9 @@ describe('nagioscore', function () {
       if (err) {
         throw err;
       }
-      fs.readFile('test/data/nagioscore/servicelist.json', (err: any, servicelist: any) => {
-        if (err) {
-          throw err;
+      fs.readFile('test/data/nagioscore/servicelist.json', (err2: any, servicelist: any) => {
+        if (err2) {
+          throw err2;
         }
         const p1 = new Promise((resolve, reject) => {
           resolve(hostlist.toString());
@@ -62,7 +60,7 @@ describe('nagioscore', function () {
           .onSecondCall().returns(p2);
 
         testexecutions();
-      })
+      });
     });
   }
 
@@ -80,10 +78,10 @@ describe('nagioscore', function () {
       monitor.fetchStatus().then((data) => {
         const firsthost = data.hosts[0];
         expect(firsthost.name).to.equal('Firewall');
-        expect(firsthost.status).to.equal('UP');
+        expect(firsthost.getState()).to.equal('UP');
         const downhost = data.hosts[14];
         expect(downhost.name).to.equal('europa.nagios.local');
-        expect(downhost.status).to.equal('DOWN');
+        expect(downhost.getState()).to.equal('DOWN');
         done();
       });
     });
@@ -106,7 +104,7 @@ describe('nagioscore', function () {
         const host = data.hosts[1];
         const service1 = host.services[0];
         expect(service1.name).to.equal('/ Disk Usage');
-        expect(service1.status).to.equal('WARNING');
+        expect(service1.getState()).to.equal('WARNING');
         done();
       });
     });

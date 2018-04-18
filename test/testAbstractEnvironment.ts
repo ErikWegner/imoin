@@ -2,9 +2,10 @@ import 'mocha';
 import { assert, expect } from 'chai';
 import * as sinon from 'sinon';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
-import { Monitor } from '../scripts/MonitorData';
+import { Monitor } from '../scripts/monitors';
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
 import { fail } from 'assert';
+import { FHost } from '../scripts/monitors/filters';
 
 describe('AbstractEnvironnment', () => {
   it('should register and handle one alarm', () => {
@@ -72,7 +73,6 @@ describe('AbstractEnvironnment', () => {
     expect(r.getMessage()).to.equal('(U1) Fail 1\n(U2) Fail 2');
   });
 
-
   it('should merge error result and green result to message', () => {
     const b: { [index: number]: Monitor.MonitorData } = {};
     b[2] = Monitor.ErrorMonitorData('Fail 1');
@@ -104,13 +104,14 @@ describe('AbstractEnvironnment', () => {
       h.addService(s);
 
       h.setState('UP');
-      s.status = i % 2 === 1 ? 'WARNING' : 'OK';
+      s.setState(i % 2 === 1 ? 'WARNING' : 'OK');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
     expect(r.getState()).to.equal(Monitor.Status.YELLOW);
   });
-
 
   it('should merge green results to green', () => {
     const b: { [index: number]: Monitor.MonitorData } = {};
@@ -134,6 +135,8 @@ describe('AbstractEnvironnment', () => {
       m.addHost(h);
 
       h.setState('DOWN');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -150,6 +153,8 @@ describe('AbstractEnvironnment', () => {
       m.addHost(h);
 
       h.setState('UP');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -167,7 +172,9 @@ describe('AbstractEnvironnment', () => {
       m.addHost(h);
       h.addService(s);
 
-      s.status = 'CRITICAL';
+      s.setState('CRITICAL');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -185,7 +192,9 @@ describe('AbstractEnvironnment', () => {
       m.addHost(h);
       h.addService(s);
 
-      s.status = 'WARNING';
+      s.setState('WARNING');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -203,7 +212,9 @@ describe('AbstractEnvironnment', () => {
       m.addHost(h);
       h.addService(s);
 
-      s.status = 'OK';
+      s.setState('OK');
+
+      m.updateCounters();
     }
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
@@ -219,6 +230,72 @@ describe('AbstractEnvironnment', () => {
 
     const r = AbstractEnvironment.mergeResultsFromAllInstances(b);
     expect(r.hosterrors).to.equal(2);
+  });
+
+  it('should merge and update time stamp', () => {
+    const m0 = new Monitor.MonitorData();
+    const host = new Monitor.Host('H1');
+    const service = new Monitor.Service('S1');
+    m0.addHost(host);
+    host.addService(service);
+    host.setState('UP');
+    service.setState('CRITICAL');
+    m0.updateCounters([]);
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[0] = m0;
+
+    const mmerge = AbstractEnvironment.mergeResultsFromAllInstances(b);
+
+    // tslint:disable-next-line:no-unused-expression
+    expect(mmerge.updatetime).to.not.be.undefined;
+  });
+
+  it('should merge results and keep filtered values', () => {
+    // Create two instance results and merge them
+    const m0 = new Monitor.MonitorData();
+    const host = new Monitor.Host('H1');
+    const service = new Monitor.Service('S1');
+    m0.addHost(host);
+    host.addService(service);
+    host.setState('UP');
+    service.setState('CRITICAL');
+
+    const m1 = new Monitor.MonitorData();
+    const host2 = new Monitor.Host('H2');
+    const service2 = new Monitor.Service('S2');
+    m1.addHost(host2);
+    host2.addService(service2);
+    host2.setState('UP');
+    service2.setState('CRITICAL');
+
+    m0.updateCounters([]);
+    const c00 = m0.filteredServiceerrors;
+    const c01 = m0.serviceerrors;
+    m1.updateCounters([]);
+    const c10 = m1.filteredServiceerrors;
+    const c11 = m1.serviceerrors;
+
+    const b: { [index: number]: Monitor.MonitorData } = {};
+    b[0] = m0;
+    b[1] = m1;
+    const mmerge = AbstractEnvironment.mergeResultsFromAllInstances(b);
+    const cm0 = mmerge.filteredServiceerrors;
+    const cm1 = mmerge.serviceerrors;
+
+    expect(m1.totalservices).to.equal(1);
+    // no host after filtering means no service error
+    expect(c00).to.equal(0);
+    // service error exists in unfiltered value
+    expect(c01).to.equal(1);
+    // no host after filtering means no service error
+    expect(c10).to.equal(0);
+    // service error exists in unfiltered value
+    expect(c11).to.equal(1);
+
+    // after merge, still no service error
+    expect(cm0).to.equal(0);
+    // after merge, two service error exists in unfiltered value
+    expect(cm1).to.equal(2);
   });
 
   it('should update time when displayStatus() is called', () => {
@@ -237,7 +314,6 @@ describe('AbstractEnvironnment', () => {
   });
 
   describe('on first refresh should call audioNotification with isNew == true', () => {
-    //it('should play sound on first refresh', () => {
     function testPlaySoundOnFirstRefresh(testValue: Monitor.Status) {
       const index = 5;
       const mae = new MockAbstractEnvironment();
@@ -245,9 +321,12 @@ describe('AbstractEnvironnment', () => {
       const callCount1 = mae.audioNotificationSpy.callCount;
       const m = new Monitor.MonitorData();
       m.instanceLabel = 'U2';
-      const service = new Monitor.Service("S");
-      service.setStatus(testValue == Monitor.Status.GREEN ? 'OK' : testValue == Monitor.Status.YELLOW ? 'WARNING' : 'CRITICAL');
-      const host = new Monitor.Host("H");
+      const service = new Monitor.Service('S');
+      service.setState(
+        testValue === Monitor.Status.GREEN ? 'OK' :
+          testValue === Monitor.Status.YELLOW ? 'WARNING' :
+            'CRITICAL');
+      const host = new Monitor.Host('H');
       host.setState('UP');
       host.services.push(service);
       m.hosts.push(host);
@@ -260,8 +339,8 @@ describe('AbstractEnvironnment', () => {
       // No audioNotification has been called at the beginng
       expect(callCount1).to.equal(0);
       // audioNotification has been called now (after displayStatus)
-      if (mae.audioNotificationSpy.callCount != 1) {
-        fail(mae.audioNotificationSpy.callCount, 1, "audioNotification call count");
+      if (mae.audioNotificationSpy.callCount !== 1) {
+        fail(mae.audioNotificationSpy.callCount, 1, 'audioNotification call count');
       } else {
         const spyCall = mae.audioNotificationSpy.getCall(0);
         expect(spyCall.args[0]).to.equal(testValue);
@@ -289,9 +368,12 @@ describe('AbstractEnvironnment', () => {
       const callCount1 = mae.audioNotificationSpy.callCount;
       const m = new Monitor.MonitorData();
       m.instanceLabel = 'U2';
-      const service = new Monitor.Service("S");
-      service.setStatus(testValue == Monitor.Status.GREEN ? 'OK' : testValue == Monitor.Status.YELLOW ? 'WARNING' : 'CRITICAL');
-      const host = new Monitor.Host("H");
+      const service = new Monitor.Service('S');
+      service.setState(
+        testValue === Monitor.Status.GREEN ? 'OK' :
+          testValue === Monitor.Status.YELLOW ? 'WARNING' :
+            'CRITICAL');
+      const host = new Monitor.Host('H');
       host.setState('UP');
       host.services.push(service);
       m.hosts.push(host);
@@ -302,13 +384,13 @@ describe('AbstractEnvironnment', () => {
       // second update, no change
       mae.displayStatus(index, m);
 
-      // The monitoring instance is GREEN
+      // The monitoring instance state is the expected testValue
       expect(m.getState()).to.equal(testValue);
       // No audioNotification has been called at the beginng
       expect(callCount1).to.equal(0);
       // audioNotification has been called now (after displayStatus)
-      if (mae.audioNotificationSpy.callCount != 2) {
-        fail(mae.audioNotificationSpy.callCount, 2, "audioNotification call count");
+      if (mae.audioNotificationSpy.callCount !== 2) {
+        fail(mae.audioNotificationSpy.callCount, 2, 'audioNotification call count');
       } else {
         const spyCall1 = mae.audioNotificationSpy.getCall(0);
         expect(spyCall1.args[0]).to.equal(testValue);
@@ -338,9 +420,12 @@ describe('AbstractEnvironnment', () => {
       const callCount1 = mae.audioNotificationSpy.callCount;
       const m = new Monitor.MonitorData();
       m.instanceLabel = 'U2';
-      const service = new Monitor.Service("S");
-      service.setStatus(testValue == Monitor.Status.GREEN ? 'OK' : testValue == Monitor.Status.YELLOW ? 'WARNING' : 'CRITICAL');
-      const host = new Monitor.Host("H");
+      const service = new Monitor.Service('S');
+      service.setState(
+        testValue === Monitor.Status.GREEN ? 'OK' :
+          testValue === Monitor.Status.YELLOW ? 'WARNING' :
+            'CRITICAL');
+      const host = new Monitor.Host('H');
       host.setState('UP');
       host.services.push(service);
       m.hosts.push(host);
@@ -358,8 +443,8 @@ describe('AbstractEnvironnment', () => {
       // No audioNotification has been called at the beginng
       expect(callCount1).to.equal(0);
       // audioNotification has been called now (after displayStatus)
-      if (mae.audioNotificationSpy.callCount != 3) {
-        fail(mae.audioNotificationSpy.callCount, 3, "audioNotification call count");
+      if (mae.audioNotificationSpy.callCount !== 3) {
+        fail(mae.audioNotificationSpy.callCount, 3, 'audioNotification call count');
       } else {
         const spyCall1 = mae.audioNotificationSpy.getCall(0);
         expect(spyCall1.args[0]).to.equal(testValue);

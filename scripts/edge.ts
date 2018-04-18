@@ -1,8 +1,7 @@
-/// <reference path='definitions/chrome-webextension/index.d.ts' />
-
+import browser from './definitions/firefox-webextension';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
-import { Monitor } from './MonitorData';
+import { Monitor } from './monitors';
 import Status = Monitor.Status;
 import { init } from './main';
 import { IBadgeIcon, IEdgeBadgeIcon } from './IconAndBadgetext';
@@ -11,7 +10,7 @@ import { IBadgeIcon, IEdgeBadgeIcon } from './IconAndBadgetext';
  * Implementation for Microsoft Edge
  */
 export class Edge extends AbstractWebExtensionsEnvironment {
-    protected host = browser
+    protected host = browser;
 
     protected console = console;
 
@@ -22,7 +21,7 @@ export class Edge extends AbstractWebExtensionsEnvironment {
         browser.runtime.onConnect.addListener(this.connected.bind(this));
     }
 
-    loadSettings(): Promise<Settings> {
+    public loadSettings(): Promise<Settings> {
         const i = this;
         return new Promise<Settings>(
             (resolve, reject) => {
@@ -33,7 +32,7 @@ export class Edge extends AbstractWebExtensionsEnvironment {
                         resolve(i.settings);
                     });
             }
-        )
+        );
     }
 
     protected createHostAlarm(alarmName: string, delay: number) {
@@ -42,7 +41,7 @@ export class Edge extends AbstractWebExtensionsEnvironment {
         }
 
         this.timeoutHandles[alarmName] = window.setTimeout(() => {
-            this.handleAlarm({ name: alarmName })
+            this.handleAlarm({ name: alarmName });
         }, delay * 60000);
     }
 
@@ -55,9 +54,9 @@ export class Edge extends AbstractWebExtensionsEnvironment {
 
     protected setIcon(icon: IBadgeIcon) {
         const onlyEdgeSized: IEdgeBadgeIcon = {
-            20: icon["20"],
-            40: icon["40"],
-        }
+            20: icon['20'],
+            40: icon['40'],
+        };
         this.host.browserAction.setIcon({ path: onlyEdgeSized });
     }
 

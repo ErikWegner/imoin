@@ -27,10 +27,12 @@
       <div class="group">
         <label for="icingaversion">Version</label>
         <select id="icingaversion" name="icingaversion">
-          <option value="cgi">CGI (Icinga 1.x)</option>
           <option value="api1">Icinga 2 API</option>
           <option value="nagioscore">Nagios Core 4.0.7+</option>
-          <option value="nagioshtml">Nagios HTML parsing</option>
+          <optgroup label="deprecated">
+            <option value="cgi">CGI (Icinga 1.x)</option>
+            <option value="nagioshtml">Nagios HTML parsing</option>
+          </optgroup>
         </select>
       </div>
       <div class="group">
@@ -53,6 +55,17 @@
       <div class="group">
         <label></label>
         <button type="button" class="instancelistmod instancelistdelete" id="removeInstance">Delete</button>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Filters</legend>
+      <div class="filter">
+        <div class="td">
+          <input type="checkbox" id="filterOutAcknowledged" name="filterOutAcknowledged" />
+        </div>
+        <div class="td">
+          <label for="filterOutAcknowledged">No alarm and no highlighting for hosts and services that have been acknowledged (Icinga API, Nagios Core).</label>
+        </div>
       </div>
     </fieldset>
     <fieldset>

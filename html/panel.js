@@ -289,7 +289,8 @@ function renderMainTemplate(statusdata) {
         hostdetail = hosts[hostindex];
         log("Processing host " + hostdetail.name)
 
-        var show_host_in_list1 = hostdetail.status !== "UP";
+        // Show in list 1?
+        var show_host_in_list1 = hostdetail.appearsInShortlist;
         var all_serviceshtml = [];
         var not_ok_serviceshtml = [];
         var renderbuffer;
@@ -306,8 +307,8 @@ function renderMainTemplate(statusdata) {
 
             all_serviceshtml.push(renderbuffer.cloneNode(true));
 
-            if (servicedetail.status !== "OK") {
-                show_host_in_list1 = true;
+            // Show in list 2?
+            if (servicedetail.appearsInShortlist) {
                 not_ok_serviceshtml.push(renderbuffer.cloneNode(true));
             }
         }
@@ -365,17 +366,17 @@ function renderMainTemplate(statusdata) {
     table.appendChild(tr = document.createElement("tr"));
     tr.className = "OK";
     AddCellToTr(tr, "Ok");
-    AddCellToTr(tr, statusdata.serviceok + "/" + statusdata.totalservices, "num");
+    AddCellToTr(tr, statusdata.filteredServiceok + "/" + statusdata.totalservices, "num");
 
     table.appendChild(tr = document.createElement("tr"));
     tr.className = "WARN";
     AddCellToTr(tr, "Warn");
-    AddCellToTr(tr, statusdata.servicewarnings + "/" + statusdata.totalservices, "num");
+    AddCellToTr(tr, statusdata.filteredServicewarnings + "/" + statusdata.totalservices, "num");
 
     table.appendChild(tr = document.createElement("tr"));
     tr.className = "CRIT";
     AddCellToTr(tr, "Crit");
-    AddCellToTr(tr, statusdata.serviceerrors + "/" + statusdata.totalservices, "num");
+    AddCellToTr(tr, statusdata.filteredServiceerrors + "/" + statusdata.totalservices, "num");
 
     div1.appendChild(table = document.createElement("table"));
     table.setAttribute("class", "main");
@@ -390,12 +391,12 @@ function renderMainTemplate(statusdata) {
     table.appendChild(tr = document.createElement("tr"));
     tr.className = "UP";
     AddCellToTr(tr, "Up");
-    AddCellToTr(tr, statusdata.hostup + "/" + statusdata.totalhosts, "num");
+    AddCellToTr(tr, statusdata.filteredHostup + "/" + statusdata.totalhosts, "num");
 
     table.appendChild(tr = document.createElement("tr"));
     tr.className = "DOWN";
     AddCellToTr(tr, "Down");
-    AddCellToTr(tr, statusdata.hosterrors + "/" + statusdata.totalhosts, "num");
+    AddCellToTr(tr, statusdata.filteredHosterrors + "/" + statusdata.totalhosts, "num");
 
     table.appendChild(tr = document.createElement("tr"));
     tr.className = "space";

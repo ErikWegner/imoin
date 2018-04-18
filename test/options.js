@@ -1,8 +1,11 @@
 describe('options html', () => {
   const getFormTextValueStub = sinon.stub(window, 'getFormTextValue');
+  const getCheckboxValueStub = sinon.stub(window, 'getCheckboxValue');
+  const setCheckboxValueStub = sinon.stub(window, 'setCheckboxValue');
   const documentQuerySelectorStub = sinon.stub(document, 'querySelector');
   const documentGetElementByIdStub = sinon.stub(document, 'getElementById');
   const saveOptionsSpy = sinon.spy(window, 'saveOptions');
+  const updateDOMforFiltersSpy = sinon.spy(window, 'updateDOMforFilters');
   const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
 
   beforeEach(() => {
@@ -11,8 +14,12 @@ describe('options html', () => {
     selectedInstance = -1;
     // Stub browser interactions
     updateDOMforInstances = sinon.spy();
-    // Reset all stubs
+    // Reset all spies and stubs
+    saveOptionsSpy.reset();
+    updateDOMforFiltersSpy.reset();
     getFormTextValueStub.reset();
+    getCheckboxValueStub.reset();
+    setCheckboxValueStub.reset();
     documentQuerySelectorStub.reset();
     documentGetElementsByClassNameStub.reset();
     documentGetElementByIdStub.withArgs('fontsize').returns({ value: "100" });
@@ -188,6 +195,40 @@ describe('options html', () => {
     expect(arg[0].instances).toBe(JSON.stringify(instances));
   });
 
+  it('should save filterOutAcknowledged value', () => {
+    const setSpy = host.storage.local.set;
+    addInstance();
+    getCheckboxValueStub.withArgs('#filterOutAcknowledged').returns(1);
+
+    saveOptions();
+
+    expect(setSpy.callCount).toBe(1);
+    expect(getCheckboxValueStub.called).toBe(true);
+    expect(getCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
+    const arg = setSpy.args[0];
+    const i = JSON.parse(arg[0].instances);
+    expect(i.length).toBe(1);
+    expect(i[0].filtersettings).toBeDefined();
+    expect(i[0].filtersettings.filterOutAcknowledged).toBe(true);
+  });
+
+  it('should restore options and update DOM for filters', (done) => {
+    restoreOptions().then(() => {
+      expect(updateDOMforFilters.calledOnce).toBe(true);
+      done();
+    });
+  });
+
+  it('should set filterOutAcknowledged checkbox when updating DOM for filters', () => {
+    const a0 = setCheckboxValueStub.callCount;
+    
+    updateDOMforFilters();
+    
+    expect(a0).toBe(0);
+    expect(setCheckboxValueStub.callCount).toBe(1);
+    expect(setCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
+  });
+
   /**
    * getFormTextValue uses _selector_ to find the element
    */
@@ -212,6 +253,36 @@ describe('options html', () => {
 
     expect(documentQuerySelectorStub.callCount).toBe(1);
     expect(result).toBe('k');
+  });
+
+  it('should get 1 (true) value for checked checkbox', () => {
+    const selector = '#box1';
+    getCheckboxValueStub.callThrough();
+    documentQuerySelectorStub.onFirstCall().returns({ checked: true });
+
+    const result = getCheckboxValue(selector, 5);
+
+    expect(result).toBe(1);
+  });
+
+  it('should get 0 (false) value for unchecked checkbox', () => {
+    const selector = '#box1';
+    getCheckboxValueStub.callThrough();
+    documentQuerySelectorStub.onFirstCall().returns({ checked: false });
+
+    const result = getCheckboxValue(selector, 8);
+
+    expect(result).toBe(0);
+  });
+
+  it('should get default value for not existing checkbox', () => {
+    const selector = '#box1';
+    getCheckboxValueStub.callThrough();
+    documentQuerySelectorStub.onFirstCall().returns(null);
+
+    const result = getCheckboxValue(selector, 7);
+
+    expect(result).toBe(7);
   });
 
   it('should update selected instance', () => {
@@ -258,7 +329,44 @@ describe('options html', () => {
 
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
-    expect(arg[0].instances).toBe(JSON.stringify([{ "instancelabel": "Instance 0", "timerPeriod": 5, "icingaversion": "cgi", "url": "", "username": "", "password": "" }, { "instancelabel": "Call #instancelabel", "timerPeriod": 17, "icingaversion": "Call #icingaversion", "url": "Call #url", "username": "Call #username", "password": "Call #password" }, { "instancelabel": "Instance 2", "timerPeriod": 5, "icingaversion": "cgi", "url": "", "username": "", "password": "" }, { "instancelabel": "Instance 3", "timerPeriod": 5, "icingaversion": "cgi", "url": "", "username": "", "password": "" }]));
+    const emptyFiltersettings = {
+      filterOutAcknowledged: false
+    };
+    expect(arg[0].instances).toBe(JSON.stringify(
+      [
+        {
+          "instancelabel": "Instance 0",
+          "timerPeriod": 5,
+          "icingaversion": "cgi",
+          "url": "",
+          "username": "",
+          "password": "",
+          filtersettings: emptyFiltersettings
+        }, {
+          "instancelabel": "Call #instancelabel",
+          "timerPeriod": 17,
+          "icingaversion": "Call #icingaversion",
+          "url": "Call #url",
+          "username": "Call #username",
+          "password": "Call #password",
+          filtersettings: emptyFiltersettings
+        }, {
+          "instancelabel": "Instance 2",
+          "timerPeriod": 5,
+          "icingaversion": "cgi",
+          "url": "",
+          "username": "",
+          "password": "",
+          filtersettings: emptyFiltersettings
+        }, {
+          "instancelabel": "Instance 3",
+          "timerPeriod": 5,
+          "icingaversion": "cgi",
+          "url": "",
+          "username": "",
+          "password": "",
+          filtersettings: emptyFiltersettings
+        }]));
   });
 
   describe('Sound selection', () => {

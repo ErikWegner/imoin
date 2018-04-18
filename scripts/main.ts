@@ -1,10 +1,6 @@
 import { IEnvironment } from './IEnvironment';
 import { Settings, ImoinMonitorInstance } from './Settings';
-import { IMonitor } from './IMonitor';
-import { IcingaApi } from './icingaapi';
-import { IcingaCgi } from './icingacgi';
-import { NagiosCore } from './nagioscore';
-import { NagiosHtml } from './nagioshtml';
+import { IMonitor, IcingaCgi, IcingaApi, NagiosCore, NagiosHtml } from './monitors';
 
 /*
  * Connecting all pieces together
@@ -12,36 +8,37 @@ import { NagiosHtml } from './nagioshtml';
 
 /**
  * Create an instance for the given configuration
- * 
+ *
  * @param instance The instance configuration
  */
 export function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
-    if (instance.icingaversion == 'api1') {
+    if (instance.icingaversion === 'api1') {
         return new IcingaApi();
     }
 
-    if (instance.icingaversion == 'cgi') {
+    if (instance.icingaversion === 'cgi') {
         return new IcingaCgi();
     }
 
-    if (instance.icingaversion == 'nagioscore') {
+    if (instance.icingaversion === 'nagioscore') {
         return new NagiosCore();
     }
 
-    if (instance.icingaversion == 'nagioshtml') {
+    if (instance.icingaversion === 'nagioshtml') {
         return new NagiosHtml();
     }
 
     return null;
 }
 
-let monitors: IMonitor[] = [];
+const monitors: IMonitor[] = [];
 
 export function init(e: IEnvironment) {
 
     function start() {
         let monitor;
-        while (monitor = monitors.pop()) {
+        while (monitors.length > 0) {
+            monitor = monitors.pop();
             monitor.shutdown();
         }
 

@@ -1,5 +1,5 @@
 import { Settings } from './Settings';
-import { Monitor } from './MonitorData';
+import { Monitor } from './monitors';
 import MonitorData = Monitor.MonitorData;
 import { UICommand } from './UICommand';
 import { IPanelMonitorData } from './IPanelMonitorData';
@@ -7,7 +7,7 @@ import { IPanelMonitorData } from './IPanelMonitorData';
 export interface IEnvironment {
     /**
      * Execute the callback at every delay minutes
-     * 
+     *
      * @argument index Index when using multiple instances
      * @argument callback function to run after each period
      * @argument delay waiting period in minutes
@@ -37,8 +37,4 @@ export interface IEnvironment {
 
     /* Register a monitor instance */
     registerMonitorInstance(index: number, monitor: IPanelMonitorData): void;
-
-    debug(o: any): void;
-    log(o: any): void;
-    error(o: any): void;
 }

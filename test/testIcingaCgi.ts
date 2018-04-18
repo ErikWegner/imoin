@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import 'mocha';
 import { assert, expect } from 'chai';
-import { IcingaCgi } from '../scripts/icingacgi';
+import { IcingaCgi } from '../scripts/monitors';
 import { IEnvironment } from '../scripts/IEnvironment';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { ImoinMonitorInstance } from '../scripts/Settings';
@@ -24,16 +24,16 @@ describe('icingacgi', () => {
         timerPeriod: 5,
         username: 'user',
         password: 'pass',
-      }
+      };
       e.loadCallback = (url, user, passwd) => {
         return Promise.resolve(data.toString());
-      }
+      };
       u.init(e, settings, 0);
       u.fetchStatus().then((monitordata) => {
         expect(monitordata.hosts.length).to.be.greaterThan(0);
         done();
-      }).catch((err) => {
-        fail(err);
+      }).catch((err2) => {
+        fail(err2);
         done();
       });
     });
