@@ -7,6 +7,7 @@ import {
     FHost,
     filterUp,
     filterAcknowledged,
+    filterSoftStates,
 } from './filters';
 import { hostname } from 'os';
 
@@ -31,7 +32,8 @@ export abstract class AbstractMonitor implements IMonitor {
         result = filterAcknowledged(result, filtersettings);
         // filterOutDisabledNotifications: boolean;
         // filterOutDisabledChecks: boolean;
-        // filterOutSoftStates: boolean;
+        /* filterOutSoftStates */
+        result = filterSoftStates(result, filtersettings);
         // filterOutDowntime: boolean;
         // filterOutServicesOnDownHosts: boolean;
         // filterOutServicesOnAcknowledgedHosts: boolean;
