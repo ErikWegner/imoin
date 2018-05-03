@@ -21,6 +21,11 @@ export class ServiceBuilder {
     return this;
   }
 
+  public inSoftState(): any {
+    this.service.isInSoftState = true;
+    return this;
+  }
+
   public addToHost(host: Monitor.Host) {
     host.addService(this.service);
     return this;

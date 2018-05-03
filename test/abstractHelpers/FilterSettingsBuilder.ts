@@ -40,6 +40,11 @@ export class FilterSettingsBuilder {
     return this;
   }
 
+  public filterOutSoftStates() {
+    this.filtersettings.filterOutSoftStates = true;
+    return this;
+  }
+
   public build() {
     return this.filtersettings;
   }

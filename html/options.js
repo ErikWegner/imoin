@@ -12,7 +12,8 @@ let selectedInstance = -1;
 let fontsize = 100;
 
 const filterSettingsNames = [
-  'filterOutAcknowledged'
+  'filterOutAcknowledged',
+  'filterOutSoftStates'
 ];
 
 /*    ---- Custom elements   ---- */

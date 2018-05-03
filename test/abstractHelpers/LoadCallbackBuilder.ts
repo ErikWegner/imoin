@@ -21,6 +21,11 @@ export class LoadCallbackBuilder {
     return this;
   }
 
+  public softState() {
+    this.activeHost.isInSoftState = true;
+    return this;
+  }
+
   public Service(
     name: string,
     servicesetup: (b: ServiceBuilder) => void
@@ -80,6 +85,7 @@ export class LoadCallbackBuilder {
                 state: 0,
                 output: ''
               },
+              state_type: service.isInSoftState ? 0 : 1,
             },
             name: host.name + '!' + service.name
           });

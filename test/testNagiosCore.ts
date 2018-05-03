@@ -7,7 +7,7 @@ import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironme
 import { ImoinMonitorInstance } from '../scripts/Settings';
 
 describe('NagiosCore', () => {
-  it('should handle JSON.parse-excetion for host data', (done) => {
+  it('should handle JSON.parse-exception for host data', (done) => {
     const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
     e.loadCallback = (url, user, passwd): Promise<string> => {
@@ -39,7 +39,7 @@ describe('NagiosCore', () => {
     });
   });
 
-  it('should handle JSON.parse-excetion for service data', (done) => {
+  it('should handle JSON.parse-exception for service data', (done) => {
     const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
     e.loadCallback = (url, user, passwd): Promise<string> => {
@@ -147,6 +147,85 @@ describe('NagiosCore', () => {
     }).catch((err) => {
       fail(err);
       done();
+    });
+  });
+
+  it('should set isInSoftState on host and service', () => {
+    const u = new NagiosCore();
+    const e = new MockAbstractEnvironment();
+    e.loadCallback = (url, user, passwd): Promise<string> => {
+      if (url.indexOf('hostlist') > -1) {
+        const hostdata = {
+          data: {
+            hostlist: {
+              host1 : {
+                name: 'host1',
+                status: 4,
+                plugin_output: '',
+                problem_has_been_acknowledged: false,
+                state_type: 1,
+              },
+              host2 : {
+                name: 'host2',
+                status: 4,
+                plugin_output: '',
+                problem_has_been_acknowledged: true,
+                state_type: 0,
+              },
+            }
+          }
+        };
+        return Promise.resolve(JSON.stringify(hostdata));
+      }
+      if (url.indexOf('servicelist') > -1) {
+        const servicedata = {
+          data: {
+            servicelist: {
+              host1: {
+                service1: {
+                  host_name: 'host1',
+                  description: '',
+                  status: 16,
+                  last_check: 1521236816000,
+                  plugin_output: '',
+                  problem_has_been_acknowledged: false,
+                  state_type: 1,
+                }
+              },
+              host2: {
+                service2: {
+                  host_name: 'host2',
+                  description: '',
+                  status: 16,
+                  last_check: 1521236816000,
+                  plugin_output: '',
+                  problem_has_been_acknowledged: true,
+                  state_type: 0,
+                }
+              },
+            }
+          }
+        };
+        return Promise.resolve(JSON.stringify(servicedata));
+      }
+      fail('loadCallback not configured for ', url);
+      return Promise.reject('No');
+    };
+    const settings: ImoinMonitorInstance = {
+      icingaversion: 'nagioshtml',
+      instancelabel: 'unittest',
+      url: '/unittest',
+      timerPeriod: 5,
+      username: 'user',
+      password: 'pass',
+    };
+    u.init(e, settings, 0);
+    return u.fetchStatus().then((r) => {
+      expect(r.hosts).to.have.lengthOf(2);
+      expect(r.hosts[0].isInSoftState).to.eq(false);
+      expect(r.hosts[1].isInSoftState).to.eq(true);
+      expect(r.hosts[0].services[0].isInSoftState).to.eq(false);
+      expect(r.hosts[1].services[0].isInSoftState).to.eq(true);
     });
   });
 });

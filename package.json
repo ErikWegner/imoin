@@ -1,6 +1,6 @@
 {
   "name": "imoin",
-  "version": "21.0.0",
+  "version": "21.1.0",
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
@@ -59,10 +59,9 @@
     "karma-jasmine-sinon": "^1.0.4",
     "mocha": "^4.0.1",
     "sinon": "^4.0.1",
-    "ts-node": "^3.3.0",
+    "ts-node": "^6.0.0",
     "tslint": "^5.9.1",
     "typescript": "^2.6.1",
-    "typings": "^2.1.1",
     "web-ext": "^1.8.1",
     "webpack": "^3.8.1",
     "webpack-stream": "^4.0.0"

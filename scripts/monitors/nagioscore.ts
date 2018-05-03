@@ -3,12 +3,18 @@ import { AbstractMonitor } from './AbstractMonitor';
 import { UICommand } from '../UICommand';
 import { Constants } from '../constants';
 
+enum NagiosStateType {
+  SOFT = 0,
+  HARD = 1
+}
+
 interface IHostJsonData {
   data: {
     hostlist: {
       [hostname: string]: {
         name: string,
         status: number,
+        state_type: NagiosStateType,
         plugin_output: string,
         problem_has_been_acknowledged: boolean,
       }
@@ -25,6 +31,7 @@ interface IServiceJsonData {
           description: string,
           status: number,
           last_check: number,
+          state_type: NagiosStateType,
           plugin_output: string,
           problem_has_been_acknowledged: boolean,
         }
@@ -105,6 +112,7 @@ export class NagiosCore extends AbstractMonitor {
       host.setState(hostdatahost.status === 2 ? 'UP' : 'DOWN');
       host.checkresult = hostdatahost.plugin_output;
       host.hasBeenAcknowledged = hostdatahost.problem_has_been_acknowledged;
+      host.isInSoftState = hostdatahost.state_type === 0;
       m.addHost(host);
     });
 
@@ -126,6 +134,7 @@ export class NagiosCore extends AbstractMonitor {
             service.checkresult = 'Check did not run yet.';
           }
           service.hasBeenAcknowledged = servicedataservice.problem_has_been_acknowledged;
+          service.isInSoftState = servicedataservice.state_type === 0;
           service.host = host.name;
           host.addService(service);
         }

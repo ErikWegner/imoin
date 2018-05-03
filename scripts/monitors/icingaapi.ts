@@ -5,6 +5,11 @@ import Status = Monitor.Status;
 import { Settings } from '../Settings';
 import { UICommand } from '../UICommand';
 
+enum IcingaStateType {
+    SOFT = 0,
+    HARD = 1
+  }
+
 export interface IHostJsonData {
     results: Array<{
         attrs: {
@@ -13,7 +18,8 @@ export interface IHostJsonData {
             last_check_result: {
                 state: number
                 output: string
-            }
+            },
+            state_type?: IcingaStateType,
         }
         name: string
     }>;
@@ -28,7 +34,8 @@ export interface IServiceJsonData {
                 /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
                 state: number
                 output: string
-            }
+            },
+            state_type?: IcingaStateType,
         }
         name: string
     }>;
@@ -57,6 +64,7 @@ export class IcingaApi extends AbstractMonitor {
             host.instanceindex = index;
             hostByName[host.name] = host;
             host.setState(hostdatahost.attrs.last_check_result.state === 0 ? 'UP' : 'DOWN');
+            host.isInSoftState = hostdatahost.attrs.state_type === 0;
             host.checkresult = hostdatahost.attrs.last_check_result.output;
             if (hostdatahost.attrs.acknowledgement > 0) {
                 host.hasBeenAcknowledged = true;
@@ -82,6 +90,7 @@ export class IcingaApi extends AbstractMonitor {
                 if (jsonservice.attrs.acknowledgement > 0) {
                     service.hasBeenAcknowledged = true;
                 }
+                service.isInSoftState = jsonservice.attrs.state_type === 0;
                 host.addService(service);
             }
         });
@@ -125,17 +134,24 @@ export class IcingaApi extends AbstractMonitor {
 
     protected hostAttrs() {
         const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
-        /*if (this.settings.filtersettings) {
+        if (this.settings.filtersettings) {
             const f = this.settings.filtersettings;
-            if (f.filterOutAcknowledged) {
-                attrs.push('acknowledgement');
+            if (f.filterOutSoftStates) {
+                attrs.push('state_type');
             }
-        }*/
+        }
 
         return attrs.map((attr) => 'attrs=' + attr).join('&');
     }
+
     protected serviceAttrs() {
         const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
+        if (this.settings.filtersettings) {
+            const f = this.settings.filtersettings;
+            if (f.filterOutSoftStates) {
+                attrs.push('state_type');
+            }
+        }
 
         return attrs.map((attr) => 'attrs=' + attr).join('&');
     }
