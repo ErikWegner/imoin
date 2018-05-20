@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "imoin-beta",
-  "version": "22.0.0alpha11",
+  "version": "22.0.0alpha12",
 
   "description": "Monitor your icinga or nagios instance.",
 
@@ -26,6 +26,8 @@
   },
 
   "options_ui": {
+    "browser_style": true,
+    "open_in_tab": true,
     "page": "html/options.html"
   },
 

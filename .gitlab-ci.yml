@@ -25,6 +25,9 @@ install:
   script: yarn install
 
 firefox-package:
+  only:
+    refs:
+      - master
   stage: package
   script: yarn run sign:firefox
   artifacts:
@@ -44,6 +47,9 @@ karma:
   script: yarn run test:karma
 
 betaupload:
+  only:
+    refs:
+      - master
   stage: betaupload
   artifacts:
     paths:
