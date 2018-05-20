@@ -1,0 +1,59 @@
+# Official framework image. Look for the different tagged releases at:
+# https://hub.docker.com/r/library/node/tags/
+#image: node:8-alpine
+image: rastasheep/alpine-node-chromium:8-alpine
+
+# This folder is cached between builds
+# http://docs.gitlab.com/ce/ci/yaml/README.html#cache
+cache:
+  paths:
+  - node_modules/
+
+stages:
+  - prepare
+  - test
+  - package
+  - betaupload
+
+before_script:
+  - node -v
+  - npm -v
+  - npm install -g yarn
+
+install:
+  stage: prepare
+  script: yarn install
+
+firefox-package:
+  stage: package
+  script: yarn run sign:firefox
+  artifacts:
+    paths:
+    - release/firefox/web-ext-artifacts
+
+lint:
+  stage: test
+  script: yarn run lint
+
+mocha:
+  stage: test
+  script: yarn run test:mocha
+
+karma:
+  stage: test
+  script: yarn run test:karma
+
+betaupload:
+  stage: betaupload
+  artifacts:
+    paths:
+    - release/firefox/web-ext-artifacts
+  script:
+    - mkdir -p ~/.ssh
+    - which ssh-agent || ( apk --update add openssh-client )
+    - eval $(ssh-agent -s)
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - echo "$STAGING_PRIVATE_KEY" | ssh-add -
+    - echo "$MANIFEST_PRIVATE_KEY" | ssh-add -
+    - scp release/firefox/web-ext-artifacts/*.xpi $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
+    - ssh -l $DEPLOY_USER $DEPLOY_HOST $DEPLOY_PATH/create-manifest.py

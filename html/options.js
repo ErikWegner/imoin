@@ -1,5 +1,5 @@
-var hosttype = chrome ? 'chrome' : browser ? 'browser' : 'na'
-var host = chrome || browser;
+var hosttype = (typeof(chrome) !== "undefined" && chrome) ? 'chrome' : (typeof(browser) !== "undefined" && browser) ? 'browser' : 'na';
+var host = (typeof(chrome) !== "undefined" && chrome) || (typeof(browser) !== "undefined" && browser);
 // Edge browser
 if (typeof browser !== "undefined" && browser.runtime !== null) {
   host = browser;

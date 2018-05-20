@@ -8,6 +8,8 @@ describe('options html', () => {
   const updateDOMforFiltersSpy = sinon.spy(window, 'updateDOMforFilters');
   const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
 
+  const numberOfFilterOptions = 2;
+
   beforeEach(() => {
     // Re-Init global variables
     instances = [];
@@ -225,7 +227,7 @@ describe('options html', () => {
     updateDOMforFilters();
     
     expect(a0).toBe(0);
-    expect(setCheckboxValueStub.callCount).toBe(1);
+    expect(setCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
     expect(setCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
   });
 
@@ -330,7 +332,8 @@ describe('options html', () => {
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
     const emptyFiltersettings = {
-      filterOutAcknowledged: false
+      filterOutAcknowledged: false,
+      filterOutSoftStates: false
     };
     expect(arg[0].instances).toBe(JSON.stringify(
       [

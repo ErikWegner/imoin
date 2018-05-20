@@ -1,8 +1,8 @@
 {
 
   "manifest_version": 2,
-  "name": "imoin",
-  "version": "21.1.1",
+  "name": "imoin-beta",
+  "version": "22.0.0alpha11",
 
   "description": "Monitor your icinga or nagios instance.",
 
@@ -38,7 +38,8 @@
 
   "applications": {
     "gecko": {
-      "id": "imoin_we@ewus.de",
+      "id": "imoin_we_beta@ewus.de",
+      "update_url": "https://imoin.qwirl.eu/imoin-beta.json",
       "strict_min_version": "45.0"
     }
   }
