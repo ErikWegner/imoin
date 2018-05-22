@@ -11,6 +11,7 @@
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
     "lint": "tslint -c tslint.json scripts/*.ts scripts/**/*.ts tests/*.ts tests/**/*.ts",
     "demoserver": "node test/data/server.js",
+    "panel-dev": "cross-env NODE_ENV=development webpack-dev-server --config html/webpack.config.js --content-base html --open-page panel-dev.html --open --hot",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bump-minor",
     "build:firefox": "gulp firefox",
