@@ -12,6 +12,16 @@ const path = require('path');
 let tsProject;
 let targetpaths = {};
 
+gulp.task('panel', function() {
+    process.env.NODE_ENV = 'production';
+    const wpconfig = require('./html/webpack.config.js');
+    wpconfig.output.path = path.resolve(__dirname, targetpaths.target, 'html');
+
+    return gulp.src('html/main.js')
+        .pipe(webpack(wpconfig))
+        .pipe(gulp.dest(wpconfig.output.path));
+})
+
 gulp.task('ts-scripts', function () {
     const wpconfig = require('./webpack.config.js');
     wpconfig.entry.index = './' + tsProject;
@@ -56,7 +66,7 @@ gulp.task('copy-icons', function () {
 
 gulp.task('copy-html', function () {
     return gulp
-        .src(['html/**/*'])
+        .src(['html/**/*', '!html/**/*.vue'])
         .pipe(gulp.dest(targetpaths.html))
 })
 
@@ -65,6 +75,7 @@ gulp.task('firefox', [
     'copy-icons',
     'ts-scripts',
     'copy-html',
+    'panel',
 ], function () {
     return es.concat(
         gulp
@@ -80,6 +91,7 @@ gulp.task('chrome', [
     'copy-icons',
     'ts-scripts',
     'copy-html',
+    'panel',
 ], function () {
     return es.concat(
         gulp
@@ -95,6 +107,7 @@ gulp.task('edge', [
     'copy-icons',
     'ts-scripts',
     'copy-html',
+    'panel',
 ], function () {
     return es.concat(
         gulp
@@ -110,6 +123,7 @@ gulp.task('opera', [
     'copy-icons',
     'ts-scripts',
     'copy-html',
+    'panel',
 ], function () {
     return es.concat(
         gulp
@@ -126,7 +140,7 @@ gulp.task('firefox-watch', [
 ], function () {
 
     gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
+    gulp.watch('html/**', ['copy-html','panel',])
 
 });
 
@@ -136,7 +150,7 @@ gulp.task('chrome-watch', [
 ], function () {
 
     gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
+    gulp.watch('html/**', ['copy-html','panel',])
 
 });
 
@@ -146,7 +160,7 @@ gulp.task('edge-watch', [
 ], function () {
 
     gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
+    gulp.watch('html/**', ['copy-html','panel',])
 
 });
 
@@ -156,7 +170,7 @@ gulp.task('opera-watch', [
 ], function () {
 
     gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
+    gulp.watch('html/**', ['copy-html','panel',])
 
 });
 

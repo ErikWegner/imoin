@@ -23,8 +23,12 @@ describe('options html', () => {
     getCheckboxValueStub.reset();
     setCheckboxValueStub.reset();
     documentQuerySelectorStub.reset();
+    documentQuerySelectorStub.withArgs('input[name = "paneldesign"]:checked').returns({ value: '1' });
     documentGetElementsByClassNameStub.reset();
     documentGetElementByIdStub.withArgs('fontsize').returns({ value: "100" });
+    documentGetElementByIdStub.withArgs('paneldesign1').returns({ checked: false });
+    documentGetElementByIdStub.withArgs('paneldesign2').returns({ checked: false });
+    
     loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
     port = {
       postMessage: sinon.spy(),

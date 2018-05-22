@@ -36,16 +36,30 @@
   ],
   "author": "Erik Wegner",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "vue": "^2.5.11"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
   "devDependencies": {
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.53",
     "@types/sinon": "^2.3.6",
     "awesome-typescript-loader": "^3.4.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-3": "^6.24.1",
     "chai": "^4.1.2",
+    "cross-env": "^5.0.5",
+    "css-loader": "^0.28.7",
     "event-stream": "^3.3.4",
     "express": "^4.16.2",
+    "file-loader": "^1.1.4",
     "gulp": "^3.9.1",
     "gulp-bump": "^2.7.0",
     "gulp-clean": "^0.3.2",
@@ -62,8 +76,11 @@
     "ts-node": "^6.0.0",
     "tslint": "^5.9.1",
     "typescript": "^2.6.1",
+    "vue-loader": "^13.0.5",
+    "vue-template-compiler": "^2.4.4",
     "web-ext": "^1.8.1",
     "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.1",
     "webpack-stream": "^4.0.0"
   }
 }
