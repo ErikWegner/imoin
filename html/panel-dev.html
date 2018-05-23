@@ -10,8 +10,78 @@
 </head>
 
 <body>
-        <div id="app"></div>
+    <div id="app"></div>
 </body>
 <script src="panel.js" type="text/javascript"></script>
 <p class="bg-dark-red light-yellow">DEVELOPMENT</p>
+<div>
+    <button type="button" id="btndesign1">Design 1</button>
+    <button type="button" id="btndesign2">Design 2</button>
+    <button type="button" id="btnupdate">Update</button>
+</div>
+<script type="text/javascript">
+    /* A random number between 0 and max */
+    function rf(max) {
+        return Math.floor(Math.random() * max)
+    }
+
+    /* A random text */
+    function rt(prefix) {
+        let r = prefix + '-';
+        for (let c = 0; c < 12; c++) {
+            r += String.fromCharCode(97 + rf(26))
+        }
+        return r;
+    }
+
+    function createService(data) {
+        const servicename = rt('Service');
+        const s = {
+            name: servicename,
+            host: data.hostname
+        }
+    }
+
+    function createServices(count, data) {
+        const r = [];
+        for (let c = 0; c < count; c++) {
+            r.push(createService(data));
+        }
+        return r;
+    }
+
+    function createHost() {
+        const hostname = rt('Host');
+        const h = {
+            name: hostname,
+            services: createServices(rf(4), { hostname })
+        }
+
+        return h;
+    }
+    function createHosts(count) {
+        const r = [];
+        for (let c = 0; c < count; c++) {
+            r.push(createHost());
+        }
+        return r;
+    }
+
+    document.getElementById('btndesign1').addEventListener('click', () => {
+        panelapp.design = 1
+    });
+    document.getElementById('btndesign2').addEventListener('click', () => {
+        panelapp.design = 2
+    });
+
+    document.getElementById('btnupdate').addEventListener('click', () => {
+        // Create a random status update
+        const o = {
+            instanceLabel: rt('Instance'),
+            hosts: createHosts(5 + rf(4))
+        }
+        panelapp.paneldata = o
+    });
+</script>
+
 </html>
