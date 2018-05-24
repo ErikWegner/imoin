@@ -1,18 +1,24 @@
 <template>
 <div>
-  <p>
-    Basic Design!<br>
-    <button v-on:click="counter += 1">Add 1</button>
-  </p>
-  <p>The button above has been clicked {{ counter }} times.</p>
+  <error-message v-if="paneldata.message" :message="paneldata.message"></error-message>
+  <main-display :paneldata="paneldata"></main-display>
 </div>
 </template>
+
 <script>
+import ErrorMessage from './error.vue';
+import MainDisplay from './main.vue';
+
 export default {
- data() {
-   return {
-     counter: 0
-   }
- } 
-}
+  props: {
+    paneldata: {
+      type: Object,
+      required: true
+    }
+  },
+  components: {
+    ErrorMessage,
+    MainDisplay
+  }
+};
 </script>

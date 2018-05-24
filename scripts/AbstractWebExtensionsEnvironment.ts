@@ -31,6 +31,9 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
             if (storedSettings.sounds) {
                 settings.sounds = JSON.parse(storedSettings.sounds);
             }
+            if (storedSettings.paneldesign) {
+                settings.paneldesign = storedSettings.paneldesign;
+            }
         }
 
         // Remove trailing slash for all instances
@@ -39,7 +42,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         return settings;
     }
 
-    protected static optionKeys = ['instances', 'fontsize', 'sounds'];
+    protected static optionKeys = ['instances', 'fontsize', 'sounds', 'paneldesign'];
 
     protected portFromPanel: Port;
     protected abstract host: WebExtensionBrowser;
@@ -148,14 +151,15 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
     protected trySendDataToPopup() {
         if (this.portFromPanel) {
-            this.portFromPanel.postMessage(
-                { command: 'ProcessStatusUpdate', data: this.dataBuffer });
             this.portFromPanel.postMessage({
                 command: 'uisettings',
                 data: {
-                    fontsize: this.settings.fontsize
+                    fontsize: this.settings.fontsize,
+                    design: this.settings.paneldesign,
                 }
             });
+            this.portFromPanel.postMessage(
+                { command: 'ProcessStatusUpdate', data: this.dataBuffer });
         }
     }
 

@@ -5,7 +5,7 @@ module.exports = {
   entry: './html/main.js',
   output: {
     path: path.resolve(__dirname, './dist'),
-    publicPath: '/',
+    publicPath: '/html',
     filename: 'panel.js'
   },
   module: {
@@ -46,6 +46,11 @@ module.exports = {
     extensions: ['*', '.js', '.vue', '.json']
   },
   devServer: {
+    proxy: {
+      '/icons': {
+
+      }
+    },
     historyApiFallback: true,
     noInfo: true,
     overlay: true

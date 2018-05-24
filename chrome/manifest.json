@@ -1,8 +1,8 @@
 {
 
   "manifest_version": 2,
-  "name": "imoin",
-  "version": "21.1.0",
+  "name": "imoin-beta",
+  "version": "22.0.0",
 
   "description": "Monitor your icinga or nagios instance.",
 
@@ -17,7 +17,6 @@
   },
 
   "browser_action": {
-    "browser_style": false,
     "default_popup": "html/panel.html",
     "default_title": "imoin",
     "default_icon": {

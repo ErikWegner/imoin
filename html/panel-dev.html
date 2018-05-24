@@ -5,83 +5,126 @@
 <head>
     <meta charset="utf-8" />
     <title>imoin panel</title>
-    <link href="panel.css" type="text/css" rel="stylesheet">
     <link href="tachyons.min.css" type="text/css" rel="stylesheet">
 </head>
 
 <body>
+    <p class="tc">
+        <button type="button" id="btndesign1">Design 1</button>
+        <button type="button" id="btndesign2">Design 2</button>
+        <button type="button" id="btnupdate">Update</button>
+        <button type="button" id="btnupdateerr">Errors</button>
+    </p>
+    <p class="bg-dark-red light-yellow tc">↓↓↓ PREVIEW ↓↓↓</p>
     <div id="app"></div>
+    <script src="panel.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        /* A random number between 0 and max */
+        function rf(max) {
+            return Math.floor(Math.random() * max)
+        }
+
+        /* A random text */
+        function rt(prefix) {
+            let r = prefix + '-';
+            for (let c = 0; c < 12; c++) {
+                r += String.fromCharCode(97 + rf(26))
+            }
+            return r;
+        }
+
+        /* A random boolean */
+        function rb() {
+            return rf(2) == 0;
+        }
+
+        /* A random value from the given array */
+        function ra(arr) {
+            return arr[rf(arr.length)];
+        }
+
+        function createService(data) {
+            const servicename = rt('Service');
+            const s = {
+                name: servicename,
+                host: data.hostname,
+                appearsInShortlist: rb(),
+                status: ra(['OK', 'WARNING', 'CRITICAL']),
+                checkresult: rt('service-checkresult'),
+            }
+            return s;
+        }
+
+        function createServices(count, data) {
+            const r = [];
+            for (let c = 0; c < count; c++) {
+                r.push(createService(data));
+            }
+            return r;
+        }
+
+        function createHost() {
+            const hostname = rt('Host');
+            const h = {
+                name: hostname,
+                services: createServices(rf(4), { hostname }),
+                appearsInShortlist: rb(),
+                status: ra(['UP', 'DOWN']),
+                checkresult: rt('host-checkresult'),
+                instanceindex: rf(2),
+            }
+
+            return h;
+        }
+        function createHosts(count) {
+            const r = [];
+            for (let c = 0; c < count; c++) {
+                r.push(createHost());
+            }
+            return r;
+        }
+
+        document.getElementById('btndesign1').addEventListener('click', () => {
+            panelapp.design = 1
+        });
+        document.getElementById('btndesign2').addEventListener('click', () => {
+            panelapp.design = 2
+        });
+
+        function update(hasMessages) {
+            // Create a random status update
+            const o = {
+                instanceLabel: rt('Instance'),
+                updatetime: '2018-05-24 07:53:29',
+                hosts: createHosts(5 + rf(4)),
+                hostup: rf(25),
+                hosterrors: rf(5),
+                serviceok: rf(170),
+                servicewarnings: rf(25),
+                serviceerrors: rf(10),
+                instances: {
+                    1: {
+                        instancelabel: 'Instance 1',
+                        updatetime: '2018-03-15 17:23:08'
+                    },
+                    2: {
+                        instancelabel: 'Instance 2'
+                    }
+                }
+            }
+            if (hasMessages) {
+                o.message = rt('message1-') + '\n' + rt('message2-');
+            }
+            panelapp.paneldata = o
+        }
+
+        document.getElementById('btnupdate').addEventListener('click', () => {
+            update(false);
+        });
+
+        document.getElementById('btnupdateerr').addEventListener('click', () => {
+            update(true);
+        });
+    </script>
 </body>
-<script src="panel.js" type="text/javascript"></script>
-<p class="bg-dark-red light-yellow">DEVELOPMENT</p>
-<div>
-    <button type="button" id="btndesign1">Design 1</button>
-    <button type="button" id="btndesign2">Design 2</button>
-    <button type="button" id="btnupdate">Update</button>
-</div>
-<script type="text/javascript">
-    /* A random number between 0 and max */
-    function rf(max) {
-        return Math.floor(Math.random() * max)
-    }
-
-    /* A random text */
-    function rt(prefix) {
-        let r = prefix + '-';
-        for (let c = 0; c < 12; c++) {
-            r += String.fromCharCode(97 + rf(26))
-        }
-        return r;
-    }
-
-    function createService(data) {
-        const servicename = rt('Service');
-        const s = {
-            name: servicename,
-            host: data.hostname
-        }
-    }
-
-    function createServices(count, data) {
-        const r = [];
-        for (let c = 0; c < count; c++) {
-            r.push(createService(data));
-        }
-        return r;
-    }
-
-    function createHost() {
-        const hostname = rt('Host');
-        const h = {
-            name: hostname,
-            services: createServices(rf(4), { hostname })
-        }
-
-        return h;
-    }
-    function createHosts(count) {
-        const r = [];
-        for (let c = 0; c < count; c++) {
-            r.push(createHost());
-        }
-        return r;
-    }
-
-    document.getElementById('btndesign1').addEventListener('click', () => {
-        panelapp.design = 1
-    });
-    document.getElementById('btndesign2').addEventListener('click', () => {
-        panelapp.design = 2
-    });
-
-    document.getElementById('btnupdate').addEventListener('click', () => {
-        // Create a random status update
-        const o = {
-            instanceLabel: rt('Instance'),
-            hosts: createHosts(5 + rf(4))
-        }
-        panelapp.paneldata = o
-    });
-</script>
-
 </html>
