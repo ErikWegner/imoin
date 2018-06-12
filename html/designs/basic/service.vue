@@ -41,11 +41,15 @@ export default {
 }
 
 .status.WARNING {
-    background-color: #ffa500;
+    background-color: #fffb00;
 }
 
 .status.CRITICAL {
     background-color: #f33;
+}
+
+.status.UNKNOWN {
+    background-color: #d88b18;
 }
 
 .actions {

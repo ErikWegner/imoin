@@ -49,7 +49,7 @@
                 name: servicename,
                 host: data.hostname,
                 appearsInShortlist: rb(),
-                status: ra(['OK', 'WARNING', 'CRITICAL']),
+                status: ra(['OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'PENDING']),
                 checkresult: rt('service-checkresult'),
             }
             return s;
@@ -69,7 +69,7 @@
                 name: hostname,
                 services: createServices(rf(4), { hostname }),
                 appearsInShortlist: rb(),
-                status: ra(['UP', 'DOWN']),
+                status: ra(['UP', 'DOWN', 'PENDING', 'UNREACHABLE']),
                 checkresult: rt('host-checkresult'),
                 instanceindex: rf(2),
             }

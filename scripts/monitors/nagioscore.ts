@@ -8,6 +8,35 @@ enum NagiosStateType {
   HARD = 1
 }
 
+function NagiosHostStateToHostState(hoststate: number): Monitor.HostState {
+  switch (hoststate) {
+    case 1: return 'PENDING';
+    case 2: return 'UP';
+    case 4: return 'DOWN';
+    case 8: return 'UNREACHABLE';
+  }
+  return 'DOWN';
+}
+
+function NagiosServiceStateToServiceState(servicestate: number): Monitor.ServiceState {
+  switch (servicestate) {
+    case 1: return 'PENDING';
+    case 2: return 'OK';
+    case 4: return 'WARNING';
+    case 8: return 'UNKNOWN';
+    case 16: return 'CRITICAL';
+  }
+  return 'UNKNOWN';
+}
+
+enum NagiosServiceState {
+  Pending = 1,
+  Ok = 2,
+  Warning = 4,
+  Unknown = 8,
+  Critical = 16,
+}
+
 interface IHostJsonData {
   data: {
     hostlist: {
@@ -109,7 +138,7 @@ export class NagiosCore extends AbstractMonitor {
       const host = new Monitor.Host(hostdatahost.name);
       host.instanceindex = index;
       hostByName[host.name] = host;
-      host.setState(hostdatahost.status === 2 ? 'UP' : 'DOWN');
+      host.setState(NagiosHostStateToHostState(hostdatahost.status));
       host.checkresult = hostdatahost.plugin_output;
       host.hasBeenAcknowledged = hostdatahost.problem_has_been_acknowledged;
       host.isInSoftState = hostdatahost.state_type === 0;
@@ -123,16 +152,8 @@ export class NagiosCore extends AbstractMonitor {
         const host = hostByName[servicedataservice.host_name];
         if (host) {
           const service = new Monitor.Service(servicedataservice.description);
-          if (servicedataservice.last_check !== 0) {
-            if (servicedataservice.status === 2) {
-              service.setState('OK');
-            } else if (servicedataservice.status === 4) {
-              service.setState('WARNING');
-            }
-            service.checkresult = servicedataservice.plugin_output;
-          } else {
-            service.checkresult = 'Check did not run yet.';
-          }
+          service.setState(NagiosServiceStateToServiceState(servicedataservice.status));
+          service.checkresult = servicedataservice.plugin_output;
           service.hasBeenAcknowledged = servicedataservice.problem_has_been_acknowledged;
           service.isInSoftState = servicedataservice.state_type === 0;
           service.host = host.name;

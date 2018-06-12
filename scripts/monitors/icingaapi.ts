@@ -77,10 +77,14 @@ export class IcingaApi extends AbstractMonitor {
             if (host) {
                 const service = new Monitor.Service(jsonservice.attrs.display_name);
                 if (jsonservice.attrs.last_check_result) {
+                    // tslint:disable-next-line:max-line-length
+                    // taken from https://github.com/Icinga/icinga2/blob/master/lib/icinga/checkresult.ti#L42
                     if (jsonservice.attrs.last_check_result.state === 0) {
                         service.setState('OK');
                     } else if (jsonservice.attrs.last_check_result.state === 1) {
                         service.setState('WARNING');
+                    } else if (jsonservice.attrs.last_check_result.state === 3) {
+                        service.setState('UNKNOWN');
                     }
                     service.checkresult = jsonservice.attrs.last_check_result.output;
                 } else {

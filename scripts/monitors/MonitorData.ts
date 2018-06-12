@@ -3,8 +3,8 @@ import { FHost } from './filters';
 
 // tslint:disable-next-line:no-namespace
 export namespace Monitor {
-    export type HostState = 'UP' | 'DOWN';
-    export type ServiceState = 'OK' | 'WARNING' | 'CRITICAL';
+    export type HostState = 'PENDING' | 'UP' | 'DOWN' | 'UNREACHABLE';
+    export type ServiceState = 'PENDING' | 'OK' | 'WARNING' | 'UNKNOWN' | 'CRITICAL';
 
     export enum Status {
         GREEN,
@@ -228,8 +228,10 @@ export namespace Monitor {
             }
 
             const servicecounters: {[key in ServiceState]: number } = {
+                PENDING: 0,
                 OK: 0,
                 WARNING: 0,
+                UNKNOWN : 0,
                 CRITICAL: 0
             };
 

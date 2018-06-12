@@ -63,8 +63,17 @@ export default {
 .status.UP {
   background-color: #3f3;
 }
+
 .status.DOWN {
   background-color: #f33;
+}
+
+.status.PENDING {
+  background-color: #acacac;
+}
+
+.status.UNREACHABLE {
+  background-color: #e0e0e0;
 }
 
 .actions {
