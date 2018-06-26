@@ -31,7 +31,7 @@ class TestCaseBuilder extends TestCaseBuilderBase {
 }
 
 describe(
-  'filterNotificationDisabled',
+  'filterAcknowledged',
   testcases(
     filterAcknowledged,
     () => TestCaseBuilder.withEnabledFilter())
