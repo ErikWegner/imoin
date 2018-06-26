@@ -21,6 +21,11 @@ export class ServiceBuilder {
     return this;
   }
 
+  public notificationsDisabled() {
+    this.service.notificationsDisabled = true;
+    return this;
+  }
+
   public inSoftState(): any {
     this.service.isInSoftState = true;
     return this;
