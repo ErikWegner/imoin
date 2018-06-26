@@ -21,6 +21,11 @@ export class LoadCallbackBuilder {
     return this;
   }
 
+  public disableNotifications(): any {
+    this.activeHost.notificationsDisabled = true;
+    return this;
+  }
+
   public softState() {
     this.activeHost.isInSoftState = true;
     return this;
@@ -58,6 +63,7 @@ export class LoadCallbackBuilder {
             attrs: {
               acknowledgement: host.hasBeenAcknowledged ? 1.0 : 0.0,
               display_name: host.name,
+              enable_notifications: !host.notificationsDisabled,
               last_check_result: {
                 state: host.getState() === 'UP' ? 0 : 1,
                 output: ''
@@ -80,6 +86,7 @@ export class LoadCallbackBuilder {
             attrs: {
               acknowledgement: service.hasBeenAcknowledged ? 1 : 0,
               display_name: service.name,
+              enable_notifications: !service.notificationsDisabled,
               last_check_result: {
                 /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
                 state: 0,

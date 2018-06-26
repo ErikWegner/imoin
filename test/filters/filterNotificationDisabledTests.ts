@@ -1,5 +1,5 @@
 import 'mocha';
-import { filterAcknowledged } from '../../scripts/monitors/filters';
+import { filterNotificationDisabled } from '../../scripts/monitors/filters';
 import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
 import { TestCaseBuilderBase } from './testcasebuilderbase';
 import { testcases } from './testcases';
@@ -10,29 +10,29 @@ class TestCaseBuilder extends TestCaseBuilderBase {
     return new TestCaseBuilder(true);
   }
 
-  protected filter = filterAcknowledged;
+  protected filter = filterNotificationDisabled;
 
   protected enable(sb: FilterSettingsBuilder): void {
-    sb.filterOutAcknowledged();
+    sb.filterOutNotificationDisabled();
   }
 
   protected setFlagTextAndFilterIndicatorOnHost() {
     this.flagText = 'with disabled notifications';
-    this.b.HasBeenAcknowledged();
+    this.b.disableNotifications();
   }
 
   protected generateServiceTextWhenFilterIndicatorIsSet(): string {
-    return 'acknowledged ' + this.servicetext;
+    return this.servicetext + ' with notifications disabled';
   }
 
   protected setServiceFilterIndicator(sb: ServiceBuilder) {
-    sb.hasBeenAcknowledged();
+    sb.notificationsDisabled();
   }
 }
 
 describe(
   'filterNotificationDisabled',
   testcases(
-    filterAcknowledged,
+    filterNotificationDisabled,
     () => TestCaseBuilder.withEnabledFilter())
 );

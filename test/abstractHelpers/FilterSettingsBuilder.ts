@@ -45,6 +45,11 @@ export class FilterSettingsBuilder {
     return this;
   }
 
+  public filterOutNotificationDisabled() {
+    this.filtersettings.filterOutDisabledNotifications = true;
+    return this;
+  }
+
   public build() {
     return this.filtersettings;
   }

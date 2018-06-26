@@ -15,6 +15,7 @@ export interface IHostJsonData {
         attrs: {
             acknowledgement?: number
             display_name: string
+            enable_notifications: boolean
             last_check_result: {
                 state: number
                 output: string
@@ -30,6 +31,7 @@ export interface IServiceJsonData {
         attrs: {
             acknowledgement?: number
             display_name: string
+            enable_notifications: boolean
             last_check_result: {
                 /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
                 state: number
