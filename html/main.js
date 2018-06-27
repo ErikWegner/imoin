@@ -3,11 +3,11 @@ import Basic from './designs/basic/imoin-root.vue'
 import MJTable from './designs/mjtable/imoin-root.vue'
 
 function log(a,b) {
-    if (b) {
-        console.log(a,b);
-    } else {
-        console.log(a);
-    }
+    // if (b) {
+    //     console.log(a,b);
+    // } else {
+    //     console.log(a);
+    // }
 }
 
 const panelapp = window.panelapp = new Vue({

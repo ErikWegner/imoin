@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="tc">
   <table class="main" style="vertical-align:top; display: inline-block; margin-right: 1em" cellspacing="0">
     <tr>
       <th colspan="2">Service status</th>
@@ -27,49 +27,3 @@ export default {
   },  
 }
 </script>
-
-<style scoped>
-div {
-  text-align: center;
-}
-.main th {
-    font-size: 110%;
-}
-
-.main td {
-    font-size: 100%;
-    color: black;
-    text-shadow: white 1px 1px 1px;
-}
-
-.main th {
-    color: black;
-    background-color: #bbb;
-    text-shadow: white 1px 1px 1px;
-}
-
-.main .OK, .main .UP {
-    background-color: #3f3;
-}
-
-.main .CRIT, .main .DOWN {
-    background-color: #f33;
-}
-
-.main .WARN {
-    background-color: #ffa500;
-}
-
-.main .num {
-    text-align: right;
-}
-
-.main .updatetime {
-    font-size: 75%;
-    text-align: center;
-}
-
-.main .space {
-    height: 1ex;
-}
-</style>

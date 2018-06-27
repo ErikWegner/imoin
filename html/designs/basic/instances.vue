@@ -26,31 +26,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.instance {
-    padding: 0.5ex;
-}
-.instancename {
-    font-size: 160%;
-}
-.instance:hover {
-    background-color: #eef;
-    border-radius: 1ex;
-}
-.instanceupdatetime {
-    float: right;
-    margin-top: 0.5ex;    
-}
-.actions {
-    float: right;
-    width: 6em;
-    text-align: right;
-    margin-top: 0.5ex;
-    padding-right: 1ex;
-}
-
-.refresh {
-    cursor: pointer;
-}
-</style>

@@ -82,7 +82,6 @@ input[type=radio]:checked + label {
     float: right;
     width: 6em;
     text-align: right;
-    display: inline-block;
     margin-top: 0.5ex;
     padding-right: 1ex;
 }
@@ -90,7 +89,6 @@ input[type=radio]:checked + label {
 .status {
     float: right;
     width: 6em;
-    display: inline-block;
     text-align: center;
     margin-top: 0.5ex;
 }
@@ -101,12 +99,24 @@ input[type=radio]:checked + label {
 }
 
 .status.WARNING {
-    background-color: #ffa500;
+    background-color: #fffb00;
 }
 
 .status.CRITICAL,
 .status.DOWN {
     background-color: #f33;
+}
+
+.status.UNKNOWN {
+    background-color: #d88b18;
+}
+
+.status.PENDING {
+    background-color: #acacac;
+  }
+  
+.status.UNREACHABLE {
+    background-color: #e0e0e0;
 }
 
 * body {
@@ -138,7 +148,7 @@ input[type=radio]:checked + label {
 }
 
 .main .WARN {
-    background-color: #ffa500;
+    background-color: #fffb00;
 }
 
 .main .num {

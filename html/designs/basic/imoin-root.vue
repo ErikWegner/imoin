@@ -1,13 +1,13 @@
 <template>
 <div>
   <template v-if="paneldata.message || paneldata.hosts">
-  <p class="center"><button type="button" v-on:click="refresh">↺ Refresh</button></p>
+  <p class="tc"><button type="button" v-on:click="refresh">↺ Refresh</button></p>
   <error-message v-if="paneldata.message" :message="paneldata.message"></error-message>
   <summary-display :paneldata="paneldata"></summary-display>
   <main-display :paneldata="paneldata"></main-display>
   </template>
   <template v-else>
-    <p class="center">
+    <p class="tc">
     Waiting for data to display.
     </p>
   </template>
@@ -38,9 +38,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.center {
-  text-align: center;
-}
-</style>
