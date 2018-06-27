@@ -2,7 +2,7 @@
   <div>
   <host-item
       v-for="host in paneldata.hosts"
-      v-if="host.appearsInShortlist || listtype != 'shortlist'"
+      v-show="host.appearsInShortlist || listtype != 'shortlist'"
       :key="host.name"
       :host="host"
       :listtype="listtype"
