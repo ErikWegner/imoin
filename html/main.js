@@ -2,11 +2,15 @@ import Vue from 'vue'
 import Basic from './designs/basic/imoin-root.vue'
 import MJTable from './designs/mjtable/imoin-root.vue'
 
-function log() {
-    console.log.apply(arguments);
+function log(a,b) {
+    if (b) {
+        console.log(a,b);
+    } else {
+        console.log(a);
+    }
 }
 
-window.panelapp = new Vue({
+const panelapp = window.panelapp = new Vue({
     el: '#app',
     data: {
         paneldata: {},
@@ -18,7 +22,6 @@ window.panelapp = new Vue({
         return createElement(target, { props: { paneldata: this.$data.paneldata } });
     }
 })
-
 
 window.postPanelMessage = function postPanelMessage(data) {
     // no-op
@@ -39,7 +42,6 @@ window.messageFromBackgroundPage = function messageFromBackgroundPage(message) {
 }
 
 if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
-
     // Web extension in Chrome or Firefox
     var host = chrome || browser;
     // Edge browser
@@ -72,7 +74,8 @@ function setupUISettings(data) {
 }
 
 function showAndUpdatePanelContent(data) {
-    window.panelapp.paneldata = data
+    log("showAndUpdatePanelContent", data);
+    panelapp.paneldata = data;
 }
 
 window.triggerRefresh = function triggerRefresh(e) {
