@@ -19,6 +19,10 @@
     <div id="app"></div>
     <script src="panel.js" type="text/javascript"></script>
     <script type="text/javascript">
+        /*
+         * This script part is for random data 
+         * */
+
         /* A random number between 0 and max */
         function rf(max) {
             return Math.floor(Math.random() * max)
@@ -102,6 +106,13 @@
                 serviceok: rf(170),
                 servicewarnings: rf(25),
                 serviceerrors: rf(10),
+                filteredServiceok: rf(170),
+                filteredServicewarnings: rf(25),
+                filteredServiceerrors: rf(10),
+                totalservices: rf(300),
+                filteredHostup: rf(25),
+                filteredHosterrors: rf(5),
+                totalhosts: rf(30),
                 instances: {
                     1: {
                         instancelabel: 'Instance 1',
@@ -115,7 +126,10 @@
             if (hasMessages) {
                 o.message = rt('message1-') + '\n' + rt('message2-');
             }
-            panelapp.paneldata = o
+            messageFromBackgroundPage({
+                command: 'ProcessStatusUpdate',
+                data: o
+            });
         }
 
         document.getElementById('btnupdate').addEventListener('click', () => {
@@ -125,6 +139,17 @@
         document.getElementById('btnupdateerr').addEventListener('click', () => {
             update(true);
         });
+    </script>
+    <script type="text/javascript">
+/*
+ * This script part emulates the panel environment, i. e. functions from main.js
+ */
+
+function postPanelMessage(message) {
+    alert("PostPanelMessage");
+    alert(JSON.stringify(message));
+}
+
     </script>
 </body>
 </html>

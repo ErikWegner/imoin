@@ -1,27 +1,45 @@
 import Vue from 'vue'
-//import App from './App.vue'
 import Basic from './designs/basic/imoin-root.vue'
 import MJTable from './designs/mjtable/imoin-root.vue'
 
+function log() {
+    console.log.apply(arguments);
+}
+
 window.panelapp = new Vue({
-  el: '#app',
-  data: {
-    paneldata: {},
-    design: 1
-  },
-  render: function(createElement) {
-    const target = this.design == 1 ? Basic : MJTable
-    return createElement(target, {props:{paneldata: this.$data.paneldata}});
-  }
+    el: '#app',
+    data: {
+        paneldata: {},
+        design: 1
+    },
+    render: function (createElement) {
+        log("render");
+        const target = this.design == 1 ? Basic : MJTable
+        return createElement(target, { props: { paneldata: this.$data.paneldata } });
+    }
 })
 
-function log(o) {
-    console.log(o);
+
+window.postPanelMessage = function postPanelMessage(data) {
+    // no-op
 }
-function postPanelMessage(data) {
+
+window.messageFromBackgroundPage = function messageFromBackgroundPage(message) {
+    log("messageFromBackgroundPage", message);
+    var command = message.command || "";
+    var data = message.data || {};
+
+    if (command === "ProcessStatusUpdate") {
+        showAndUpdatePanelContent(data);
+    }
+
+    if (command === "uisettings") {
+        setupUISettings(data);
+    }
 }
 
 if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
+
     // Web extension in Chrome or Firefox
     var host = chrome || browser;
     // Edge browser
@@ -31,21 +49,9 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
 
     // This script runs at the moment that the popup is displayed
     const myPort = host.runtime.connect();
-    myPort.onMessage.addListener(function (message) {
-        var command = message.command || "";
-        var data = message.data || {};
-        
-        if (command === "ProcessStatusUpdate") {
-            showAndUpdatePanelContent(data);
-        }
+    myPort.onMessage.addListener(messageFromBackgroundPage);
 
-        if (command === "uisettings") {
-            setupUISettings(data);
-        }
-
-    });
-
-    postPanelMessage = function (data) {
+    window.postPanelMessage = function (data) {
         myPort.postMessage(data);
     }
 } else if (typeof self === "object" && typeof self.addEventListener === "function") {
@@ -66,5 +72,43 @@ function setupUISettings(data) {
 }
 
 function showAndUpdatePanelContent(data) {
-    panelapp.paneldata = data
+    window.panelapp.paneldata = data
+}
+
+window.triggerRefresh = function triggerRefresh(e) {
+    const el = e.target;
+    const message = { command: "triggerRefresh" };
+    if (el) {
+        const parentElement = el.parentElement;
+        if (parentElement) {
+            const instanceindex = parentElement.getAttribute("data-instanceindex");
+            if (instanceindex != null) {
+                message['instanceindex'] = instanceindex;
+            }
+        }
+    }
+
+    window.postPanelMessage(message);
+}
+
+window.triggerCmdExec = function triggerCmdExec(e) {
+    const el = e.target;
+    if (el === null) return;
+
+    const command = el.getAttribute("data-command");
+
+    const parentElement = el.parentElement;
+    if (parentElement === null) return;
+
+    const hostname = parentElement.getAttribute("data-hostname");
+    const servicename = parentElement.getAttribute("data-servicename") || "";
+    const instanceindex = parentElement.getAttribute("data-instanceindex");
+
+    window.postPanelMessage({
+        command: "triggerCmdExec",
+        hostname: hostname,
+        servicename: servicename,
+        remoteCommand: command,
+        instanceindex: instanceindex
+    });
 }
