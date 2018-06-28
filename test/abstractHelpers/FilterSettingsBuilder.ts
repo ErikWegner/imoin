@@ -35,6 +35,11 @@ export class FilterSettingsBuilder {
     }
   }
 
+  public setup(f: (sb: FilterSettingsBuilder) => void) {
+    f(this);
+    return this;
+  }
+
   public filterOutAcknowledged() {
     this.filtersettings.filterOutAcknowledged = true;
     return this;

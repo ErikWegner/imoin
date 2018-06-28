@@ -1,21 +1,18 @@
-import { IEnvironment } from '../IEnvironment';
 import { Monitor } from './MonitorData';
 import { AbstractMonitor } from './AbstractMonitor';
-import Status = Monitor.Status;
-import { Settings } from '../Settings';
 import { UICommand } from '../UICommand';
 
-enum IcingaStateType {
+export enum IcingaStateType {
     SOFT = 0,
     HARD = 1
-  }
+}
 
 export interface IHostJsonData {
     results: Array<{
         attrs: {
             acknowledgement?: number
             display_name: string
-            enable_notifications: boolean
+            enable_notifications?: boolean
             last_check_result: {
                 state: number
                 output: string
@@ -31,7 +28,7 @@ export interface IServiceJsonData {
         attrs: {
             acknowledgement?: number
             display_name: string
-            enable_notifications: boolean
+            enable_notifications?: boolean
             last_check_result: {
                 /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
                 state: number
@@ -71,6 +68,10 @@ export class IcingaApi extends AbstractMonitor {
             if (hostdatahost.attrs.acknowledgement > 0) {
                 host.hasBeenAcknowledged = true;
             }
+            host.notificationsDisabled =
+                typeof hostdatahost.attrs.enable_notifications === 'undefined'
+                    ? false
+                    : !hostdatahost.attrs.enable_notifications;
             m.addHost(host);
         });
 
@@ -93,6 +94,10 @@ export class IcingaApi extends AbstractMonitor {
                     service.hasBeenAcknowledged = true;
                 }
                 service.isInSoftState = jsonservice.attrs.state_type === 0;
+                service.notificationsDisabled =
+                    typeof jsonservice.attrs.enable_notifications === 'undefined'
+                        ? false
+                        : !jsonservice.attrs.enable_notifications;
                 host.addService(service);
             }
         });
@@ -102,7 +107,7 @@ export class IcingaApi extends AbstractMonitor {
 
     public fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
-            (resolve, reject) => {
+            (resolve) => {
                 const hosturl = this.settings.url +
                     '/v1/objects/hosts?' + this.hostAttrs();
                 const servicesurl = this.settings.url +

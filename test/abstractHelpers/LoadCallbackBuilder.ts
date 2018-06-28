@@ -1,5 +1,5 @@
 import { ServiceBuilder } from './ServiceBuilder';
-import { Monitor, IHostJsonData, IServiceJsonData } from '../../scripts/monitors';
+import { Monitor, IHostJsonData, IServiceJsonData, IcingaStateType } from '../../scripts/monitors';
 import { ImoinMonitorInstance, IcingaOptionsVersion } from '../../scripts/Settings';
 
 export class LoadCallbackBuilder {
@@ -31,6 +31,11 @@ export class LoadCallbackBuilder {
     return this;
   }
 
+  public setup(f: (lcb: LoadCallbackBuilder) => void) {
+    f(this);
+    return this;
+  }
+
   public Service(
     name: string,
     servicesetup: (b: ServiceBuilder) => void
@@ -55,22 +60,35 @@ export class LoadCallbackBuilder {
   }
 
   public buildIcingaApi() {
+    function addAttributes(host: Monitor.Host, hostobject: any) {
+      if (host.hasBeenAcknowledged) {
+        hostobject.attrs['acknowledgement'] = 1.0;
+      }
+      if (host.isInSoftState) {
+        hostobject.attrs['state_type'] = IcingaStateType.SOFT;
+      }
+      if (host.notificationsDisabled) {
+        hostobject.attrs['enable_notifications'] = false;
+      }
+    }
+
     const hostdata = (): IHostJsonData => {
       return {
         results: Object.keys(this.hosts).map((hostkey) => {
           const host: Monitor.Host = this.hosts[hostkey];
-          return {
+          /* Setup common response attributes */
+          const hostobject: any = {
             attrs: {
-              acknowledgement: host.hasBeenAcknowledged ? 1.0 : 0.0,
               display_name: host.name,
-              enable_notifications: !host.notificationsDisabled,
               last_check_result: {
                 state: host.getState() === 'UP' ? 0 : 1,
                 output: ''
-              }
+              },
             },
             name: host.name
           };
+          addAttributes(host, hostobject);
+          return hostobject;
         })
       };
     };

@@ -25,6 +25,8 @@ describe('options html', () => {
     documentQuerySelectorStub.reset();
     documentGetElementsByClassNameStub.reset();
     documentGetElementByIdStub.withArgs('fontsize').returns({ value: "100" });
+    documentGetElementByIdStub.withArgs('paneldesign1').returns({ checked: false });
+    documentQuerySelectorStub.withArgs('input[name = "paneldesign"]:checked').returns({ value: 1 });
     loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
     port = {
       postMessage: sinon.spy(),
@@ -129,61 +131,55 @@ describe('options html', () => {
     expect(selectedInstance).toBe(2);
   });
 
-  it('should restore options and update DOM', (done) => {
-    restoreOptions().then(() => {
+  it('should restore options and update DOM', () => {
+    return restoreOptions().then(() => {
       expect(updateDOMforInstances.calledOnce).toBe(true);
-      done();
     });
   });
 
-  it('should restore with null argument', (done) => {
+  it('should restore with null argument', () => {
     loadOptions = sinon.stub().resolves(null);
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('Default');
-      done();
     });
   });
 
-  it('should restore with null value', (done) => {
+  it('should restore with null value', () => {
     loadOptions = sinon.stub().resolves({ instances: null });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('Default');
-      done();
     });
   });
 
-  it('should restore with empty storage', (done) => {
+  it('should restore with empty storage', () => {
     loadOptions = sinon.stub().resolves({ instances: '[]' });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('Default');
-      done();
     });
   });
 
-  it('should restore with filled storage', (done) => {
+  it('should restore with filled storage', () => {
     const r = [createInstance('should restore with filled storage instance')];
     loadOptions = sinon.stub().resolves({ instances: JSON.stringify(r) });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('should restore with filled storage instance');
-      done();
     });
   });
 
-  it('should restore 4 instances', (done) => {
+  it('should restore 4 instances', () => {
     loadOptions = sinon.stub().resolves({ instances: '[{"instancelabel":"Instance 0","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 1","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 2","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 3","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""}]' });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(4);
       expect(instances[2].instancelabel).toBe('Instance 2');
-      done();
     });
   });
 
@@ -214,10 +210,9 @@ describe('options html', () => {
     expect(i[0].filtersettings.filterOutAcknowledged).toBe(true);
   });
 
-  it('should restore options and update DOM for filters', (done) => {
-    restoreOptions().then(() => {
+  it('should restore options and update DOM for filters', () => {
+    return restoreOptions().then(() => {
       expect(updateDOMforFilters.calledOnce).toBe(true);
-      done();
     });
   });
 
@@ -496,14 +491,13 @@ describe('options html', () => {
       expect(c.hasAudioData).toBeFalsy();
     });
 
-    it('should restore settings from options', (done) => {
+    it('should restore settings from options', () => {
       loadOptions = sinon.stub().resolves({ sounds: '{"sGREEN":{"id":"sGREEN","filename":"","data":null},"xRED":{"id":"xRED","filename":"","data":null}}' });
       const stub = sinon.stub(SoundFileSelectors, 'setFiles');
-      restoreOptions().then(() => {
+      return restoreOptions().then(() => {
         expect(stub.callCount).toBe(1);
         expect(stub.args[0][0]).toEqual({ sGREEN: Object({ id: 'sGREEN', filename: '', data: null }), xRED: Object({ id: 'xRED', filename: '', data: null }) });
         stub.restore();
-        done();
       });
     });
 
