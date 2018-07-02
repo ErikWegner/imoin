@@ -173,7 +173,7 @@ describe('IcingaApi', () => {
           .Host('H1')
           .setup(options.setupHost)
           .Host('H2')
-          .Build('api1');
+          .BuildCallbacks('api1');
 
         e.loadCallback = loadCallback(data[0], data[1]);
 
@@ -198,7 +198,7 @@ describe('IcingaApi', () => {
         const data = new LoadCallbackBuilder()
           .Host('H1')
           .Host('H2')
-          .Build('api1');
+          .BuildCallbacks('api1');
 
         e.loadCallback = loadCallback(data[0], data[1]);
         u.init(e, settings, 0);
@@ -223,7 +223,7 @@ describe('IcingaApi', () => {
           .Host('H1')
           .Service('S1', options.setupService)
           .Service('S2', () => { /* no op */ })
-          .Build('api1');
+          .BuildCallbacks('api1');
 
         e.loadCallback = loadCallback(data[0], data[1]);
 

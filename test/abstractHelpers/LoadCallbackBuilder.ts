@@ -1,57 +1,10 @@
-import { ServiceBuilder } from './ServiceBuilder';
 import { Monitor, IHostJsonData, IServiceJsonData, IcingaStateType } from '../../scripts/monitors';
-import { ImoinMonitorInstance, IcingaOptionsVersion } from '../../scripts/Settings';
+import { IcingaOptionsVersion } from '../../scripts/Settings';
+import { MonitorStatusBuilder } from './MonitorStatusBuilder';
 
-export class LoadCallbackBuilder {
-  private hosts: { [name: string]: Monitor.Host } = {};
-  private activeHost: Monitor.Host = null;
+export class LoadCallbackBuilder extends MonitorStatusBuilder {
 
-  public Host(name: string) {
-    this.activeHost = this.hosts[name] = new Monitor.Host(name);
-    return this;
-  }
-
-  public Down() {
-    this.activeHost.setState('DOWN');
-    return this;
-  }
-
-  public HasBeenAcknowledged() {
-    this.activeHost.hasBeenAcknowledged = true;
-    return this;
-  }
-
-  public disableNotifications(): any {
-    this.activeHost.notificationsDisabled = true;
-    return this;
-  }
-
-  public softState() {
-    this.activeHost.isInSoftState = true;
-    return this;
-  }
-
-  public setup(f: (lcb: LoadCallbackBuilder) => void) {
-    f(this);
-    return this;
-  }
-
-  public Service(
-    name: string,
-    servicesetup: (b: ServiceBuilder) => void
-  ) {
-    const sb = ServiceBuilder
-      .create(name);
-    servicesetup(sb);
-    sb.addToHost(this.activeHost);
-    return this;
-  }
-
-  public GetHosts() {
-    return Object.keys(this.hosts).map((key) => this.hosts[key]);
-  }
-
-  public Build(i: IcingaOptionsVersion): string[] {
+  public BuildCallbacks(i: IcingaOptionsVersion): string[] {
     if (i === 'api1') {
       return this.buildIcingaApi();
     }

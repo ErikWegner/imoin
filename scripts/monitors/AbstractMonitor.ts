@@ -8,6 +8,7 @@ import {
     filterUp,
     filterAcknowledged,
     filterSoftStates,
+    filterNotificationDisabled,
 } from './filters';
 import { hostname } from 'os';
 
@@ -30,7 +31,8 @@ export abstract class AbstractMonitor implements IMonitor {
         result = filterUp(result);
         /* filterOutAcknowledged */
         result = filterAcknowledged(result, filtersettings);
-        // filterOutDisabledNotifications: boolean;
+        /* filterOutDisabledNotifications */
+        result = filterNotificationDisabled(result, filtersettings);
         // filterOutDisabledChecks: boolean;
         /* filterOutSoftStates */
         result = filterSoftStates(result, filtersettings);

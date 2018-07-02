@@ -35,4 +35,9 @@ export class ServiceBuilder {
     host.addService(this.service);
     return this;
   }
+
+  public setup(f: (sb: ServiceBuilder) => void) {
+    f(this);
+    return this;
+  }
 }
