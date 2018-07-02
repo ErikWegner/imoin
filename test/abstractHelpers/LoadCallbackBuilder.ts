@@ -40,6 +40,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
           plugin_output: '',
           problem_has_been_acknowledged: host.hasBeenAcknowledged,
           state_type: host.isInSoftState ? 0 : 1,
+          notifications_enabled: !host.notificationsDisabled,
         };
         r.data.hostlist[hostname] = hostobject;
       });
@@ -65,6 +66,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
             last_check: 0,
             status: service.getState() === 'OK' ? 2 : service.getState() === 'WARNING' ? 4 : 8,
             state_type: service.isInSoftState ? 0 : 1,
+            notifications_enabled: !service.notificationsDisabled,
           };
           });
         });
