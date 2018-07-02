@@ -10,7 +10,7 @@ import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
 
 describe('IcingaApi', () => {
   const baseurl = 'testurl/v1/objects/###?' +
-    'attrs=display_name&attrs=last_check_result&attrs=acknowledgement';
+    'attrs=display_name&attrs=last_check_result';
 
   function loadCallback(hostsdata: string, servicesdata: string) {
     return (url: string): Promise<string> => {
@@ -25,7 +25,7 @@ describe('IcingaApi', () => {
     };
   }
 
-  it('should use minimal query parameters for host request', (done) => {
+  it('should use minimal query parameters for host request', () => {
     const e = new MockAbstractEnvironment();
     const u = new IcingaApi();
     const requestUrls: string[] = [];
@@ -35,18 +35,17 @@ describe('IcingaApi', () => {
       return Promise.reject('');
     };
     u.init(e, settings, 0);
-    u
+    return u
       .fetchStatus()
       .then(() => {
         expect(requestUrls).to.have.lengthOf(2);
         if (requestUrls.length > 0) {
           expect(requestUrls[0]).to.equal(baseurl.replace('###', 'hosts'));
         }
-        done();
       });
   });
 
-  it('should use minimal query parameters for service request', (done) => {
+  it('should use minimal query parameters for service request', () => {
     const e = new MockAbstractEnvironment();
     const u = new IcingaApi();
     const requestUrls: string[] = [];
@@ -56,14 +55,13 @@ describe('IcingaApi', () => {
       return Promise.reject('');
     };
     u.init(e, settings, 0);
-    u
+    return u
       .fetchStatus()
       .then(() => {
         expect(requestUrls).to.have.lengthOf(2);
         if (requestUrls.length > 0) {
           expect(requestUrls[1]).to.equal(baseurl.replace('###', 'services'));
         }
-        done();
       });
   });
 
@@ -72,30 +70,38 @@ describe('IcingaApi', () => {
       setupFilterSettingsBuilder: (fsb: FilterSettingsBuilder) => void,
       setupHost: (lcb: LoadCallbackBuilder) => void,
       hostProperty: keyof Monitor.Host,
+      hostQueryParameter: string,
       setupService: (sb: ServiceBuilder) => void,
       serviceProperty: keyof Monitor.Service,
+      serviceQueryParameter: string,
     }
   } = {
     hasBeenAcknowledged: {
       setupFilterSettingsBuilder: (sb) => sb.filterOutAcknowledged(),
       setupHost: (lcb) => lcb.HasBeenAcknowledged(),
       hostProperty: 'hasBeenAcknowledged',
+      hostQueryParameter: 'acknowledgement',
       setupService: (sb) => sb.hasBeenAcknowledged(),
       serviceProperty: 'hasBeenAcknowledged',
+      serviceQueryParameter: 'acknowledgement'
     },
     softState: {
       setupFilterSettingsBuilder: (sb) => sb.filterOutSoftStates(),
       setupHost: (lcb) => lcb.softState(),
       hostProperty: 'isInSoftState',
+      hostQueryParameter: 'state_type',
       setupService: (sb) => sb.inSoftState(),
       serviceProperty: 'isInSoftState',
+      serviceQueryParameter: 'state_type',
     },
     notificationDisabled: {
       setupFilterSettingsBuilder: (sb) => sb.filterOutNotificationDisabled(),
       setupHost: (lcb) => lcb.disableNotifications(),
       hostProperty: 'notificationsDisabled',
+      hostQueryParameter: 'enable_notifications',
       setupService: (sb) => sb.notificationsDisabled(),
       serviceProperty: 'notificationsDisabled',
+      serviceQueryParameter: 'enable_notifications',
     },
   };
 
@@ -103,12 +109,65 @@ describe('IcingaApi', () => {
     const options = filterSettingsTests[description];
     describe(description, () => {
 
-      it('should set flag on host', () => {
-        const e = new MockAbstractEnvironment();
-        const u = new IcingaApi();
+      function buildSettings() {
         const settings = SettingsBuilder.create('api1').build();
         FilterSettingsBuilder.with(settings)
           .setup(options.setupFilterSettingsBuilder);
+        return settings;
+      }
+
+      it('should add attribute to host query', () => {
+        const e = new MockAbstractEnvironment();
+        const u = new IcingaApi();
+        const settings = buildSettings();
+
+        const requestUrls: string[] = [];
+        e.loadCallback = (url) => {
+          requestUrls.push(url);
+          return Promise.reject('');
+        };
+        u.init(e, settings, 0);
+        return u
+          .fetchStatus()
+          .then(() => {
+            expect(requestUrls).to.have.lengthOf(2);
+            if (requestUrls.length > 0) {
+              const expectedUrl = baseurl.replace('###', 'hosts') +
+                '&attrs=' +
+                options.hostQueryParameter;
+              expect(requestUrls[0]).to.equal(expectedUrl);
+            }
+          });
+      });
+
+      it('should add attribute to service query', () => {
+        const e = new MockAbstractEnvironment();
+        const u = new IcingaApi();
+        const settings = buildSettings();
+
+        const requestUrls: string[] = [];
+        e.loadCallback = (url) => {
+          requestUrls.push(url);
+          return Promise.reject('');
+        };
+        u.init(e, settings, 0);
+        return u
+          .fetchStatus()
+          .then(() => {
+            expect(requestUrls).to.have.lengthOf(2);
+            if (requestUrls.length > 0) {
+              const expectedUrl = baseurl.replace('###', 'services') +
+                '&attrs=' +
+                options.serviceQueryParameter;
+              expect(requestUrls[1]).to.equal(expectedUrl);
+            }
+          });
+      });
+
+      it('should set flag on host', () => {
+        const e = new MockAbstractEnvironment();
+        const u = new IcingaApi();
+        const settings = buildSettings();
 
         const data = new LoadCallbackBuilder()
           .Host('H1')
@@ -134,9 +193,7 @@ describe('IcingaApi', () => {
       it('should not set notificationDisabled on host when attribute is not in response', () => {
         const e = new MockAbstractEnvironment();
         const u = new IcingaApi();
-        const settings = SettingsBuilder.create('api1').build();
-        FilterSettingsBuilder.with(settings)
-          .filterOutSoftStates();
+        const settings = buildSettings();
 
         const data = new LoadCallbackBuilder()
           .Host('H1')
@@ -160,9 +217,7 @@ describe('IcingaApi', () => {
       it('should set flag on service', () => {
         const e = new MockAbstractEnvironment();
         const u = new IcingaApi();
-        const settings = SettingsBuilder.create('api1').build();
-        FilterSettingsBuilder.with(settings)
-          .setup(options.setupFilterSettingsBuilder);
+        const settings = buildSettings();
 
         const data = new LoadCallbackBuilder()
           .Host('H1')

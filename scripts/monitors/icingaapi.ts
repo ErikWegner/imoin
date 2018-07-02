@@ -140,11 +140,17 @@ export class IcingaApi extends AbstractMonitor {
     }
 
     protected hostAttrs() {
-        const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
+        const attrs = ['display_name', 'last_check_result'];
         if (this.settings.filtersettings) {
             const f = this.settings.filtersettings;
+            if (f.filterOutAcknowledged) {
+                attrs.push('acknowledgement');
+            }
             if (f.filterOutSoftStates) {
                 attrs.push('state_type');
+            }
+            if (f.filterOutDisabledNotifications) {
+                attrs.push('enable_notifications');
             }
         }
 
@@ -152,15 +158,7 @@ export class IcingaApi extends AbstractMonitor {
     }
 
     protected serviceAttrs() {
-        const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
-        if (this.settings.filtersettings) {
-            const f = this.settings.filtersettings;
-            if (f.filterOutSoftStates) {
-                attrs.push('state_type');
-            }
-        }
-
-        return attrs.map((attr) => 'attrs=' + attr).join('&');
+        return this.hostAttrs();
     }
 
     protected handleUICommand(param: UICommand): void {
