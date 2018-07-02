@@ -10,7 +10,6 @@ import {
     filterSoftStates,
     filterNotificationDisabled,
 } from './filters';
-import { hostname } from 'os';
 
 export abstract class AbstractMonitor implements IMonitor {
 

@@ -1,12 +1,12 @@
 import 'mocha';
 import { expect } from 'chai';
 import { fail } from 'assert';
-import { IcingaApi, Monitor } from '../scripts/monitors';
+import { IcingaApi } from '../scripts/monitors';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
 import { SettingsBuilder } from './abstractHelpers/SettingsBuilder';
 import { LoadCallbackBuilder } from './abstractHelpers/LoadCallbackBuilder';
-import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
+import { filterSettingsTests } from './filterSettingsTestsCommons';
 
 describe('IcingaApi', () => {
   const baseurl = 'testurl/v1/objects/###?' +
@@ -64,46 +64,6 @@ describe('IcingaApi', () => {
         }
       });
   });
-
-  const filterSettingsTests: {
-    [filterName: string]: {
-      setupFilterSettingsBuilder: (fsb: FilterSettingsBuilder) => void,
-      setupHost: (lcb: LoadCallbackBuilder) => void,
-      hostProperty: keyof Monitor.Host,
-      hostQueryParameter: string,
-      setupService: (sb: ServiceBuilder) => void,
-      serviceProperty: keyof Monitor.Service,
-      serviceQueryParameter: string,
-    }
-  } = {
-    hasBeenAcknowledged: {
-      setupFilterSettingsBuilder: (sb) => sb.filterOutAcknowledged(),
-      setupHost: (lcb) => lcb.HasBeenAcknowledged(),
-      hostProperty: 'hasBeenAcknowledged',
-      hostQueryParameter: 'acknowledgement',
-      setupService: (sb) => sb.hasBeenAcknowledged(),
-      serviceProperty: 'hasBeenAcknowledged',
-      serviceQueryParameter: 'acknowledgement'
-    },
-    softState: {
-      setupFilterSettingsBuilder: (sb) => sb.filterOutSoftStates(),
-      setupHost: (lcb) => lcb.softState(),
-      hostProperty: 'isInSoftState',
-      hostQueryParameter: 'state_type',
-      setupService: (sb) => sb.inSoftState(),
-      serviceProperty: 'isInSoftState',
-      serviceQueryParameter: 'state_type',
-    },
-    notificationDisabled: {
-      setupFilterSettingsBuilder: (sb) => sb.filterOutNotificationDisabled(),
-      setupHost: (lcb) => lcb.disableNotifications(),
-      hostProperty: 'notificationsDisabled',
-      hostQueryParameter: 'enable_notifications',
-      setupService: (sb) => sb.notificationsDisabled(),
-      serviceProperty: 'notificationsDisabled',
-      serviceQueryParameter: 'enable_notifications',
-    },
-  };
 
   Object.keys(filterSettingsTests).forEach((description) => {
     const options = filterSettingsTests[description];
@@ -164,7 +124,7 @@ describe('IcingaApi', () => {
           });
       });
 
-      it('should set flag on host', () => {
+      it('should set ' + description + ' on host', () => {
         const e = new MockAbstractEnvironment();
         const u = new IcingaApi();
         const settings = buildSettings();
@@ -190,7 +150,7 @@ describe('IcingaApi', () => {
           });
       });
 
-      it('should not set notificationDisabled on host when attribute is not in response', () => {
+      it('should not set ' + description + ' on host when attribute is not in response', () => {
         const e = new MockAbstractEnvironment();
         const u = new IcingaApi();
         const settings = buildSettings();
@@ -214,7 +174,7 @@ describe('IcingaApi', () => {
           });
       });
 
-      it('should set flag on service', () => {
+      it('should set ' + description + ' on service', () => {
         const e = new MockAbstractEnvironment();
         const u = new IcingaApi();
         const settings = buildSettings();

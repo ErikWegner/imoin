@@ -1,4 +1,12 @@
-import { Monitor, IHostJsonData, IServiceJsonData, IcingaStateType } from '../../scripts/monitors';
+import { Monitor, IcingaStateType } from '../../scripts/monitors';
+import {
+  IHostJsonData as IcingaHostJsonData,
+  IServiceJsonData as IcingaServiceJsonData
+} from '../../scripts/monitors/icingaapi';
+import {
+  IHostJsonData as NagiosCoreHostJsonData,
+  IServiceJsonData as NagiosCoreServiceJsonData
+} from '../../scripts/monitors/nagioscore';
 import { IcingaOptionsVersion } from '../../scripts/Settings';
 import { MonitorStatusBuilder } from './MonitorStatusBuilder';
 
@@ -9,7 +17,61 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
       return this.buildIcingaApi();
     }
 
+    if (i === 'nagioscore') {
+      return this.buildNagiosCore();
+    }
+
     throw new Error('Not implemented');
+  }
+
+  public buildNagiosCore() {
+    const hostdata = (): NagiosCoreHostJsonData => {
+      const r: NagiosCoreHostJsonData = {
+        data: {
+          hostlist: {}
+        }
+      };
+
+      Object.keys(this.hosts).map((hostname) => {
+        const host: Monitor.Host = this.hosts[hostname];
+        const hostobject: any = {
+          name: hostname,
+          status: host.getState() === 'UP' ? 0 : 1,
+          plugin_output: '',
+          problem_has_been_acknowledged: host.hasBeenAcknowledged,
+          state_type: host.isInSoftState ? 0 : 1,
+        };
+        r.data.hostlist[hostname] = hostobject;
+      });
+
+      return r;
+    };
+
+    const servicedata = (): NagiosCoreServiceJsonData => {
+      const r: NagiosCoreServiceJsonData = {
+        data: {
+          servicelist: {}
+        }
+      };
+      Object.keys(this.hosts).map((hostkey) => {
+        const host: Monitor.Host = this.hosts[hostkey];
+        r.data.servicelist[hostkey] = {};
+        host.services.forEach((service) => {
+          r.data.servicelist[hostkey][service.name] = {
+            host_name: host.name,
+            description: '',
+            plugin_output: '',
+            problem_has_been_acknowledged: service.hasBeenAcknowledged,
+            last_check: 0,
+            status: service.getState() === 'OK' ? 2 : service.getState() === 'WARNING' ? 4 : 8,
+            state_type: service.isInSoftState ? 0 : 1,
+          };
+          });
+        });
+      return r;
+    };
+
+    return [JSON.stringify(hostdata()), JSON.stringify(servicedata())];
   }
 
   public buildIcingaApi() {
@@ -25,7 +87,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
       }
     }
 
-    const hostdata = (): IHostJsonData => {
+    const hostdata = (): IcingaHostJsonData => {
       return {
         results: Object.keys(this.hosts).map((hostkey) => {
           const host: Monitor.Host = this.hosts[hostkey];
@@ -46,8 +108,8 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
       };
     };
 
-    const servicedata = (): IServiceJsonData => {
-      const a: IServiceJsonData = {
+    const servicedata = (): IcingaServiceJsonData => {
+      const a: IcingaServiceJsonData = {
         results: []
       };
       Object.keys(this.hosts).map((hostkey) => {

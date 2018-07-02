@@ -8,7 +8,7 @@ enum NagiosStateType {
   HARD = 1
 }
 
-interface IHostJsonData {
+export interface IHostJsonData {
   data: {
     hostlist: {
       [hostname: string]: {
@@ -22,7 +22,7 @@ interface IHostJsonData {
   };
 }
 
-interface IServiceJsonData {
+export interface IServiceJsonData {
   data: {
     servicelist: {
       [hostname: string]: {

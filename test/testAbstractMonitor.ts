@@ -11,6 +11,7 @@ import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
 import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
 import { HostBuilder } from './abstractHelpers/HostBuilder';
 import { MonitorStatusBuilder } from './abstractHelpers/MonitorStatusBuilder';
+import { filterSettingsTests } from './filterSettingsTestsCommons';
 
 describe('AbstractMonitor', () => {
   function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {
@@ -92,31 +93,8 @@ describe('AbstractMonitor', () => {
   });
 
   describe('filterStatus', () => {
-    const filterStatusTests: {
-      [filterName: string]: {
-        setupFilterSettingsBuilder: (fsb: FilterSettingsBuilder) => void,
-        setupHost: (hb: HostBuilder) => void,
-        setupService: (sb: ServiceBuilder) => void,
-      }
-    } = {
-      hasBeenAcknowledged: {
-        setupFilterSettingsBuilder: (sb) => sb.filterOutAcknowledged(),
-        setupHost: (hb) => hb.HasBeenAcknowledged(),
-        setupService: (sb) => sb.hasBeenAcknowledged(),
-      },
-      softState: {
-        setupFilterSettingsBuilder: (sb) => sb.filterOutSoftStates(),
-        setupHost: (hb) => hb.softState(),
-        setupService: (sb) => sb.inSoftState(),
-      },
-      notificationDisabled: {
-        setupFilterSettingsBuilder: (sb) => sb.filterOutNotificationDisabled(),
-        setupHost: (hb) => hb.disableNotifications(),
-        setupService: (sb) => sb.notificationsDisabled(),
-      },
-    };
-    Object.keys(filterStatusTests).forEach((description) => {
-      const options = filterStatusTests[description];
+    Object.keys(filterSettingsTests).forEach((description) => {
+      const options = filterSettingsTests[description];
 
       describe(description, () => {
         function buildSettings() {

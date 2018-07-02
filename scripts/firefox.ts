@@ -1,7 +1,6 @@
 import browser from './definitions/firefox-webextension';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
-import { Monitor } from './monitors';
 import { init } from './main';
 
 /**
