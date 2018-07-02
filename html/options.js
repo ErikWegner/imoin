@@ -11,11 +11,11 @@ let instances = [];
 let selectedInstance = -1;
 let fontsize = 100;
 let paneldesign = 1;
-let paneldesigncustomtemplate = "";
 
 const filterSettingsNames = [
   'filterOutAcknowledged',
-  'filterOutSoftStates'
+  'filterOutSoftStates',
+  'filterOutDisabledNotifications',
 ];
 
 /*    ---- Custom elements   ---- */
@@ -91,7 +91,6 @@ function restoreOptions() {
     selectedInstance = 0;
     fontsize = storageData.fontsize || fontsize;
     paneldesign = storageData.paneldesign || 1;
-    paneldesigncustomtemplate = storageData.paneldesigncustomtemplate || '';
     updateDOMforInstances();
     updateDOMforPanelFieldset();
     updateDOMforFilters();
@@ -173,7 +172,6 @@ function updateDOMforInstances() {
 function updateDOMforPanelFieldset() {
   document.getElementById('fontsize').value = fontsize;
   document.getElementById('paneldesign' + paneldesign).checked = true
-  document.getElementById('paneldesigncustomtemplate').value = paneldesigncustomtemplate;
 }
 
 function updateDOMforFilters() {
@@ -228,7 +226,6 @@ function saveOptions() {
     instances: JSON.stringify(instances),
     fontsize: parseInt(document.getElementById('fontsize').value),
     paneldesign: document.querySelector('input[name = "paneldesign"]:checked').value,
-    paneldesigncustomtemplate: document.getElementById('paneldesigncustomtemplate').value,
     sounds: JSON.stringify(SoundFileSelectors.getFiles())
   });
   var myPort = host.runtime.connect({ name: 'port-from-options' });
@@ -237,7 +234,7 @@ function saveOptions() {
 }
 
 function loadOptions() {
-  const optionKeys = ['instances', 'fontsize', 'sounds', 'paneldesign', 'paneldesigncustomtemplate'];
+  const optionKeys = ['instances', 'fontsize', 'sounds', 'paneldesign'];
   return new Promise((resolve, reject) => {
     if (!host.storage) {
       resolve(null);

@@ -8,7 +8,13 @@ describe('options html', () => {
   const updateDOMforFiltersSpy = sinon.spy(window, 'updateDOMforFilters');
   const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
 
-  const numberOfFilterOptions = 2;
+  const filterOptionsNames = [
+    'filterOutAcknowledged',
+    'filterOutSoftStates',
+    'filterOutDisabledNotifications',
+  ];
+
+  const numberOfFilterOptions = filterOptionsNames.length;
 
   beforeEach(() => {
     // Re-Init global variables
@@ -193,21 +199,25 @@ describe('options html', () => {
     expect(arg[0].instances).toBe(JSON.stringify(instances));
   });
 
-  it('should save filterOutAcknowledged value', () => {
-    const setSpy = host.storage.local.set;
-    addInstance();
-    getCheckboxValueStub.withArgs('#filterOutAcknowledged').returns(1);
+  filterOptionsNames.forEach((optionname, index) => {
+    it('should save ' + optionname + ' value', () => {
+      const setSpy = host.storage.local.set;
+      addInstance();
+      const elementId = '#' + optionname;
+      getCheckboxValueStub.withArgs(elementId).returns(1);
 
-    saveOptions();
+      saveOptions();
 
-    expect(setSpy.callCount).toBe(1);
-    expect(getCheckboxValueStub.called).toBe(true);
-    expect(getCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
-    const arg = setSpy.args[0];
-    const i = JSON.parse(arg[0].instances);
-    expect(i.length).toBe(1);
-    expect(i[0].filtersettings).toBeDefined();
-    expect(i[0].filtersettings.filterOutAcknowledged).toBe(true);
+      expect(setSpy.callCount).toBe(1);
+      expect(getCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
+      expect(getCheckboxValueStub.args[index][0]).toBe(elementId);
+
+      const arg = setSpy.args[0];
+      const i = JSON.parse(arg[0].instances);
+      expect(i.length).toBe(1);
+      expect(i[0].filtersettings).toBeDefined();
+      expect(i[0].filtersettings[optionname]).toBe(true);
+    });
   });
 
   it('should restore options and update DOM for filters', () => {
@@ -216,14 +226,17 @@ describe('options html', () => {
     });
   });
 
-  it('should set filterOutAcknowledged checkbox when updating DOM for filters', () => {
-    const a0 = setCheckboxValueStub.callCount;
-    
-    updateDOMforFilters();
-    
-    expect(a0).toBe(0);
-    expect(setCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
-    expect(setCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
+  filterOptionsNames.forEach((optionname, index) => {
+    it('should set ' + optionname + ' checkbox when updating DOM for filters', () => {
+      const a0 = setCheckboxValueStub.callCount;
+      const elementId = '#' + optionname;
+
+      updateDOMforFilters();
+
+      expect(a0).toBe(0);
+      expect(setCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
+      expect(setCheckboxValueStub.args[index][0]).toBe(elementId);
+    });
   });
 
   /**
@@ -326,10 +339,11 @@ describe('options html', () => {
 
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
-    const emptyFiltersettings = {
-      filterOutAcknowledged: false,
-      filterOutSoftStates: false
-    };
+    const emptyFiltersettings = {};
+    filterOptionsNames.forEach(
+      (optionname) => {
+        emptyFiltersettings[optionname] = false;
+      });
     expect(arg[0].instances).toBe(JSON.stringify(
       [
         {
