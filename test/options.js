@@ -12,6 +12,7 @@ describe('options html', () => {
     'filterOutAcknowledged',
     'filterOutSoftStates',
     'filterOutDisabledNotifications',
+    'filterOutDisabledChecks',
   ];
 
   const numberOfFilterOptions = filterOptionsNames.length;

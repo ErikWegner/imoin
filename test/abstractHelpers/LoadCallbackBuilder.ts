@@ -41,6 +41,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
           problem_has_been_acknowledged: host.hasBeenAcknowledged,
           state_type: host.isInSoftState ? 0 : 1,
           notifications_enabled: !host.notificationsDisabled,
+          checks_enabled: !host.checksDisabled,
         };
         r.data.hostlist[hostname] = hostobject;
       });
@@ -67,6 +68,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
             status: service.getState() === 'OK' ? 2 : service.getState() === 'WARNING' ? 4 : 8,
             state_type: service.isInSoftState ? 0 : 1,
             notifications_enabled: !service.notificationsDisabled,
+            checks_enabled: !service.checksDisabled,
           };
           });
         });
@@ -86,6 +88,9 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
       }
       if (host.notificationsDisabled) {
         hostobject.attrs['enable_notifications'] = false;
+      }
+      if (host.checksDisabled) {
+        hostobject.attrs['enable_active_checks'] = false;
       }
     }
 
@@ -117,7 +122,8 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
       Object.keys(this.hosts).map((hostkey) => {
         const host: Monitor.Host = this.hosts[hostkey];
         host.services.forEach((service) => {
-          a.results.push({
+          let servicedataattributes: {attrs: {[key: string]: any}, name: string};
+          a.results.push(servicedataattributes = {
             attrs: {
               acknowledgement: service.hasBeenAcknowledged ? 1 : 0,
               display_name: service.name,
@@ -131,6 +137,9 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
             },
             name: host.name + '!' + service.name
           });
+          if (service.checksDisabled) {
+            servicedataattributes.attrs['enable_active_checks'] = false;
+          }
         });
       });
       return a;

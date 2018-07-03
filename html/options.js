@@ -16,6 +16,7 @@ const filterSettingsNames = [
   'filterOutAcknowledged',
   'filterOutSoftStates',
   'filterOutDisabledNotifications',
+  'filterOutDisabledChecks',
 ];
 
 /*    ---- Custom elements   ---- */

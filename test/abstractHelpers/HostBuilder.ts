@@ -19,8 +19,13 @@ export class HostBuilder {
     return this;
   }
 
-  public disableNotifications(): any {
+  public disableNotifications() {
     this.activeHost.notificationsDisabled = true;
+    return this;
+  }
+
+  public disableChecks() {
+    this.activeHost.checksDisabled = true;
     return this;
   }
 

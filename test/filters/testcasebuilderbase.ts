@@ -5,21 +5,25 @@ import { Monitor } from '../../scripts/monitors';
 import { FHost } from '../../scripts/monitors/filters';
 import { expect } from 'chai';
 import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder';
+import { HostBuilder } from '../abstractHelpers/HostBuilder';
 
-export abstract class TestCaseBuilderBase {
+export class TestCaseBuilderBase {
   protected hostStatus = 'UP';
   protected servicetext = '';
   protected b = new LoadCallbackBuilder();
   protected s: FilterSettings;
   protected flagText = '';
-  protected abstract filter: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[];
 
-  constructor(enabled: boolean) {
+  constructor(
+    protected filter: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[],
+    setupFilterSettings: (sb: FilterSettingsBuilder) => void,
+    protected filterFlagText: string,
+    protected setupHost: (lcb: HostBuilder) => void,
+    protected setupService: (sb: ServiceBuilder) => void,
+  ) {
     const sb = FilterSettingsBuilder
-      .plain();
-    if (enabled) {
-      this.enable(sb);
-    }
+      .plain()
+      .setup(setupFilterSettings);
     this.s = sb.build();
   }
 
@@ -43,8 +47,8 @@ export abstract class TestCaseBuilderBase {
     this.b.Service(name, (sb) => {
       sb.withStatus(state);
       if (setIndicatorFlag) {
-        this.servicetext = this.generateServiceTextWhenFilterIndicatorIsSet();
-        this.setServiceFilterIndicator(sb);
+        this.servicetext = this.servicetext + ' ' + this.filterFlagText;
+        this.setupService(sb);
       }
     });
     return this;
@@ -61,11 +65,6 @@ export abstract class TestCaseBuilderBase {
   public shouldKeepHostWithService() {
     this.runTest(true, true);
   }
-
-  protected abstract enable(sb: FilterSettingsBuilder): void;
-  protected abstract setFlagTextAndFilterIndicatorOnHost(): void;
-  protected abstract generateServiceTextWhenFilterIndicatorIsSet(): string;
-  protected abstract setServiceFilterIndicator(sb: ServiceBuilder): void;
 
   protected runTest(keepHost: boolean, keepService: boolean) {
     const verbHost = keepHost ? 'keep' : 'remove';
@@ -100,7 +99,8 @@ export abstract class TestCaseBuilderBase {
       .Down()
       ;
     if (shouldSetFilterIndicator) {
-      this.setFlagTextAndFilterIndicatorOnHost();
+      this.flagText = this.filterFlagText;
+      this.b.setup(this.setupHost);
     }
 
     return this;

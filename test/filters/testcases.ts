@@ -1,18 +1,33 @@
+import { expect } from 'chai';
 import { FHost } from '../../scripts/monitors/filters';
 import { FilterSettings } from '../../scripts/Settings';
-import { expect } from 'chai';
 import { Monitor } from '../../scripts/monitors';
 import { TestCaseBuilderBase } from './testcasebuilderbase';
+import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
+import { HostBuilder } from '../abstractHelpers/HostBuilder';
+import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder';
 
 export function testcases(
   filter: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[],
-  testcasebuilder: () => TestCaseBuilderBase
+  setupFilterSettings: (sb: FilterSettingsBuilder) => void,
+  hostFlagText: string,
+  setupHost: (lcb: HostBuilder) => void,
+  setupService: (sb: ServiceBuilder) => void,
 ) {
   return () => {
+    function testcasebuilder() {
+      return new TestCaseBuilderBase(
+        filter,
+        setupFilterSettings,
+        hostFlagText,
+        setupHost,
+        setupService
+      );
+    }
+
     it('should accept null', () => {
       // Act
       const r = filter(null);
-
       // Assert
       // tslint:disable-next-line:no-unused-expression
       expect(r).to.be.null;

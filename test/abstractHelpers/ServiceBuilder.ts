@@ -26,6 +26,11 @@ export class ServiceBuilder {
     return this;
   }
 
+  public disableChecks() {
+    this.service.checksDisabled = true;
+    return this;
+  }
+
   public inSoftState(): any {
     this.service.isInSoftState = true;
     return this;

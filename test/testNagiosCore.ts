@@ -1,7 +1,6 @@
 import 'mocha';
 import { fail } from 'assert';
 import { expect } from 'chai';
-
 import { Monitor, NagiosCore } from '../scripts/monitors';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { ImoinMonitorInstance } from '../scripts/Settings';

@@ -1,6 +1,7 @@
 import { Monitor } from './MonitorData';
 import { AbstractMonitor } from './AbstractMonitor';
 import { UICommand } from '../UICommand';
+import { FilterSettings } from '../Settings';
 
 export enum IcingaStateType {
     SOFT = 0,
@@ -18,6 +19,7 @@ export interface IIcinga2HostJsonData {
                 output: string
             },
             state_type?: IcingaStateType,
+            enable_active_checks?: boolean,
         }
         name: string
     }>;
@@ -35,6 +37,7 @@ export interface IIcinga2ServiceJsonData {
                 output: string
             },
             state_type?: IcingaStateType,
+            enable_active_checks?: boolean,
         }
         name: string
     }>;
@@ -72,6 +75,10 @@ export class IcingaApi extends AbstractMonitor {
                 typeof hostdatahost.attrs.enable_notifications === 'undefined'
                     ? false
                     : !hostdatahost.attrs.enable_notifications;
+            host.checksDisabled =
+                typeof hostdatahost.attrs.enable_active_checks === 'undefined'
+                    ? false
+                    : !hostdatahost.attrs.enable_active_checks;
             m.addHost(host);
         });
 
@@ -98,6 +105,10 @@ export class IcingaApi extends AbstractMonitor {
                     typeof jsonservice.attrs.enable_notifications === 'undefined'
                         ? false
                         : !jsonservice.attrs.enable_notifications;
+                service.checksDisabled =
+                    typeof jsonservice.attrs.enable_active_checks === 'undefined'
+                        ? false
+                        : !jsonservice.attrs.enable_active_checks;
                 host.addService(service);
             }
         });
@@ -143,15 +154,22 @@ export class IcingaApi extends AbstractMonitor {
         const attrs = ['display_name', 'last_check_result'];
         if (this.settings.filtersettings) {
             const f = this.settings.filtersettings;
-            if (f.filterOutAcknowledged) {
-                attrs.push('acknowledgement');
-            }
-            if (f.filterOutSoftStates) {
-                attrs.push('state_type');
-            }
-            if (f.filterOutDisabledNotifications) {
-                attrs.push('enable_notifications');
-            }
+
+            const queryParamToFilterSetting: { [key: string]: keyof FilterSettings } = {
+                acknowledgement: 'filterOutAcknowledged',
+                state_type: 'filterOutSoftStates',
+                enable_notifications: 'filterOutDisabledNotifications',
+                enable_active_checks: 'filterOutDisabledChecks',
+            };
+
+            Object
+                .keys(queryParamToFilterSetting)
+                .forEach((queryparam) => {
+                    const filterSettingsKey = queryParamToFilterSetting[queryparam];
+                    if (f[filterSettingsKey]) {
+                        attrs.push(queryparam);
+                    }
+                });
         }
 
         return attrs.map((attr) => 'attrs=' + attr).join('&');

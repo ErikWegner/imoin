@@ -55,6 +55,11 @@ export class FilterSettingsBuilder {
     return this;
   }
 
+  public filterOutDisabledChecks(): any {
+    this.filtersettings.filterOutDisabledChecks = true;
+    return this;
+  }
+
   public build() {
     return this.filtersettings;
   }
