@@ -1,11 +1,11 @@
 import { Monitor, IcingaStateType } from '../../scripts/monitors';
 import {
-  IHostJsonData as IcingaHostJsonData,
-  IServiceJsonData as IcingaServiceJsonData
+  IIcinga2HostJsonData as IcingaHostJsonData,
+  IIcinga2ServiceJsonData as IcingaServiceJsonData
 } from '../../scripts/monitors/icingaapi';
 import {
-  IHostJsonData as NagiosCoreHostJsonData,
-  IServiceJsonData as NagiosCoreServiceJsonData
+  INagiosCoreHostJsonData as NagiosCoreHostJsonData,
+  INagiosCoreServiceJsonData as NagiosCoreServiceJsonData
 } from '../../scripts/monitors/nagioscore';
 import { IcingaOptionsVersion } from '../../scripts/Settings';
 import { MonitorStatusBuilder } from './MonitorStatusBuilder';

@@ -8,7 +8,7 @@ enum NagiosStateType {
   HARD = 1
 }
 
-export interface IHostJsonData {
+export interface INagiosCoreHostJsonData {
   data: {
     hostlist: {
       [hostname: string]: {
@@ -23,7 +23,7 @@ export interface IHostJsonData {
   };
 }
 
-export interface IServiceJsonData {
+export interface INagiosCoreServiceJsonData {
   data: {
     servicelist: {
       [hostname: string]: {
@@ -97,8 +97,8 @@ export class NagiosCore extends AbstractMonitor {
   }
 
   protected processData(
-    hostdata: IHostJsonData,
-    servicedata: IServiceJsonData
+    hostdata: INagiosCoreHostJsonData,
+    servicedata: INagiosCoreServiceJsonData
   ): Monitor.MonitorData {
     if (hostdata == null || servicedata == null) {
       return Monitor.ErrorMonitorData('Result empty');

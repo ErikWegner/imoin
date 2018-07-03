@@ -7,7 +7,7 @@ export enum IcingaStateType {
     HARD = 1
 }
 
-export interface IHostJsonData {
+export interface IIcinga2HostJsonData {
     results: Array<{
         attrs: {
             acknowledgement?: number
@@ -23,7 +23,7 @@ export interface IHostJsonData {
     }>;
 }
 
-export interface IServiceJsonData {
+export interface IIcinga2ServiceJsonData {
     results: Array<{
         attrs: {
             acknowledgement?: number
@@ -42,8 +42,8 @@ export interface IServiceJsonData {
 
 export class IcingaApi extends AbstractMonitor {
     public static processData(
-        hostdata: IHostJsonData,
-        servicedata: IServiceJsonData,
+        hostdata: IIcinga2HostJsonData,
+        servicedata: IIcinga2ServiceJsonData,
         index: number
     ): Monitor.MonitorData {
         if (
