@@ -126,7 +126,7 @@ describe('AbstractMonitor', () => {
           ]);
         });
 
-        it('should filter ' + description + ' hosts (filteredState is UP)', () => {
+        it('should apply filter ' + description + ' to hosts (filteredState is UP)', () => {
           const status = new MonitorStatusBuilder()
             .Host('H1').Down()
             .Host('H2').Down()
@@ -242,6 +242,29 @@ describe('AbstractMonitor', () => {
           // S6 has a problem and problem is not acknowledged
           expect(result[1].getHost().services[2].appearsInShortlist).to.eq(true);
         });
+      });
+    });
+  });
+
+  describe('filterServicesOnDownHosts', () => {
+    it('should apply filter', () => {
+      const status = new MonitorStatusBuilder()
+        .Host('H1').Down()
+        .Host('H2').Down().Service('S1', (b) => b.withStatus('WARNING'))
+        .Host('H3').Down().Service('S2', (b) => b.withStatus('CRITICAL'))
+        .Host('H4')
+        .BuildStatus();
+
+      const filtersettings = FilterSettingsBuilder
+        .plain()
+        .filterOutServicesOnDownHosts() // only DOWN hosts
+        .build();
+
+      const result = AbstractMonitor.applyFilters(status, filtersettings);
+
+      expect(result).to.have.lengthOf(4);
+      result.forEach((fhost) => {
+        expect(fhost.getFServices()).to.have.lengthOf(0);
       });
     });
   });

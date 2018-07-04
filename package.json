@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run test:mocha && npm run test:karma",
     "test:mocha": "mocha -r ts-node/register test/test*.ts test/filters/*Tests.ts",
-    "test:mocha:watch": "mocha -w --watch-extensions ts -r ts-node/register test/test*.ts test/filters/*Tests.ts",
+    "test:mocha:watch": "mocha -R min -w --watch-extensions ts -r ts-node/register test/test*.ts test/filters/*Tests.ts",
     "test:karma": "karma start karma.conf.js",
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
     "lint": "tslint -c tslint.json scripts/*.ts scripts/**/*.ts tests/*.ts tests/**/*.ts",

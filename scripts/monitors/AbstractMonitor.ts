@@ -10,6 +10,7 @@ import {
     filterSoftStates,
     filterNotificationDisabled,
     filterChecksDisabled,
+    filterServicesOnDownHosts,
 } from './filters';
 
 export abstract class AbstractMonitor implements IMonitor {
@@ -38,7 +39,8 @@ export abstract class AbstractMonitor implements IMonitor {
         /* filterOutSoftStates */
         result = filterSoftStates(result, filtersettings);
         // filterOutDowntime: boolean;
-        // filterOutServicesOnDownHosts: boolean;
+        /* filterOutServicesOnDownHosts */
+        result = filterServicesOnDownHosts(result, filtersettings);
         // filterOutServicesOnAcknowledgedHosts: boolean;
         // filterOutFlapping: boolean;
         // filterOutAllDown: boolean;

@@ -7,7 +7,7 @@ import {
   filterAcknowledged,
   filterSoftStates,
   filterNotificationDisabled,
-  filterChecksDisabled
+  filterChecksDisabled,
 } from '../scripts/monitors/filters';
 import { FilterSettings } from '../scripts/Settings';
 

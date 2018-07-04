@@ -1,4 +1,3 @@
-import { Monitor } from '../MonitorData';
 import { FilterSettings } from '../../Settings';
 import { FHost } from '.';
 

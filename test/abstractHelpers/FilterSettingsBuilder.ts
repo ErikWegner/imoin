@@ -55,8 +55,13 @@ export class FilterSettingsBuilder {
     return this;
   }
 
-  public filterOutDisabledChecks(): any {
+  public filterOutDisabledChecks() {
     this.filtersettings.filterOutDisabledChecks = true;
+    return this;
+  }
+
+  public filterOutServicesOnDownHosts() {
+    this.filtersettings.filterOutServicesOnDownHosts = true;
     return this;
   }
 

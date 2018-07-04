@@ -17,6 +17,7 @@ const filterSettingsNames = [
   'filterOutSoftStates',
   'filterOutDisabledNotifications',
   'filterOutDisabledChecks',
+  'filterServicesOnDownHosts',
 ];
 
 /*    ---- Custom elements   ---- */
