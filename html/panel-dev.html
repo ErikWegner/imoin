@@ -72,7 +72,7 @@
             const hostname = rt('Host');
             const h = {
                 name: hostname,
-                services: createServices(rf(4), { hostname }),
+                services: createServices(rf(40), { hostname }),
                 appearsInShortlist: rb(),
                 status: ra(['UP', 'DOWN', 'PENDING', 'UNREACHABLE']),
                 checkresult: rt('host-checkresult'),
@@ -101,7 +101,7 @@
             const o = {
                 instanceLabel: rt('Instance'),
                 updatetime: '2018-05-24 07:53:29',
-                hosts: createHosts(5 + rf(4)),
+                hosts: createHosts(500),
                 hostup: rf(25),
                 hosterrors: rf(5),
                 serviceok: rf(170),
