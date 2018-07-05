@@ -11,6 +11,7 @@ import {
     filterNotificationDisabled,
     filterChecksDisabled,
     filterServicesOnDownHosts,
+    filterServicesOnAcknowledgedHosts,
 } from './filters';
 
 export abstract class AbstractMonitor implements IMonitor {
@@ -41,7 +42,8 @@ export abstract class AbstractMonitor implements IMonitor {
         // filterOutDowntime: boolean;
         /* filterOutServicesOnDownHosts */
         result = filterServicesOnDownHosts(result, filtersettings);
-        // filterOutServicesOnAcknowledgedHosts: boolean;
+        /* filterOutServicesOnAcknowledgedHosts */
+        result = filterServicesOnAcknowledgedHosts(result, filtersettings);
         // filterOutFlapping: boolean;
         // filterOutAllDown: boolean;
         // filterOutAllUnreachable: boolean;

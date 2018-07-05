@@ -13,7 +13,8 @@ describe('options html', () => {
     'filterOutSoftStates',
     'filterOutDisabledNotifications',
     'filterOutDisabledChecks',
-    'filterServicesOnDownHosts',
+    'filterOutServicesOnDownHosts',
+    'filterOutServicesOnAcknowledgedHosts',
   ];
 
   const numberOfFilterOptions = filterOptionsNames.length;

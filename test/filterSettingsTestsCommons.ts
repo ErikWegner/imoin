@@ -57,7 +57,7 @@ export const filterSettingsTests: {
     filterFunction: filterNotificationDisabled,
     filterFlagText: 'with notifications disabled',
   },
-  filterOutDisabledChecks: {
+  filterChecksDisabled: {
     setupFilterSettingsBuilder: (sb) => sb.filterOutDisabledChecks(),
     setupHost: (lcb) => lcb.disableChecks(),
     hostProperty: 'checksDisabled',

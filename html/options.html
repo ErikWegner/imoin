@@ -95,10 +95,18 @@
       </div>
       <div class="filter">
         <div class="td">
-          <input type="checkbox" id="filterServicesOnDownHosts" name="filterServicesOnDownHosts" />
+          <input type="checkbox" id="filterOutServicesOnDownHosts" name="filterOutServicesOnDownHosts" />
         </div>
         <div class="td">
-          <label for="filterServicesOnDownHosts">No alarm and no highlighting for services whose hosts are down or unreachable (Icinga API, Nagios Core).</label>
+          <label for="filterOutServicesOnDownHosts">No alarm and no highlighting for services whose hosts are down or unreachable (Icinga API, Nagios Core).</label>
+        </div>
+      </div>
+      <div class="filter">
+        <div class="td">
+          <input type="checkbox" id="filterOutServicesOnAcknowledgedHosts" name="filterOutServicesOnAcknowledgedHosts" />
+        </div>
+        <div class="td">
+          <label for="filterOutServicesOnAcknowledgedHosts">No alarm and no highlighting for services whose hosts have been acknowledged (Icinga API, Nagios Core).</label>
         </div>
       </div>
     </fieldset>

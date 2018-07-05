@@ -246,7 +246,7 @@ describe('AbstractMonitor', () => {
     });
   });
 
-  describe('filterServicesOnDownHosts', () => {
+  describe('filterOutServicesOnDownHosts', () => {
     it('should apply filter', () => {
       const status = new MonitorStatusBuilder()
         .Host('H1').Down()
@@ -265,6 +265,35 @@ describe('AbstractMonitor', () => {
       expect(result).to.have.lengthOf(4);
       result.forEach((fhost) => {
         expect(fhost.getFServices()).to.have.lengthOf(0);
+      });
+    });
+  });
+
+  describe('filterOutServicesOnAcknowledgedHosts', () => {
+    it('should apply filter', () => {
+      const status = new MonitorStatusBuilder()
+        .Host('H1').Down()
+        .Host('H2').HasBeenAcknowledged().Service('S1', (b) => b.withStatus('WARNING'))
+        .Host('H3').Service('S2', (b) => b.withStatus('CRITICAL'))
+        .Host('H4')
+        .Host('H5').Service('S1', (b) => b.withStatus('WARNING'))
+        .Host('H6').HasBeenAcknowledged().Service('S2', (b) => b.withStatus('CRITICAL'))
+        .Host('H7').HasBeenAcknowledged()
+        .BuildStatus();
+
+      const filtersettings = FilterSettingsBuilder
+        .plain()
+        .filterOutServicesOnAcknowledgedHosts()
+        .build();
+
+      const result = AbstractMonitor.applyFilters(status, filtersettings);
+
+      const resultHostsAndServices: { [hostname: string]: number } = {};
+      result.forEach(
+        (host) => resultHostsAndServices[host.getHost().name] = host.getFServices().length
+      );
+      expect(resultHostsAndServices).to.deep.equal({
+        H1: 0, H2: 0, H3: 1, H4: 0, H5: 1, H6: 0, H7: 0
       });
     });
   });

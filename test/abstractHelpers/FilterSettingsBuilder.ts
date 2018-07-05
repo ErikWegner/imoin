@@ -65,6 +65,11 @@ export class FilterSettingsBuilder {
     return this;
   }
 
+  public filterOutServicesOnAcknowledgedHosts() {
+    this.filtersettings.filterOutServicesOnAcknowledgedHosts = true;
+    return this;
+  }
+
   public build() {
     return this.filtersettings;
   }
