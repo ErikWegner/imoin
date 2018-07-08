@@ -10,7 +10,6 @@ if (typeof browser !== "undefined" && browser.runtime !== null) {
 let instances = [];
 let selectedInstance = -1;
 let fontsize = 100;
-let paneldesign = 1;
 
 const filterSettingsNames = [
   'filterOutAcknowledged',
@@ -93,7 +92,6 @@ function restoreOptions() {
     }
     selectedInstance = 0;
     fontsize = storageData.fontsize || fontsize;
-    paneldesign = storageData.paneldesign || 1;
     updateDOMforInstances();
     updateDOMforPanelFieldset();
     updateDOMforFilters();
@@ -174,7 +172,6 @@ function updateDOMforInstances() {
 
 function updateDOMforPanelFieldset() {
   document.getElementById('fontsize').value = fontsize;
-  document.getElementById('paneldesign' + paneldesign).checked = true
 }
 
 function updateDOMforFilters() {
@@ -228,7 +225,6 @@ function saveOptions() {
   host.storage.local.set({
     instances: JSON.stringify(instances),
     fontsize: parseInt(document.getElementById('fontsize').value),
-    paneldesign: document.querySelector('input[name = "paneldesign"]:checked').value,
     sounds: JSON.stringify(SoundFileSelectors.getFiles())
   });
   var myPort = host.runtime.connect({ name: 'port-from-options' });
@@ -237,7 +233,7 @@ function saveOptions() {
 }
 
 function loadOptions() {
-  const optionKeys = ['instances', 'fontsize', 'sounds', 'paneldesign'];
+  const optionKeys = ['instances', 'fontsize', 'sounds'];
   return new Promise((resolve, reject) => {
     if (!host.storage) {
       resolve(null);
