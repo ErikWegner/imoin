@@ -352,7 +352,7 @@ describe('options html', () => {
         {
           "instancelabel": "Instance 0",
           "timerPeriod": 5,
-          "icingaversion": "cgi",
+          "icingaversion": "api1",
           "url": "",
           "username": "",
           "password": "",
@@ -368,7 +368,7 @@ describe('options html', () => {
         }, {
           "instancelabel": "Instance 2",
           "timerPeriod": 5,
-          "icingaversion": "cgi",
+          "icingaversion": "api1",
           "url": "",
           "username": "",
           "password": "",
@@ -376,7 +376,7 @@ describe('options html', () => {
         }, {
           "instancelabel": "Instance 3",
           "timerPeriod": 5,
-          "icingaversion": "cgi",
+          "icingaversion": "api1",
           "url": "",
           "username": "",
           "password": "",
