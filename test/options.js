@@ -26,8 +26,8 @@ describe('options html', () => {
     // Stub browser interactions
     updateDOMforInstances = sinon.spy();
     // Reset all spies and stubs
-    saveOptionsSpy.reset();
-    updateDOMforFiltersSpy.reset();
+    saveOptionsSpy.resetHistory();
+    updateDOMforFiltersSpy.resetHistory();
     getFormTextValueStub.reset();
     getCheckboxValueStub.reset();
     setCheckboxValueStub.reset();
@@ -102,7 +102,7 @@ describe('options html', () => {
     const l1 = instances.length;
     addInstance();
     const l2 = instances.length;
-    updateDOMforInstances.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.resetHistory(); // addInstance will call updateDOM
     removeInstance();
     const l3 = instances.length;
 
@@ -120,7 +120,7 @@ describe('options html', () => {
     selectedInstance = 1;
     const removedInstance = instances[selectedInstance];
 
-    updateDOMforInstances.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.resetHistory(); // addInstance will call updateDOM
     removeInstance();
     expect(instances.indexOf(removedInstance)).toBe(-1);
     expect(updateDOMforInstances.calledOnce).toBe(true);
@@ -133,7 +133,7 @@ describe('options html', () => {
     const l1 = selectedInstance;
     const removedInstance = instances[selectedInstance];
 
-    updateDOMforInstances.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.resetHistory(); // addInstance will call updateDOM
     removeInstance();
     expect(instances.indexOf(removedInstance)).toBe(-1);
     expect(l1).toBe(3);
