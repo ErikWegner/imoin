@@ -70,7 +70,7 @@ function createInstance(title) {
   return {
     instancelabel: title,
     timerPeriod: 5,
-    icingaversion: 'cgi',
+    icingaversion: 'api1',
     url: '',
     username: '',
     password: '',

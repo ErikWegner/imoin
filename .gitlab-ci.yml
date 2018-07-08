@@ -60,6 +60,7 @@ betaupload:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - echo "$STAGING_PRIVATE_KEY" | ssh-add -
-    - echo "$MANIFEST_PRIVATE_KEY" | ssh-add -
     - scp release/firefox/web-ext-artifacts/*.xpi $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
-    - ssh -v -l $DEPLOY_USER $DEPLOY_HOST nohup $DEPLOY_PATH/create-manifest.py
+    - ssh-add -D
+    - echo "$MANIFEST_PRIVATE_KEY" | ssh-add -
+    - ssh -v -l $DEPLOY_USER $DEPLOY_HOST $DEPLOY_PATH/create-manifest.py

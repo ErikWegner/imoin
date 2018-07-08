@@ -9,9 +9,9 @@
   <title>Imoin settings</title>
 </head>
 
-<body>
+<body class="w-100 sans-serif bg-white">
 
-  <form class="options">
+  <form class="options pa4 ph5-ns">
     <fieldset>
       <legend>Configure instances</legend>
       <div class="group">
@@ -19,12 +19,12 @@
         <select id="instanceid" name="instanceid">
           <option value="0">Default</option>
         </select>
-        <button type="button" class="instancelistmod instancelistadd" id="addInstance">Add</button>
+        <button type="button" class="ml3 blue" id="addInstance">Add</button>
       </div>
       <div class="splitter"></div>
       <div class="group">
         <label for="instancelabel">Label</label>
-        <input type="text" id="instancelabel" name="instancelabel" />
+        <input type="text" id="instancelabel" name="instancelabel" class="b pa2 input-reset ba bg-transparent"/>
       </div>
       <div class="group">
         <label for="icingaversion">Version</label>
@@ -39,81 +39,63 @@
       </div>
       <div class="group">
         <label for="url">Url</label>
-        <input type="text" id="url" name="url" />
+        <input type="text" id="url" name="url" class="b pa2 input-reset ba bg-transparent"/>
       </div>
       <div class="group">
         <label for="timerPeriod">Timer period (minutes)</label>
-        <input type="number" id="timerPeriod" name="timerPeriod" />
+        <input type="number" id="timerPeriod" name="timerPeriod" class="b pa2 input-reset ba bg-transparent"/>
       </div>
       <div class="group">
         <label for="username">Username</label>
-        <input type="text" id="username" name="username" />
+        <input type="text" id="username" name="username" class="b pa2 input-reset ba bg-transparent"/>
       </div>
       <div class="group">
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" />
+        <input type="password" id="password" name="password" class="b pa2 input-reset ba bg-transparent"/>
       </div>
       <div class="splitter"></div>
       <div class="group">
         <label></label>
-        <button type="button" class="instancelistmod instancelistdelete" id="removeInstance">Delete</button>
+        <button type="button" class="ml3 dark-red" id="removeInstance">Delete</button>
       </div>
     </fieldset>
     <fieldset>
       <legend>Filters</legend>
-      <div class="filter">
-        <div class="td">
-          <input type="checkbox" id="filterOutAcknowledged" name="filterOutAcknowledged" />
+        <div class="f6 black-60 mb2">
+            Filters hide certain alerts. Use with caution!
         </div>
-        <div class="td">
-          <label for="filterOutAcknowledged">No alarm and no highlighting for hosts and services that have been acknowledged (Icinga API, Nagios Core).</label>
-        </div>
+        <div class="flex mb2 items-center">
+        <input type="checkbox" id="filterOutAcknowledged" name="filterOutAcknowledged" class="mr2"/>
+        <label for="filterOutAcknowledged" class="lh-copy">No alarm and no highlighting for hosts and services that have been acknowledged (Icinga API, Nagios Core).</label>
       </div>
-      <div class="filter">
-        <div class="td">
-          <input type="checkbox" id="filterOutSoftStates" name="filterOutSoftStates" />
-        </div>
-        <div class="td">
-          <label for="filterOutSoftStates">No alarm and no highlighting for hosts and services that are in a soft state (Icinga API, Nagios Core).</label>
-        </div>
+      <div class="flex mb2 items-center">
+        <input type="checkbox" id="filterOutSoftStates" name="filterOutSoftStates" class="mr2"/>
+        <label for="filterOutSoftStates" class="lh-copy">No alarm and no highlighting for hosts and services that are in a soft state (Icinga API, Nagios Core).</label>
       </div>
-      <div class="filter">
-        <div class="td">
-          <input type="checkbox" id="filterOutDisabledNotifications" name="filterOutDisabledNotifications" />
-        </div>
-        <div class="td">
-          <label for="filterOutDisabledNotifications">No alarm and no highlighting for hosts and services whose notifications are disabled (Icinga API, Nagios Core).</label>
-        </div>
+      <div class="flex mb2 items-center">
+        <input type="checkbox" id="filterOutDisabledNotifications" name="filterOutDisabledNotifications" class="mr2"/>
+        <label for="filterOutDisabledNotifications" class="lh-copy">No alarm and no highlighting for hosts and services whose notifications are disabled (Icinga API, Nagios Core).</label>
       </div>
-      <div class="filter">
-        <div class="td">
-          <input type="checkbox" id="filterOutDisabledChecks" name="filterOutDisabledChecks" />
-        </div>
-        <div class="td">
-          <label for="filterOutDisabledChecks">No alarm and no highlighting for hosts and services whose checks are disabled (Icinga API, Nagios Core).</label>
-        </div>
+      <div class="flex mb2 items-center">
+        <input type="checkbox" id="filterOutDisabledChecks" name="filterOutDisabledChecks" class="mr2"/>
+        <label for="filterOutDisabledChecks" class="lh-copy">No alarm and no highlighting for hosts and services whose checks are disabled (Icinga API, Nagios Core).</label>
       </div>
-      <div class="filter">
-        <div class="td">
-          <input type="checkbox" id="filterOutServicesOnDownHosts" name="filterOutServicesOnDownHosts" />
-        </div>
-        <div class="td">
-          <label for="filterOutServicesOnDownHosts">No alarm and no highlighting for services whose hosts are down or unreachable (Icinga API, Nagios Core).</label>
-        </div>
+      <div class="flex mb2 items-center">
+        <input type="checkbox" id="filterOutServicesOnDownHosts" name="filterOutServicesOnDownHosts" class="mr2"/>
+        <label for="filterOutServicesOnDownHosts" class="lh-copy">No alarm and no highlighting for services whose hosts are down or unreachable (Icinga API, Nagios Core).</label>
       </div>
-      <div class="filter">
-        <div class="td">
-          <input type="checkbox" id="filterOutServicesOnAcknowledgedHosts" name="filterOutServicesOnAcknowledgedHosts" />
-        </div>
-        <div class="td">
-          <label for="filterOutServicesOnAcknowledgedHosts">No alarm and no highlighting for services whose hosts have been acknowledged (Icinga API, Nagios Core).</label>
-        </div>
+      <div class="flex mb2 items-center">
+        <input type="checkbox" id="filterOutServicesOnAcknowledgedHosts" name="filterOutServicesOnAcknowledgedHosts" class="mr2"/>
+        <label for="filterOutServicesOnAcknowledgedHosts" class="lh-copy">No alarm and no highlighting for services whose hosts have been acknowledged (Icinga API, Nagios Core).</label>
       </div>
     </fieldset>
     <fieldset>
-      <legend>Notifications</legend>
-      <div class="group">
-        <label>Recurring GREEN</label>
+      <legend>Audio notifications</legend>
+      <div class="f6 black-60 mb2">
+          An audio file can be played on each timed request when the state did not change (recurring) or once the state changes to a different one (switching to).
+      </div>
+    <div class="group">
+        <label class="dark-green">Recurring GREEN</label>
         <div class="soundfileselector" data-soundevent="GREEN"></div>
       </div>
       <div class="group">
@@ -121,7 +103,7 @@
         <div class="soundfileselector" data-soundevent="ToGREEN"></div>
       </div>
       <div class="group">
-        <label>Recurring YELLOW</label>
+        <label class="yellow">Recurring YELLOW</label>
         <div class="soundfileselector" data-soundevent="YELLOW"></div>
       </div>
       <div class="group">
@@ -129,7 +111,7 @@
         <div class="soundfileselector" data-soundevent="ToYELLOW"></div>
       </div>
       <div class="group">
-        <label>Recurring RED</label>
+        <label class="dark-red">Recurring RED</label>
         <div class="soundfileselector" data-soundevent="RED"></div>
       </div>
       <div class="group">
@@ -141,7 +123,7 @@
       <legend>Panel</legend>
       <div class="group">
         <label for="fontsize">Font size adjustment (percentage)</label>
-        <input type="number" id="fontsize" name="fontsize" />
+        <input type="number" id="fontsize" name="fontsize" class="b pa2 input-reset ba bg-transparent"/>
       </div>
     </fieldset>
     <div class="group">
