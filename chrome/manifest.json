@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "imoin",
-  "version": "21.1.0",
+  "version": "22.0.0",
 
   "description": "Monitor your icinga or nagios instance.",
 
@@ -27,6 +27,7 @@
   },
 
   "options_ui": {
+    "open_in_tab": true,
     "page": "html/options.html"
   },
 
