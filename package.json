@@ -33,7 +33,15 @@
       ".tsx"
     ],
     "exclude": [
-      "**/*.d.ts"
+      "**/*.d.ts",
+      "release",
+      "html",
+      "test",
+      "coverage",
+      "layouts",
+      "gulpfile.js",
+      "karma.conf.js",
+      "webpack.config.js"
     ],
     "reporter": [
       "html"
