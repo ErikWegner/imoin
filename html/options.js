@@ -1,5 +1,5 @@
-var hosttype = chrome ? 'chrome' : browser ? 'browser' : 'na'
-var host = chrome || browser;
+var hosttype = (typeof(chrome) !== "undefined" && chrome) ? 'chrome' : (typeof(browser) !== "undefined" && browser) ? 'browser' : 'na';
+var host = (typeof(chrome) !== "undefined" && chrome) || (typeof(browser) !== "undefined" && browser);
 // Edge browser
 if (typeof browser !== "undefined" && browser.runtime !== null) {
   host = browser;
@@ -13,7 +13,11 @@ let fontsize = 100;
 
 const filterSettingsNames = [
   'filterOutAcknowledged',
-  'filterOutSoftStates'
+  'filterOutSoftStates',
+  'filterOutDisabledNotifications',
+  'filterOutDisabledChecks',
+  'filterOutServicesOnDownHosts',
+  'filterOutServicesOnAcknowledgedHosts',
 ];
 
 /*    ---- Custom elements   ---- */
@@ -66,7 +70,7 @@ function createInstance(title) {
   return {
     instancelabel: title,
     timerPeriod: 5,
-    icingaversion: 'cgi',
+    icingaversion: 'api1',
     url: '',
     username: '',
     password: '',
@@ -89,7 +93,7 @@ function restoreOptions() {
     selectedInstance = 0;
     fontsize = storageData.fontsize || fontsize;
     updateDOMforInstances();
-    updateDOMforMisc();
+    updateDOMforPanelFieldset();
     updateDOMforFilters();
     SoundFileSelectors.setFiles(JSON.parse(storageData.sounds || '{}'));
   }, onError);
@@ -166,7 +170,7 @@ function updateDOMforInstances() {
   i.options.selectedIndex = selectedInstance;
 }
 
-function updateDOMforMisc() {
+function updateDOMforPanelFieldset() {
   document.getElementById('fontsize').value = fontsize;
 }
 

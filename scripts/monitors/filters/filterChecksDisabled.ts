@@ -2,30 +2,30 @@ import { FilterSettings } from '../../Settings';
 import { optionalFiltersettings } from './common';
 import { FHost } from '.';
 
-function removeAllSoftStateServices(host: FHost) {
+function removeAllServicesWithChecksDisabled(host: FHost) {
   host
-    .filterServices((service) => !service.isInSoftState);
+    .filterServices((service) => !service.checksDisabled);
 }
 
-export function filterSoftStates(
+export function filterChecksDisabled(
   hosts: FHost[],
   filtersettings?: FilterSettings
 ) {
   if (
     hosts === null
-    || optionalFiltersettings(filtersettings, 'filterOutSoftStates') === false
+    || optionalFiltersettings(filtersettings, 'filterOutDisabledChecks') === false
   ) {
     return hosts;
   }
 
-  hosts.forEach(removeAllSoftStateServices);
+  hosts.forEach(removeAllServicesWithChecksDisabled);
   return hosts
     .filter((fhost) => {
       const host = fhost.getHost();
       const hostIsNotUp = host.getState() !== 'UP';
 
-      // keep host if not in soft state
-      const keepHost = hostIsNotUp && !host.isInSoftState;
+      // keep host if ack not set
+      const keepHost = hostIsNotUp && !host.checksDisabled;
 
       // keep service if there are still services attached
       const keepService = fhost.getFServices().length > 0;

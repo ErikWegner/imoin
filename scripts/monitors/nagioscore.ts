@@ -8,7 +8,7 @@ enum NagiosStateType {
   HARD = 1
 }
 
-interface IHostJsonData {
+export interface INagiosCoreHostJsonData {
   data: {
     hostlist: {
       [hostname: string]: {
@@ -17,12 +17,14 @@ interface IHostJsonData {
         state_type: NagiosStateType,
         plugin_output: string,
         problem_has_been_acknowledged: boolean,
+        notifications_enabled: boolean,
+        checks_enabled: boolean,
       }
     };
   };
 }
 
-interface IServiceJsonData {
+export interface INagiosCoreServiceJsonData {
   data: {
     servicelist: {
       [hostname: string]: {
@@ -34,6 +36,8 @@ interface IServiceJsonData {
           state_type: NagiosStateType,
           plugin_output: string,
           problem_has_been_acknowledged: boolean,
+          notifications_enabled: boolean,
+          checks_enabled: boolean,
         }
       }
     }
@@ -95,8 +99,8 @@ export class NagiosCore extends AbstractMonitor {
   }
 
   protected processData(
-    hostdata: IHostJsonData,
-    servicedata: IServiceJsonData
+    hostdata: INagiosCoreHostJsonData,
+    servicedata: INagiosCoreServiceJsonData
   ): Monitor.MonitorData {
     if (hostdata == null || servicedata == null) {
       return Monitor.ErrorMonitorData('Result empty');
@@ -113,6 +117,8 @@ export class NagiosCore extends AbstractMonitor {
       host.checkresult = hostdatahost.plugin_output;
       host.hasBeenAcknowledged = hostdatahost.problem_has_been_acknowledged;
       host.isInSoftState = hostdatahost.state_type === 0;
+      host.notificationsDisabled = !hostdatahost.notifications_enabled;
+      host.checksDisabled = !hostdatahost.checks_enabled;
       m.addHost(host);
     });
 
@@ -135,6 +141,8 @@ export class NagiosCore extends AbstractMonitor {
           }
           service.hasBeenAcknowledged = servicedataservice.problem_has_been_acknowledged;
           service.isInSoftState = servicedataservice.state_type === 0;
+          service.notificationsDisabled = !servicedataservice.notifications_enabled;
+          service.checksDisabled = !servicedataservice.checks_enabled;
           service.host = host.name;
           host.addService(service);
         }

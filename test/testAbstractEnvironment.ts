@@ -38,7 +38,7 @@ describe('AbstractEnvironnment', () => {
     expect(spies[1].called).to.equal(false);
 
     // reset spies
-    spies.forEach((spy) => spy.reset());
+    spies.forEach((spy) => spy.resetHistory());
 
     // callbacks have not been executed after reset
     expect(spies[0].called).to.equal(false);

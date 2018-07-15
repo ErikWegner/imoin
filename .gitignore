@@ -10,3 +10,5 @@ layouts/node_modules
 *.log
 release
 /web/bower_components
+coverage
+.nyc_output

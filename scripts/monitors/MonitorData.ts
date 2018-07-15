@@ -16,7 +16,9 @@ export namespace Monitor {
         public host: string;
         public checkresult: string;
         public servicelink: string;
-        public hasBeenAcknowledged: boolean = false;
+        public hasBeenAcknowledged = false;
+        public notificationsDisabled = false;
+        public checksDisabled = false;
         public isInSoftState = false;
         public appearsInShortlist: boolean = false;
         private status: ServiceState = 'CRITICAL';
@@ -40,7 +42,9 @@ export namespace Monitor {
         public static readonly IgnoreServices = false;
         public services: Service[] = [];
         public hostlink: string;
-        public hasBeenAcknowledged: boolean = false;
+        public hasBeenAcknowledged = false;
+        public notificationsDisabled = false;
+        public checksDisabled = false;
         public isInSoftState = false;
         public checkresult: string;
         public instanceindex: number;

@@ -1,3 +1,12 @@
+fieldset {
+  margin-bottom: 2rem;
+}
+
+legend {
+  margin-bottom: .5rem;
+  font-weight: 700;
+}
+
 .options .group label { 
   display: inline-block;
   width: 160px;
@@ -5,16 +14,6 @@
   font-size: 85%;
 }
 
-.options .filter {
-  display: table-row;
-}
-
-.options .filter .td {
-  display: table-cell;
-  vertical-align: top;
-}
-
-.options .filter,
 .options .group {
   margin: 5px 0;
 }
@@ -22,18 +21,6 @@
 .options .splitter {
   background-color: #bfbfbf;
   height: 1px;
-}
-
-.options .instancelistmod {
-  margin-left: 12px;
-}
-
-.options .instancelistdelete {
-  color:#bf0000;
-}
-
-.options .instancelistadd {
-  color:#0000bf;
 }
 
 .options .soundfileselector {
@@ -52,15 +39,6 @@
   -webkit-animation:spin 4s linear infinite;
   -moz-animation:spin 4s linear infinite;
   animation:spin 4s linear infinite;
-}
-
-.soundfileselector .action {
-  margin: 1px;
-}
-
-.soundfileselector .delete {
-  color: red;
-  font-weight: bold;
 }
 
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }

@@ -49,7 +49,6 @@ class SoundFileSelectorControl {
   const audio = new Audio();
   audio.soundid = '';
   const controls = {};
-  const audioPlayers = [];
 
   function init() {
     Object.keys(controls).forEach(function(key) { delete controls[key]; });
@@ -83,7 +82,8 @@ class SoundFileSelectorControl {
     // A button to delete the current file
     const deleteAction = document.createElement('button');
     deleteAction.setAttribute('type', 'button');
-    deleteAction.setAttribute('class', 'action delete');
+    deleteAction.setAttribute('class', 'b red ma1');
+    deleteAction.setAttribute('title', 'Remove file');
     deleteAction.appendChild(document.createTextNode('X'));
     filenamecontainer.appendChild(deleteAction);
 
@@ -93,7 +93,8 @@ class SoundFileSelectorControl {
     // A button to play the current file
     const playAction = document.createElement('button');
     playAction.setAttribute('type', 'button');
-    playAction.setAttribute('class', 'action play');
+    playAction.setAttribute('class', 'near-black ma1');
+    playAction.setAttribute('title', 'Play file');
     playAction.appendChild(playActionText);
     filenamecontainer.appendChild(playAction);
 
@@ -105,6 +106,7 @@ class SoundFileSelectorControl {
     // A file selector
     const fileinput = document.createElement('input');
     fileinput.setAttribute('type', 'file');
+    fileinput.setAttribute('class', 'ma1');
     element.appendChild(fileinput);
 
     // An element to show upload feedback
@@ -152,7 +154,7 @@ class SoundFileSelectorControl {
         audio.pause();
       }
       control.deleteFile();
-      filename.textContent = SoundFileSelectorControl.noFileSetText;
+      feedbacktext.textContent = '';
     });
 
     // A file is selected
