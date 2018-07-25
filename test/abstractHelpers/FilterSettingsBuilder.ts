@@ -70,6 +70,11 @@ export class FilterSettingsBuilder {
     return this;
   }
 
+  public filterOutDowntime() {
+    this.filtersettings.filterOutDowntime = true;
+    return this;
+  }
+
   public build() {
     return this.filtersettings;
   }

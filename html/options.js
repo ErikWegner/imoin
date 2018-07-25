@@ -18,6 +18,7 @@ const filterSettingsNames = [
   'filterOutDisabledChecks',
   'filterOutServicesOnDownHosts',
   'filterOutServicesOnAcknowledgedHosts',
+  'filterOutDowntime',
 ];
 
 /*    ---- Custom elements   ---- */

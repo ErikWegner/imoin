@@ -34,6 +34,11 @@ export class HostBuilder {
     return this;
   }
 
+  public inDowntime() {
+    this.activeHost.isInDowntime = true;
+    return this;
+  }
+
   public setup(f: (hb: HostBuilder) => void) {
     f(this);
     return this;

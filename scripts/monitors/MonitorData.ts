@@ -20,6 +20,7 @@ export namespace Monitor {
         public notificationsDisabled = false;
         public checksDisabled = false;
         public isInSoftState = false;
+        public isInDowntime = false;
         public appearsInShortlist: boolean = false;
         private status: ServiceState = 'CRITICAL';
         private filteredStatus: ServiceState = 'CRITICAL';
@@ -46,6 +47,7 @@ export namespace Monitor {
         public notificationsDisabled = false;
         public checksDisabled = false;
         public isInSoftState = false;
+        public isInDowntime = false;
         public checkresult: string;
         public instanceindex: number;
         public appearsInShortlist: boolean = false;

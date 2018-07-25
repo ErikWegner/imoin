@@ -19,6 +19,7 @@ export interface INagiosCoreHostJsonData {
         problem_has_been_acknowledged: boolean,
         notifications_enabled: boolean,
         checks_enabled: boolean,
+        scheduled_downtime_depth: number,
       }
     };
   };
@@ -38,6 +39,7 @@ export interface INagiosCoreServiceJsonData {
           problem_has_been_acknowledged: boolean,
           notifications_enabled: boolean,
           checks_enabled: boolean,
+          scheduled_downtime_depth: number,
         }
       }
     }
@@ -119,6 +121,7 @@ export class NagiosCore extends AbstractMonitor {
       host.isInSoftState = hostdatahost.state_type === 0;
       host.notificationsDisabled = !hostdatahost.notifications_enabled;
       host.checksDisabled = !hostdatahost.checks_enabled;
+      host.isInDowntime = hostdatahost.scheduled_downtime_depth > 0;
       m.addHost(host);
     });
 
@@ -143,6 +146,7 @@ export class NagiosCore extends AbstractMonitor {
           service.isInSoftState = servicedataservice.state_type === 0;
           service.notificationsDisabled = !servicedataservice.notifications_enabled;
           service.checksDisabled = !servicedataservice.checks_enabled;
+          service.isInDowntime = servicedataservice.scheduled_downtime_depth > 0;
           service.host = host.name;
           host.addService(service);
         }

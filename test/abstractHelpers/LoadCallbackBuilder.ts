@@ -42,6 +42,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
           state_type: host.isInSoftState ? 0 : 1,
           notifications_enabled: !host.notificationsDisabled,
           checks_enabled: !host.checksDisabled,
+          scheduled_downtime_depth: host.isInDowntime ? 1 : 0,
         };
         r.data.hostlist[hostname] = hostobject;
       });
@@ -69,6 +70,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
             state_type: service.isInSoftState ? 0 : 1,
             notifications_enabled: !service.notificationsDisabled,
             checks_enabled: !service.checksDisabled,
+            scheduled_downtime_depth: service.isInDowntime ? 1 : 0,
           };
           });
         });
@@ -91,6 +93,9 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
       }
       if (host.checksDisabled) {
         hostobject.attrs['enable_active_checks'] = false;
+      }
+      if (host.isInDowntime) {
+        hostobject.attrs['downtime_depth'] = 1;
       }
     }
 
@@ -139,6 +144,9 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
           });
           if (service.checksDisabled) {
             servicedataattributes.attrs['enable_active_checks'] = false;
+          }
+          if (service.isInDowntime) {
+            servicedataattributes.attrs['downtime_depth'] = 1;
           }
         });
       });

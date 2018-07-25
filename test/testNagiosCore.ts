@@ -89,7 +89,7 @@ describe('NagiosCore', () => {
         return settings;
       }
 
-      it('should set ' + description + ' on host', () => {
+      it('should set ' + options.hostProperty + ' on host', () => {
         const u = new NagiosCore();
         const e = new MockAbstractEnvironment();
 
@@ -111,7 +111,7 @@ describe('NagiosCore', () => {
         });
       });
 
-      it('should set ' + description + ' on service', () => {
+      it('should set ' + options.serviceProperty + ' on service', () => {
         const u = new NagiosCore();
         const e = new MockAbstractEnvironment();
         const settings = buildSettings();
