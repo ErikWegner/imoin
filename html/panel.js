@@ -227,6 +227,7 @@ function registerMainEventHandlers() {
     }
 
     registerEventHanderForClass(triggerRefresh, 'refresh');
+    registerEventHanderForClass(triggerShowOptions, 'options');
     registerDetailsEventHandlers();
 }
 
@@ -344,11 +345,18 @@ function renderMainTemplate(statusdata) {
     r.setAttribute("class", "header");
     r.setAttribute("style", "text-align:center");
 
-    var p, a, div1, table, tr, th, td;
+    var p, a, div1, table, tr, th, td, img;
     r.appendChild(p = document.createElement("p"));
     p.appendChild(a = document.createElement("span"));
     a.setAttribute("class", "refresh");
     a.appendChild(document.createTextNode("↺ Refresh"));
+    p.appendChild(document.createTextNode(" "));
+    p.appendChild(a = document.createElement("span"));
+    a.setAttribute("class", "options");
+    a.appendChild(img = document.createElement("img"));
+    img.setAttribute("style", "width: auto; height: 14px;");
+    img.setAttribute("src", "./gear.svg");
+    img.setAttribute("title", "Options");
     if (statusdata.hostgroupinfo !== null && statusdata.hostgroupinfo !== "") p.appendChild(document.createTextNode(" " + statusdata.hostgroupinfo));
 
     r.appendChild(div1 = document.createElement("div"));
@@ -494,6 +502,10 @@ function triggerOpenPage(e) {
     if (url) {
         postPanelMessage({ command: "triggerOpenPage", url: url });
     }
+}
+
+function triggerShowOptions() {
+    postPanelMessage({ command: "triggerShowOptions" });
 }
 
 showAndUpdatePanelContent({});

@@ -17,7 +17,8 @@ Supported versions:
 
 * Icinga 2
 * Nagios Core 4.0.7+
-* Nagios 3+
+* Icinga 1 (deprecated)
+* Nagios 3+ (deprecated)
 
 Done
 ====
