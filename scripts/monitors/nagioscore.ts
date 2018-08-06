@@ -67,6 +67,10 @@ export class NagiosCore extends AbstractMonitor {
             let hostdata;
             let servicedata;
             try {
+              if (a[0] === '\n' || a[0] === '') {
+                resolve(Monitor.ErrorMonitorData(
+                  'Empty host data response.'));
+              }
               hostdata = JSON.parse(a[0]);
             } catch (hosterr) {
               resolve(Monitor.ErrorMonitorData('Could not parse host data.', Constants.UrlDebug));
