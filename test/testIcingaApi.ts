@@ -124,7 +124,7 @@ describe('IcingaApi', () => {
           });
       });
 
-      it('should set ' + description + ' on host', () => {
+      it('should set ' + options.hostProperty + ' on host', () => {
         const e = new MockAbstractEnvironment();
         const u = new IcingaApi();
         const settings = buildSettings();

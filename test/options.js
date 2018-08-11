@@ -15,6 +15,7 @@ describe('options html', () => {
     'filterOutDisabledChecks',
     'filterOutServicesOnDownHosts',
     'filterOutServicesOnAcknowledgedHosts',
+    'filterOutDowntime',
   ];
 
   const numberOfFilterOptions = filterOptionsNames.length;

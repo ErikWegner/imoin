@@ -155,6 +155,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
     protected abstract trySendDataToPopup(): void;
     protected abstract openWebPage(url: string): void;
     protected abstract updateIconAndBadgetext(): void;
+    protected abstract openOptionsPage(): void;
 
     protected registerAlarmCallback(alarmName: string, callback: () => void) {
         this.alarmCallbacks[alarmName] = callback;
@@ -205,6 +206,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
                 this.openWebPage(request.url);
             }
         }
+
         if (command === 'triggerCmdExec') {
             const c = new UICommand();
             c.command = request.remoteCommand;
@@ -216,6 +218,10 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
         if (command === 'SettingsChanged') {
             this.notifySettingsChanged();
+        }
+
+        if (command === 'triggerShowOptions') {
+            this.openOptionsPage();
         }
     }
 }

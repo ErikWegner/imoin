@@ -8,6 +8,7 @@ import {
   filterSoftStates,
   filterNotificationDisabled,
   filterChecksDisabled,
+  filterDowntime,
 } from '../scripts/monitors/filters';
 import { FilterSettings } from '../scripts/Settings';
 
@@ -67,5 +68,16 @@ export const filterSettingsTests: {
     serviceQueryParameter: 'enable_active_checks',
     filterFunction: filterChecksDisabled,
     filterFlagText: 'with disabled checks',
+  },
+  filterDowntime: {
+    setupFilterSettingsBuilder: (sb) => sb.filterOutDowntime(),
+    setupHost: (lcb) => lcb.inDowntime(),
+    hostProperty: 'isInDowntime',
+    hostQueryParameter: 'downtime_depth',
+    setupService: (sb) => sb.inDowntime(),
+    serviceProperty: 'isInDowntime',
+    serviceQueryParameter: 'downtime_depth',
+    filterFunction: filterDowntime,
+    filterFlagText: 'within downtime',
   },
 };

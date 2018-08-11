@@ -13,6 +13,7 @@ export interface IIcinga2HostJsonData {
         attrs: {
             acknowledgement?: number
             display_name: string
+            downtime_depth?: number
             enable_notifications?: boolean
             last_check_result: {
                 state: number
@@ -30,6 +31,7 @@ export interface IIcinga2ServiceJsonData {
         attrs: {
             acknowledgement?: number
             display_name: string
+            downtime_depth?: number
             enable_notifications?: boolean
             last_check_result: {
                 /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
@@ -79,6 +81,10 @@ export class IcingaApi extends AbstractMonitor {
                 typeof hostdatahost.attrs.enable_active_checks === 'undefined'
                     ? false
                     : !hostdatahost.attrs.enable_active_checks;
+            host.isInDowntime =
+                typeof hostdatahost.attrs.downtime_depth === 'undefined'
+                    ? false
+                    : hostdatahost.attrs.downtime_depth > 0;
             m.addHost(host);
         });
 
@@ -109,6 +115,10 @@ export class IcingaApi extends AbstractMonitor {
                     typeof jsonservice.attrs.enable_active_checks === 'undefined'
                         ? false
                         : !jsonservice.attrs.enable_active_checks;
+                service.isInDowntime =
+                    typeof jsonservice.attrs.downtime_depth === 'undefined'
+                        ? false
+                        : jsonservice.attrs.downtime_depth > 0;
                 host.addService(service);
             }
         });
@@ -160,6 +170,7 @@ export class IcingaApi extends AbstractMonitor {
                 state_type: 'filterOutSoftStates',
                 enable_notifications: 'filterOutDisabledNotifications',
                 enable_active_checks: 'filterOutDisabledChecks',
+                downtime_depth: 'filterOutDowntime',
             };
 
             Object

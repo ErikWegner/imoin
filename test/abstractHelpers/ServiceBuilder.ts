@@ -36,6 +36,11 @@ export class ServiceBuilder {
     return this;
   }
 
+  public inDowntime(): any {
+    this.service.isInDowntime = true;
+    return this;
+  }
+
   public addToHost(host: Monitor.Host) {
     host.addService(this.service);
     return this;

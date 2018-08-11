@@ -89,4 +89,8 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
   protected updateIconAndBadgetext(): void {
     // no op
   }
+
+  protected openOptionsPage(): void {
+    // no op
+  }
 }
