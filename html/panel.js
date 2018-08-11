@@ -94,7 +94,7 @@ function renderTemplateError(message) {
     var r = document.createElement("div");
     r.setAttribute("style", "text-align:center");
     var img = document.createElement("img");
-    img.setAttribute("src", "../icons/icon-64.png");
+    img.setAttribute("src", "../icons/logo-66x32.png");
     img.setAttribute("alt", "Icinga logo");
     r.appendChild(img);
     r.appendChild(document.createElement("br"));
