@@ -33,13 +33,14 @@ window.messageFromBackgroundPage = function messageFromBackgroundPage(message) {
     var data = message.data || {};
 
     if (command === "ProcessStatusUpdate") {
-        showAndUpdatePanelContent(data);
+        showAndUpdatePanelContent(Object.freeze(data));
     }
 
     if (command === "uisettings") {
         setupUISettings(data);
     }
 }
+Vue.config.performance = true
 
 if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     // Web extension in Chrome or Firefox
@@ -50,7 +51,7 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     }
 
     // This script runs at the moment that the popup is displayed
-    const myPort = host.runtime.connect();
+    const myPort = host.runtime.connect('imoin');
     myPort.onMessage.addListener(messageFromBackgroundPage);
 
     window.postPanelMessage = function (data) {
