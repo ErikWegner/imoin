@@ -119,6 +119,7 @@ export class NagiosCore extends AbstractMonitor {
       const host = new Monitor.Host(hostdatahost.name);
       host.instanceindex = index;
       hostByName[host.name] = host;
+      host.hostlink = this.settings.url + '/cgi-bin/extinfo.cgi?type=1&host=' + hostdatahost.name;
       host.setState(hostdatahost.status === 2 ? 'UP' : 'DOWN');
       host.checkresult = hostdatahost.plugin_output;
       host.hasBeenAcknowledged = hostdatahost.problem_has_been_acknowledged;
@@ -152,11 +153,23 @@ export class NagiosCore extends AbstractMonitor {
           service.checksDisabled = !servicedataservice.checks_enabled;
           service.isInDowntime = servicedataservice.scheduled_downtime_depth > 0;
           service.host = host.name;
+          service.servicelink = this.buildServiceLink(service);
           host.addService(service);
         }
       });
     });
 
     return m;
+  }
+
+  protected buildServiceLink(service: Monitor.Service): string {
+    const encodedServicename = encodeURIComponent(service.name).replace(/\%20/g, '+');
+    return this.settings.url +
+      '/cgi-bin/extinfo.cgi?' +
+      ([
+        'type=2',
+        'host=' + service.host,
+        'service=' + encodedServicename
+      ].join('&'));
   }
 }
