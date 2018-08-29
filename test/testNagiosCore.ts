@@ -78,6 +78,62 @@ describe('NagiosCore', () => {
     });
   });
 
+  it('should set link to host page', () => {
+    const baseurl = 'http://nagioscore.demos.nagios.com/nagios';
+    const pathAndQuery = '/cgi-bin/extinfo.cgi?type=1&host=';
+    const u = new NagiosCore();
+    const e = new MockAbstractEnvironment();
+    const settings = SettingsBuilder.create('nagioscore').build();
+    settings.url = baseurl;
+
+    const data = new LoadCallbackBuilder()
+      .Host('H1')
+      .Host('H2')
+      .BuildCallbacks('nagioscore');
+
+    e.loadCallback = loadCallback(data[0], data[1]);
+
+    u.init(e, settings, 0);
+    return u.fetchStatus().then((r) => {
+      expect(r.hosts).to.have.lengthOf(2);
+      expect(r.hosts[0].hostlink).to.equal(`${baseurl}${pathAndQuery}H1`);
+      expect(r.hosts[1].hostlink).to.equal(`${baseurl}${pathAndQuery}H2`);
+    });
+  });
+
+  it('should set link to service page', () => {
+    const baseurl = 'http://nagioscore.demos.nagios.com/nagios';
+    const pathAndQuery = '/cgi-bin/extinfo.cgi?type=2&';
+    const u = new NagiosCore();
+    const e = new MockAbstractEnvironment();
+    const settings = SettingsBuilder.create('nagioscore').build();
+    settings.url = baseurl;
+
+    const data = new LoadCallbackBuilder()
+      .Host('H1')
+      .Service('/ Disk Usage', () => { /* no op */ })
+      .Service('SSH Server', () => { /* no op */ })
+      .Host('H2')
+      .Service('S3', () => { /* no op */ })
+      .BuildCallbacks('nagioscore');
+
+    e.loadCallback = loadCallback(data[0], data[1]);
+
+    u.init(e, settings, 0);
+    return u.fetchStatus().then((r) => {
+      expect(r.hosts).to.have.lengthOf(2);
+      const host1 = r.hosts[0];
+      expect(host1.services).to.have.lengthOf(2);
+      expect(host1.services[0].servicelink)
+        .to.equal(`${baseurl}${pathAndQuery}host=H1&service=%2F+Disk+Usage`);
+      expect(host1.services[1].servicelink)
+        .to.equal(`${baseurl}${pathAndQuery}host=H1&service=SSH+Server`);
+      const host2 = r.hosts[1];
+      expect(host2.services).to.have.lengthOf(1);
+      expect(host2.services[0].servicelink).to.equal(`${baseurl}${pathAndQuery}host=H2&service=S3`);
+    });
+  });
+
   Object.keys(filterSettingsTests).forEach((description) => {
     const options = filterSettingsTests[description];
     describe(description, () => {

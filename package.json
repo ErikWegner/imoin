@@ -1,10 +1,10 @@
 {
   "name": "imoin",
-  "version": "23.0.0",
+  "version": "24.0.0",
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
-    "test": "npm run test:mocha && npm run test:karma",
+    "test": "yarn run test:mocha && yarn run test:karma",
     "test:mocha": "mocha -r ts-node/register test/test*.ts test/filters/*Tests.ts",
     "test:mocha:watch": "mocha -R min -w --watch-extensions ts -r ts-node/register test/test*.ts test/filters/*Tests.ts",
     "test:mocha:coverage": "nyc mocha -r ts-node/register -r source-map-support/register test/test*.ts test/filters/*Tests.ts",
@@ -18,13 +18,13 @@
     "build:chrome": "gulp chrome",
     "build:edge": "gulp edge",
     "build:opera": "gulp opera",
-    "watch:firefox": "npm run build:firefox && gulp firefox-watch",
-    "watch:chrome": "npm run build:chrome && gulp chrome-watch",
-    "watch:edge": "npm run build:edge && gulp edge-watch",
-    "watch:opera": "npm run build:opera && gulp opera-watch",
-    "package:firefox": "npm run build:firefox && cd release/firefox && web-ext build",
-    "sign:firefox": "npm run package:firefox && cd release/firefox && web-ext sign --api-key=${AMO_JWT_ISSUER} --api-secret=${AMO_JWT_SECRET}",
-    "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
+    "watch:firefox": "yarn run build:firefox && gulp firefox-watch",
+    "watch:chrome": "yarn run build:chrome && gulp chrome-watch",
+    "watch:edge": "yarn run build:edge && gulp edge-watch",
+    "watch:opera": "yarn run build:opera && gulp opera-watch",
+    "package:firefox": "yarn run build:firefox && cd release/firefox && web-ext build",
+    "sign:firefox": "yarn run package:firefox && cd release/firefox && web-ext sign --api-key=${AMO_JWT_ISSUER} --api-secret=${AMO_JWT_SECRET}",
+    "run:firefox": "yarn run build:firefox && cd release/firefox && web-ext run",
     "clean": "gulp clean"
   },
   "nyc": {

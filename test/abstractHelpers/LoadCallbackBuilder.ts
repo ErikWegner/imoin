@@ -62,7 +62,7 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
         host.services.forEach((service) => {
           r.data.servicelist[hostkey][service.name] = {
             host_name: host.name,
-            description: '',
+            description: service.name,
             plugin_output: '',
             problem_has_been_acknowledged: service.hasBeenAcknowledged,
             last_check: 0,

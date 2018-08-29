@@ -2,9 +2,14 @@
 
   "manifest_version": 2,
   "name": "imoin",
-  "version": "23.0.0",
+  "version": "24.0.0",
 
   "description": "Monitor your icinga or nagios instance.",
+
+  "developer": {
+    "name": "Erik Wegner",
+    "url": "https://imoin.qwirl.eu/"
+  },
 
   "icons": {
     "48": "icons/icon-48.png"
