@@ -8,8 +8,12 @@ import {
     filterUp,
     filterAcknowledged,
     filterSoftStates,
+    filterNotificationDisabled,
+    filterChecksDisabled,
+    filterServicesOnDownHosts,
+    filterServicesOnAcknowledgedHosts,
+    filterDowntime,
 } from './filters';
-import { hostname } from 'os';
 
 export abstract class AbstractMonitor implements IMonitor {
 
@@ -30,13 +34,18 @@ export abstract class AbstractMonitor implements IMonitor {
         result = filterUp(result);
         /* filterOutAcknowledged */
         result = filterAcknowledged(result, filtersettings);
-        // filterOutDisabledNotifications: boolean;
-        // filterOutDisabledChecks: boolean;
+        /* filterOutDisabledNotifications */
+        result = filterNotificationDisabled(result, filtersettings);
+        /* filterOutDisabledCheck */
+        result = filterChecksDisabled(result, filtersettings);
         /* filterOutSoftStates */
         result = filterSoftStates(result, filtersettings);
-        // filterOutDowntime: boolean;
-        // filterOutServicesOnDownHosts: boolean;
-        // filterOutServicesOnAcknowledgedHosts: boolean;
+        /* filterOutDowntime */
+        result = filterDowntime(result, filtersettings);
+        /* filterOutServicesOnDownHosts */
+        result = filterServicesOnDownHosts(result, filtersettings);
+        /* filterOutServicesOnAcknowledgedHosts */
+        result = filterServicesOnAcknowledgedHosts(result, filtersettings);
         // filterOutFlapping: boolean;
         // filterOutAllDown: boolean;
         // filterOutAllUnreachable: boolean;

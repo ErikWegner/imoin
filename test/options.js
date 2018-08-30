@@ -8,7 +8,17 @@ describe('options html', () => {
   const updateDOMforFiltersSpy = sinon.spy(window, 'updateDOMforFilters');
   const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
 
-  const numberOfFilterOptions = 2;
+  const filterOptionsNames = [
+    'filterOutAcknowledged',
+    'filterOutSoftStates',
+    'filterOutDisabledNotifications',
+    'filterOutDisabledChecks',
+    'filterOutServicesOnDownHosts',
+    'filterOutServicesOnAcknowledgedHosts',
+    'filterOutDowntime',
+  ];
+
+  const numberOfFilterOptions = filterOptionsNames.length;
 
   beforeEach(() => {
     // Re-Init global variables
@@ -17,8 +27,8 @@ describe('options html', () => {
     // Stub browser interactions
     updateDOMforInstances = sinon.spy();
     // Reset all spies and stubs
-    saveOptionsSpy.reset();
-    updateDOMforFiltersSpy.reset();
+    saveOptionsSpy.resetHistory();
+    updateDOMforFiltersSpy.resetHistory();
     getFormTextValueStub.reset();
     getCheckboxValueStub.reset();
     setCheckboxValueStub.reset();
@@ -95,7 +105,7 @@ describe('options html', () => {
     const l1 = instances.length;
     addInstance();
     const l2 = instances.length;
-    updateDOMforInstances.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.resetHistory(); // addInstance will call updateDOM
     removeInstance();
     const l3 = instances.length;
 
@@ -113,7 +123,7 @@ describe('options html', () => {
     selectedInstance = 1;
     const removedInstance = instances[selectedInstance];
 
-    updateDOMforInstances.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.resetHistory(); // addInstance will call updateDOM
     removeInstance();
     expect(instances.indexOf(removedInstance)).toBe(-1);
     expect(updateDOMforInstances.calledOnce).toBe(true);
@@ -126,68 +136,62 @@ describe('options html', () => {
     const l1 = selectedInstance;
     const removedInstance = instances[selectedInstance];
 
-    updateDOMforInstances.reset(); // addInstance will call updateDOM
+    updateDOMforInstances.resetHistory(); // addInstance will call updateDOM
     removeInstance();
     expect(instances.indexOf(removedInstance)).toBe(-1);
     expect(l1).toBe(3);
     expect(selectedInstance).toBe(2);
   });
 
-  it('should restore options and update DOM', (done) => {
-    restoreOptions().then(() => {
+  it('should restore options and update DOM', () => {
+    return restoreOptions().then(() => {
       expect(updateDOMforInstances.calledOnce).toBe(true);
-      done();
     });
   });
 
-  it('should restore with null argument', (done) => {
+  it('should restore with null argument', () => {
     loadOptions = sinon.stub().resolves(null);
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('Default');
-      done();
     });
   });
 
-  it('should restore with null value', (done) => {
+  it('should restore with null value', () => {
     loadOptions = sinon.stub().resolves({ instances: null });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('Default');
-      done();
     });
   });
 
-  it('should restore with empty storage', (done) => {
+  it('should restore with empty storage', () => {
     loadOptions = sinon.stub().resolves({ instances: '[]' });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('Default');
-      done();
     });
   });
 
-  it('should restore with filled storage', (done) => {
+  it('should restore with filled storage', () => {
     const r = [createInstance('should restore with filled storage instance')];
     loadOptions = sinon.stub().resolves({ instances: JSON.stringify(r) });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
       expect(instances[0].instancelabel).toBe('should restore with filled storage instance');
-      done();
     });
   });
 
-  it('should restore 4 instances', (done) => {
+  it('should restore 4 instances', () => {
     loadOptions = sinon.stub().resolves({ instances: '[{"instancelabel":"Instance 0","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 1","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 2","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 3","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""}]' });
-    restoreOptions().then(() => {
+    return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(4);
       expect(instances[2].instancelabel).toBe('Instance 2');
-      done();
     });
   });
 
@@ -201,38 +205,44 @@ describe('options html', () => {
     expect(arg[0].instances).toBe(JSON.stringify(instances));
   });
 
-  it('should save filterOutAcknowledged value', () => {
-    const setSpy = host.storage.local.set;
-    addInstance();
-    getCheckboxValueStub.withArgs('#filterOutAcknowledged').returns(1);
+  filterOptionsNames.forEach((optionname, index) => {
+    it('should save ' + optionname + ' value', () => {
+      const setSpy = host.storage.local.set;
+      addInstance();
+      const elementId = '#' + optionname;
+      getCheckboxValueStub.withArgs(elementId).returns(1);
 
-    saveOptions();
+      saveOptions();
 
-    expect(setSpy.callCount).toBe(1);
-    expect(getCheckboxValueStub.called).toBe(true);
-    expect(getCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
-    const arg = setSpy.args[0];
-    const i = JSON.parse(arg[0].instances);
-    expect(i.length).toBe(1);
-    expect(i[0].filtersettings).toBeDefined();
-    expect(i[0].filtersettings.filterOutAcknowledged).toBe(true);
-  });
+      expect(setSpy.callCount).toBe(1);
+      expect(getCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
+      expect(getCheckboxValueStub.args[index][0]).toBe(elementId);
 
-  it('should restore options and update DOM for filters', (done) => {
-    restoreOptions().then(() => {
-      expect(updateDOMforFilters.calledOnce).toBe(true);
-      done();
+      const arg = setSpy.args[0];
+      const i = JSON.parse(arg[0].instances);
+      expect(i.length).toBe(1);
+      expect(i[0].filtersettings).toBeDefined();
+      expect(i[0].filtersettings[optionname]).toBe(true);
     });
   });
 
-  it('should set filterOutAcknowledged checkbox when updating DOM for filters', () => {
-    const a0 = setCheckboxValueStub.callCount;
-    
-    updateDOMforFilters();
-    
-    expect(a0).toBe(0);
-    expect(setCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
-    expect(setCheckboxValueStub.args[0][0]).toBe('#filterOutAcknowledged');
+  it('should restore options and update DOM for filters', () => {
+    return restoreOptions().then(() => {
+      expect(updateDOMforFilters.calledOnce).toBe(true);
+    });
+  });
+
+  filterOptionsNames.forEach((optionname, index) => {
+    it('should set ' + optionname + ' checkbox when updating DOM for filters', () => {
+      const a0 = setCheckboxValueStub.callCount;
+      const elementId = '#' + optionname;
+
+      updateDOMforFilters();
+
+      expect(a0).toBe(0);
+      expect(setCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
+      expect(setCheckboxValueStub.args[index][0]).toBe(elementId);
+    });
   });
 
   /**
@@ -335,16 +345,17 @@ describe('options html', () => {
 
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
-    const emptyFiltersettings = {
-      filterOutAcknowledged: false,
-      filterOutSoftStates: false
-    };
+    const emptyFiltersettings = {};
+    filterOptionsNames.forEach(
+      (optionname) => {
+        emptyFiltersettings[optionname] = false;
+      });
     expect(arg[0].instances).toBe(JSON.stringify(
       [
         {
           "instancelabel": "Instance 0",
           "timerPeriod": 5,
-          "icingaversion": "cgi",
+          "icingaversion": "api1",
           "url": "",
           "username": "",
           "password": "",
@@ -360,7 +371,7 @@ describe('options html', () => {
         }, {
           "instancelabel": "Instance 2",
           "timerPeriod": 5,
-          "icingaversion": "cgi",
+          "icingaversion": "api1",
           "url": "",
           "username": "",
           "password": "",
@@ -368,7 +379,7 @@ describe('options html', () => {
         }, {
           "instancelabel": "Instance 3",
           "timerPeriod": 5,
-          "icingaversion": "cgi",
+          "icingaversion": "api1",
           "url": "",
           "username": "",
           "password": "",
@@ -500,14 +511,13 @@ describe('options html', () => {
       expect(c.hasAudioData).toBeFalsy();
     });
 
-    it('should restore settings from options', (done) => {
+    it('should restore settings from options', () => {
       loadOptions = sinon.stub().resolves({ sounds: '{"sGREEN":{"id":"sGREEN","filename":"","data":null},"xRED":{"id":"xRED","filename":"","data":null}}' });
       const stub = sinon.stub(SoundFileSelectors, 'setFiles');
-      restoreOptions().then(() => {
+      return restoreOptions().then(() => {
         expect(stub.callCount).toBe(1);
         expect(stub.args[0][0]).toEqual({ sGREEN: Object({ id: 'sGREEN', filename: '', data: null }), xRED: Object({ id: 'xRED', filename: '', data: null }) });
         stub.restore();
-        done();
       });
     });
 

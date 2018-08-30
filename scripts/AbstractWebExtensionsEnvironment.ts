@@ -138,6 +138,14 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         }
     }
 
+    protected openOptionsPage(): void {
+        if (this.host.runtime.openOptionsPage) {
+            this.host.runtime.openOptionsPage();
+          } else {
+            window.open(this.host.runtime.getURL('html/options.html'));
+          }
+    }
+
     protected setIcon(icon: IBadgeIcon) {
         this.host.browserAction.setIcon({ path: icon });
     }

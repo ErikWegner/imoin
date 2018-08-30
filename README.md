@@ -3,7 +3,7 @@ Imoin
 
 This is a browser add-on that monitors your Nagios or Icinga instance.
 
-Homepage is at https://ewus.de/en/sw/imoin
+Homepage is at https://imoin.qwirl.eu
 
 ![Screenshot](docs/photo1.png)
 
@@ -17,7 +17,8 @@ Supported versions:
 
 * Icinga 2
 * Nagios Core 4.0.7+
-* Nagios 3+
+* Icinga 1 (deprecated)
+* Nagios 3+ (deprecated)
 
 Done
 ====

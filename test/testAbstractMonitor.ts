@@ -9,6 +9,9 @@ import { fail } from 'assert';
 import { ImoinMonitorInstance, IcingaOptionsVersion } from '../scripts/Settings';
 import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
 import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
+import { HostBuilder } from './abstractHelpers/HostBuilder';
+import { MonitorStatusBuilder } from './abstractHelpers/MonitorStatusBuilder';
+import { filterSettingsTests } from './filterSettingsTestsCommons';
 
 describe('AbstractMonitor', () => {
   function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {
@@ -90,153 +93,207 @@ describe('AbstractMonitor', () => {
   });
 
   describe('filterStatus', () => {
-    describe('filterOutAcknowledged', () => {
-      function buildHostAck(title: string) {
-        const host = new Monitor.Host(title);
-        host.hasBeenAcknowledged = true;
-        return host;
-      }
+    Object.keys(filterSettingsTests).forEach((description) => {
+      const options = filterSettingsTests[description];
 
-      it('should filter acknowledged hosts (appearsInShortlist)', () => {
-        // Arrange
-        const status = new Monitor.MonitorData();
-        status.addHost(new Monitor.Host('Not ack 1'));
-        status.addHost(new Monitor.Host('Not ack 2'));
-        status.addHost(buildHostAck('ack=true 1'));
-        status.addHost(new Monitor.Host('Not ack 3'));
-        status.addHost(buildHostAck('ack=true 2'));
-        status.addHost(new Monitor.Host('Not ack 4'));
-        status.hosts.forEach((h) => h.setState('DOWN'));
+      describe(description, () => {
+        function buildSettings() {
+          return FilterSettingsBuilder.plain().setup(options.setupFilterSettingsBuilder).build();
+        }
 
-        const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
+        it('should filter ' + description + ' hosts (appearsInShortlist)', () => {
+          // Arrange
+          const status = new MonitorStatusBuilder()
+            .Host('H1').Down()
+            .Host('H2').Down()
+            .Host('H3').Down().setup(options.setupHost)
+            .Host('H4').Down()
+            .Host('H5').Down().setup(options.setupHost)
+            .Host('H6').Down()
+            .BuildStatus();
 
-        // Act
-        const result = AbstractMonitor.applyFilters(status, filtersettings);
+          const filtersettings = buildSettings();
 
-        // Assert
-        expect(result.map((h) => h.getHost().appearsInShortlist)).to.deep.equal([
-          true, true, true, true
-        ]);
-        expect(status.hosts.map((h) => h.appearsInShortlist)).to.deep.equal([
-          true, true, false, true, false, true
-        ]);
+          // Act
+          const result = AbstractMonitor.applyFilters(status, filtersettings);
+
+          // Assert
+          expect(result.map((h) => h.getHost().appearsInShortlist)).to.deep.equal([
+            true, true, true, true
+          ]);
+          expect(status.hosts.map((h) => h.appearsInShortlist)).to.deep.equal([
+            true, true, false, true, false, true
+          ]);
+        });
+
+        it('should apply filter ' + description + ' to hosts (filteredState is UP)', () => {
+          const status = new MonitorStatusBuilder()
+            .Host('H1').Down()
+            .Host('H2').Down()
+            .Host('H3').Down().setup(options.setupHost)
+            .Host('H4').Down()
+            .Host('H5').Down().setup(options.setupHost)
+            .Host('H6').Down()
+            .BuildStatus();
+
+          const filtersettings = buildSettings();
+          const result = AbstractMonitor.applyFilters(status, filtersettings);
+
+          expect(result).to.have.lengthOf(4);
+        });
+
+        it('should filter ' + description + ' services (host.appearsInShortlist)', () => {
+          const status = new Monitor.MonitorData();
+          status.addHost(new Monitor.Host('Not ack 1'));
+          status.addHost(new Monitor.Host('Not ack 2'));
+          status.addHost(new Monitor.Host('Not ack 3'));
+          status.addHost(new Monitor.Host('Not ack 4'));
+          status.addHost(new Monitor.Host('Not ack 5'));
+          status.addHost(new Monitor.Host('Not ack 6'));
+          /* All hosts are up */
+          status.hosts.forEach((h) => h.setState('UP'));
+
+          ServiceBuilder
+            .create('S1').withStatus('OK')
+            .addToHost(status.hosts[0]);
+          ServiceBuilder
+            .create('S2').withStatus('WARNING')
+            .addToHost(status.hosts[1]);
+          ServiceBuilder
+            .create('S3').withStatus('CRITICAL')
+            .setup(options.setupService)
+            .addToHost(status.hosts[2]);
+          ServiceBuilder
+            .create('S4').withStatus('OK')
+            .addToHost(status.hosts[3]);
+          ServiceBuilder
+            .create('S5').withStatus('WARNING')
+            .setup(options.setupService)
+            .addToHost(status.hosts[4]);
+          ServiceBuilder
+            .create('S6').withStatus('CRITICAL')
+            .addToHost(status.hosts[5]);
+
+          const filtersettings = buildSettings();
+          const result = AbstractMonitor.applyFilters(status, filtersettings);
+
+          // 2 hosts with errors remain after filtering (other failures are acknowledged)
+          expect(result).to.have.lengthOf(2);
+
+          // Host has no problems
+          expect(status.hosts[0].appearsInShortlist).to.eq(false);
+          // Host has a service problem and problem is not acknowledged
+          expect(status.hosts[1].appearsInShortlist).to.eq(true);
+          // Host has a service problem but problem is acknowledged
+          expect(status.hosts[2].appearsInShortlist).to.eq(false);
+          // Host has no problems
+          expect(status.hosts[3].appearsInShortlist).to.eq(false);
+          // Host has a service problem but problem is acknowledged
+          expect(status.hosts[4].appearsInShortlist).to.eq(false);
+          // Host has a service problem and problem is not acknowledged
+          expect(status.hosts[5].appearsInShortlist).to.eq(true);
+        });
+
+        it('should filter ' + description + ' services (service.appearsInShortlist)', () => {
+          const status = new Monitor.MonitorData();
+          status.addHost(new Monitor.Host('Not ack 1'));
+          status.addHost(new Monitor.Host('Not ack 2'));
+          status.addHost(new Monitor.Host('Not ack 3'));
+          status.addHost(new Monitor.Host('Not ack 4'));
+          status.addHost(new Monitor.Host('Not ack 5'));
+          status.addHost(new Monitor.Host('Not ack 6'));
+          /* All hosts are up */
+          status.hosts.forEach((h) => h.setState('UP'));
+
+          ServiceBuilder
+            .create('S1').withStatus('OK')
+            .addToHost(status.hosts[0]);
+          ServiceBuilder
+            .create('S2').withStatus('WARNING')
+            .addToHost(status.hosts[0]);
+          ServiceBuilder
+            .create('S3').withStatus('CRITICAL')
+            .setup(options.setupService)
+            .addToHost(status.hosts[0]);
+          ServiceBuilder
+            .create('S4').withStatus('OK')
+            .addToHost(status.hosts[1]);
+          ServiceBuilder
+            .create('S5').withStatus('WARNING')
+            .setup(options.setupService)
+            .addToHost(status.hosts[1]);
+          ServiceBuilder
+            .create('S6').withStatus('CRITICAL')
+            .addToHost(status.hosts[1]);
+
+          const filtersettings = buildSettings();
+          const result = AbstractMonitor.applyFilters(status, filtersettings);
+
+          // S1 service has no problem
+          expect(result[0].getHost().services[0].appearsInShortlist).to.eq(false);
+          // S2 has a problem and problem is not acknowledged
+          expect(result[0].getHost().services[1].appearsInShortlist).to.eq(true);
+          // S3 has a problem and problem is acknowledged
+          expect(result[0].getHost().services[2].appearsInShortlist).to.eq(false);
+          // S4 service has no problem
+          expect(result[1].getHost().services[0].appearsInShortlist).to.eq(false);
+          // S5 has a problem and problem is acknowledged
+          expect(result[1].getHost().services[1].appearsInShortlist).to.eq(false);
+          // S6 has a problem and problem is not acknowledged
+          expect(result[1].getHost().services[2].appearsInShortlist).to.eq(true);
+        });
       });
+    });
+  });
 
-      it('should filter acknowledged hosts (filteredState is UP)', () => {
-        const status = new Monitor.MonitorData();
-        status.addHost(new Monitor.Host('Not ack 1'));
-        status.addHost(new Monitor.Host('Not ack 2'));
-        status.addHost(buildHostAck('ack=true 1'));
-        status.addHost(new Monitor.Host('Not ack 3'));
-        status.addHost(buildHostAck('ack=true 2'));
-        status.addHost(new Monitor.Host('Not ack 4'));
-        status.hosts.forEach((h) => h.setState('DOWN'));
+  describe('filterOutServicesOnDownHosts', () => {
+    it('should apply filter', () => {
+      const status = new MonitorStatusBuilder()
+        .Host('H1').Down()
+        .Host('H2').Down().Service('S1', (b) => b.withStatus('WARNING'))
+        .Host('H3').Down().Service('S2', (b) => b.withStatus('CRITICAL'))
+        .Host('H4')
+        .BuildStatus();
 
-        const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
-        const result = AbstractMonitor.applyFilters(status, filtersettings);
+      const filtersettings = FilterSettingsBuilder
+        .plain()
+        .filterOutServicesOnDownHosts() // only DOWN hosts
+        .build();
 
-        expect(result).to.have.lengthOf(4);
+      const result = AbstractMonitor.applyFilters(status, filtersettings);
+
+      expect(result).to.have.lengthOf(4);
+      result.forEach((fhost) => {
+        expect(fhost.getFServices()).to.have.lengthOf(0);
       });
+    });
+  });
 
-      it('should filter acknowledged services (host appearsInShortlist)', () => {
-        const status = new Monitor.MonitorData();
-        status.addHost(new Monitor.Host('Not ack 1'));
-        status.addHost(new Monitor.Host('Not ack 2'));
-        status.addHost(new Monitor.Host('Not ack 3'));
-        status.addHost(new Monitor.Host('Not ack 4'));
-        status.addHost(new Monitor.Host('Not ack 5'));
-        status.addHost(new Monitor.Host('Not ack 6'));
-        /* All hosts are up */
-        status.hosts.forEach((h) => h.setState('UP'));
+  describe('filterOutServicesOnAcknowledgedHosts', () => {
+    it('should apply filter', () => {
+      const status = new MonitorStatusBuilder()
+        .Host('H1').Down()
+        .Host('H2').HasBeenAcknowledged().Service('S1', (b) => b.withStatus('WARNING'))
+        .Host('H3').Service('S2', (b) => b.withStatus('CRITICAL'))
+        .Host('H4')
+        .Host('H5').Service('S1', (b) => b.withStatus('WARNING'))
+        .Host('H6').HasBeenAcknowledged().Service('S2', (b) => b.withStatus('CRITICAL'))
+        .Host('H7').HasBeenAcknowledged()
+        .BuildStatus();
 
-        ServiceBuilder
-          .create('S1').withStatus('OK')
-          .addToHost(status.hosts[0]);
-        ServiceBuilder
-          .create('S2').withStatus('WARNING')
-          .addToHost(status.hosts[1]);
-        ServiceBuilder
-          .create('S3').withStatus('CRITICAL')
-          .hasBeenAcknowledged()
-          .addToHost(status.hosts[2]);
-        ServiceBuilder
-          .create('S4').withStatus('OK')
-          .addToHost(status.hosts[3]);
-        ServiceBuilder
-          .create('S5').withStatus('WARNING')
-          .hasBeenAcknowledged()
-          .addToHost(status.hosts[4]);
-        ServiceBuilder
-          .create('S6').withStatus('CRITICAL')
-          .addToHost(status.hosts[5]);
+      const filtersettings = FilterSettingsBuilder
+        .plain()
+        .filterOutServicesOnAcknowledgedHosts()
+        .build();
 
-        const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
-        const result = AbstractMonitor.applyFilters(status, filtersettings);
+      const result = AbstractMonitor.applyFilters(status, filtersettings);
 
-        // 2 hosts with errors remain after filtering (other failures are acknowledged)
-        expect(result).to.have.lengthOf(2);
-
-        // Host has no problems
-        expect(status.hosts[0].appearsInShortlist).to.eq(false);
-        // Host has a service problem and problem is not acknowledged
-        expect(status.hosts[1].appearsInShortlist).to.eq(true);
-        // Host has a service problem but problem is acknowledged
-        expect(status.hosts[2].appearsInShortlist).to.eq(false);
-        // Host has no problems
-        expect(status.hosts[3].appearsInShortlist).to.eq(false);
-        // Host has a service problem but problem is acknowledged
-        expect(status.hosts[4].appearsInShortlist).to.eq(false);
-        // Host has a service problem and problem is not acknowledged
-        expect(status.hosts[5].appearsInShortlist).to.eq(true);
-      });
-
-      it('should filter acknowledged services (service appearsInShortlist)', () => {
-        const status = new Monitor.MonitorData();
-        status.addHost(new Monitor.Host('Not ack 1'));
-        status.addHost(new Monitor.Host('Not ack 2'));
-        status.addHost(new Monitor.Host('Not ack 3'));
-        status.addHost(new Monitor.Host('Not ack 4'));
-        status.addHost(new Monitor.Host('Not ack 5'));
-        status.addHost(new Monitor.Host('Not ack 6'));
-        /* All hosts are up */
-        status.hosts.forEach((h) => h.setState('UP'));
-
-        ServiceBuilder
-          .create('S1').withStatus('OK')
-          .addToHost(status.hosts[0]);
-        ServiceBuilder
-          .create('S2').withStatus('WARNING')
-          .addToHost(status.hosts[0]);
-        ServiceBuilder
-          .create('S3').withStatus('CRITICAL')
-          .hasBeenAcknowledged()
-          .addToHost(status.hosts[0]);
-        ServiceBuilder
-          .create('S4').withStatus('OK')
-          .addToHost(status.hosts[1]);
-        ServiceBuilder
-          .create('S5').withStatus('WARNING')
-          .hasBeenAcknowledged()
-          .addToHost(status.hosts[1]);
-        ServiceBuilder
-          .create('S6').withStatus('CRITICAL')
-          .addToHost(status.hosts[1]);
-
-        const filtersettings = FilterSettingsBuilder.plain().filterOutAcknowledged().build();
-        const result = AbstractMonitor.applyFilters(status, filtersettings);
-
-        // S1 service has no problem
-        expect(result[0].getHost().services[0].appearsInShortlist).to.eq(false);
-        // S2 has a problem and problem is not acknowledged
-        expect(result[0].getHost().services[1].appearsInShortlist).to.eq(true);
-        // S3 has a problem and problem is acknowledged
-        expect(result[0].getHost().services[2].appearsInShortlist).to.eq(false);
-        // S4 service has no problem
-        expect(result[1].getHost().services[0].appearsInShortlist).to.eq(false);
-        // S5 has a problem and problem is acknowledged
-        expect(result[1].getHost().services[1].appearsInShortlist).to.eq(false);
-        // S6 has a problem and problem is not acknowledged
-        expect(result[1].getHost().services[2].appearsInShortlist).to.eq(true);
+      const resultHostsAndServices: { [hostname: string]: number } = {};
+      result.forEach(
+        (host) => resultHostsAndServices[host.getHost().name] = host.getFServices().length
+      );
+      expect(resultHostsAndServices).to.deep.equal({
+        H1: 0, H2: 0, H3: 1, H4: 0, H5: 1, H6: 0, H7: 0
       });
     });
   });

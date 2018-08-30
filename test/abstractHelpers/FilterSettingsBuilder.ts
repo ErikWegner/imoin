@@ -35,6 +35,11 @@ export class FilterSettingsBuilder {
     }
   }
 
+  public setup(f: (sb: FilterSettingsBuilder) => void) {
+    f(this);
+    return this;
+  }
+
   public filterOutAcknowledged() {
     this.filtersettings.filterOutAcknowledged = true;
     return this;
@@ -42,6 +47,31 @@ export class FilterSettingsBuilder {
 
   public filterOutSoftStates() {
     this.filtersettings.filterOutSoftStates = true;
+    return this;
+  }
+
+  public filterOutNotificationDisabled() {
+    this.filtersettings.filterOutDisabledNotifications = true;
+    return this;
+  }
+
+  public filterOutDisabledChecks() {
+    this.filtersettings.filterOutDisabledChecks = true;
+    return this;
+  }
+
+  public filterOutServicesOnDownHosts() {
+    this.filtersettings.filterOutServicesOnDownHosts = true;
+    return this;
+  }
+
+  public filterOutServicesOnAcknowledgedHosts() {
+    this.filtersettings.filterOutServicesOnAcknowledgedHosts = true;
+    return this;
+  }
+
+  public filterOutDowntime() {
+    this.filtersettings.filterOutDowntime = true;
     return this;
   }
 

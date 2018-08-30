@@ -1,41 +1,45 @@
-import { IEnvironment } from '../IEnvironment';
 import { Monitor } from './MonitorData';
 import { AbstractMonitor } from './AbstractMonitor';
-import Status = Monitor.Status;
-import { Settings } from '../Settings';
 import { UICommand } from '../UICommand';
+import { FilterSettings } from '../Settings';
 
-enum IcingaStateType {
+export enum IcingaStateType {
     SOFT = 0,
     HARD = 1
-  }
+}
 
-export interface IHostJsonData {
+export interface IIcinga2HostJsonData {
     results: Array<{
         attrs: {
             acknowledgement?: number
             display_name: string
+            downtime_depth?: number
+            enable_notifications?: boolean
             last_check_result: {
                 state: number
                 output: string
             },
             state_type?: IcingaStateType,
+            enable_active_checks?: boolean,
         }
         name: string
     }>;
 }
 
-export interface IServiceJsonData {
+export interface IIcinga2ServiceJsonData {
     results: Array<{
         attrs: {
             acknowledgement?: number
             display_name: string
+            downtime_depth?: number
+            enable_notifications?: boolean
             last_check_result: {
                 /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
                 state: number
                 output: string
             },
             state_type?: IcingaStateType,
+            enable_active_checks?: boolean,
         }
         name: string
     }>;
@@ -43,8 +47,8 @@ export interface IServiceJsonData {
 
 export class IcingaApi extends AbstractMonitor {
     public static processData(
-        hostdata: IHostJsonData,
-        servicedata: IServiceJsonData,
+        hostdata: IIcinga2HostJsonData,
+        servicedata: IIcinga2ServiceJsonData,
         index: number
     ): Monitor.MonitorData {
         if (
@@ -69,6 +73,18 @@ export class IcingaApi extends AbstractMonitor {
             if (hostdatahost.attrs.acknowledgement > 0) {
                 host.hasBeenAcknowledged = true;
             }
+            host.notificationsDisabled =
+                typeof hostdatahost.attrs.enable_notifications === 'undefined'
+                    ? false
+                    : !hostdatahost.attrs.enable_notifications;
+            host.checksDisabled =
+                typeof hostdatahost.attrs.enable_active_checks === 'undefined'
+                    ? false
+                    : !hostdatahost.attrs.enable_active_checks;
+            host.isInDowntime =
+                typeof hostdatahost.attrs.downtime_depth === 'undefined'
+                    ? false
+                    : hostdatahost.attrs.downtime_depth > 0;
             m.addHost(host);
         });
 
@@ -95,6 +111,18 @@ export class IcingaApi extends AbstractMonitor {
                     service.hasBeenAcknowledged = true;
                 }
                 service.isInSoftState = jsonservice.attrs.state_type === 0;
+                service.notificationsDisabled =
+                    typeof jsonservice.attrs.enable_notifications === 'undefined'
+                        ? false
+                        : !jsonservice.attrs.enable_notifications;
+                service.checksDisabled =
+                    typeof jsonservice.attrs.enable_active_checks === 'undefined'
+                        ? false
+                        : !jsonservice.attrs.enable_active_checks;
+                service.isInDowntime =
+                    typeof jsonservice.attrs.downtime_depth === 'undefined'
+                        ? false
+                        : jsonservice.attrs.downtime_depth > 0;
                 host.addService(service);
             }
         });
@@ -104,7 +132,7 @@ export class IcingaApi extends AbstractMonitor {
 
     public fetchStatus(): Promise<Monitor.MonitorData> {
         return new Promise<Monitor.MonitorData>(
-            (resolve, reject) => {
+            (resolve) => {
                 const hosturl = this.settings.url +
                     '/v1/objects/hosts?' + this.hostAttrs();
                 const servicesurl = this.settings.url +
@@ -137,27 +165,33 @@ export class IcingaApi extends AbstractMonitor {
     }
 
     protected hostAttrs() {
-        const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
+        const attrs = ['display_name', 'last_check_result'];
         if (this.settings.filtersettings) {
             const f = this.settings.filtersettings;
-            if (f.filterOutSoftStates) {
-                attrs.push('state_type');
-            }
+
+            const queryParamToFilterSetting: { [key: string]: keyof FilterSettings } = {
+                acknowledgement: 'filterOutAcknowledged',
+                state_type: 'filterOutSoftStates',
+                enable_notifications: 'filterOutDisabledNotifications',
+                enable_active_checks: 'filterOutDisabledChecks',
+                downtime_depth: 'filterOutDowntime',
+            };
+
+            Object
+                .keys(queryParamToFilterSetting)
+                .forEach((queryparam) => {
+                    const filterSettingsKey = queryParamToFilterSetting[queryparam];
+                    if (f[filterSettingsKey]) {
+                        attrs.push(queryparam);
+                    }
+                });
         }
 
         return attrs.map((attr) => 'attrs=' + attr).join('&');
     }
 
     protected serviceAttrs() {
-        const attrs = ['display_name', 'last_check_result', 'acknowledgement'];
-        if (this.settings.filtersettings) {
-            const f = this.settings.filtersettings;
-            if (f.filterOutSoftStates) {
-                attrs.push('state_type');
-            }
-        }
-
-        return attrs.map((attr) => 'attrs=' + attr).join('&');
+        return this.hostAttrs();
     }
 
     protected handleUICommand(param: UICommand): void {

@@ -21,13 +21,33 @@ export class ServiceBuilder {
     return this;
   }
 
+  public notificationsDisabled() {
+    this.service.notificationsDisabled = true;
+    return this;
+  }
+
+  public disableChecks() {
+    this.service.checksDisabled = true;
+    return this;
+  }
+
   public inSoftState(): any {
     this.service.isInSoftState = true;
     return this;
   }
 
+  public inDowntime(): any {
+    this.service.isInDowntime = true;
+    return this;
+  }
+
   public addToHost(host: Monitor.Host) {
     host.addService(this.service);
+    return this;
+  }
+
+  public setup(f: (sb: ServiceBuilder) => void) {
+    f(this);
     return this;
   }
 }

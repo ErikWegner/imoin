@@ -20,6 +20,10 @@ export class FHost {
      this.fservices.filter(fn);
   }
 
+  public removeAllServices() {
+    this.fservices = [];
+  }
+
   public getHost() {
     return this.host;
   }

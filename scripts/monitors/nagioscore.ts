@@ -37,7 +37,7 @@ enum NagiosServiceState {
   Critical = 16,
 }
 
-interface IHostJsonData {
+export interface INagiosCoreHostJsonData {
   data: {
     hostlist: {
       [hostname: string]: {
@@ -46,12 +46,15 @@ interface IHostJsonData {
         state_type: NagiosStateType,
         plugin_output: string,
         problem_has_been_acknowledged: boolean,
+        notifications_enabled: boolean,
+        checks_enabled: boolean,
+        scheduled_downtime_depth: number,
       }
     };
   };
 }
 
-interface IServiceJsonData {
+export interface INagiosCoreServiceJsonData {
   data: {
     servicelist: {
       [hostname: string]: {
@@ -63,6 +66,9 @@ interface IServiceJsonData {
           state_type: NagiosStateType,
           plugin_output: string,
           problem_has_been_acknowledged: boolean,
+          notifications_enabled: boolean,
+          checks_enabled: boolean,
+          scheduled_downtime_depth: number,
         }
       }
     }
@@ -90,6 +96,10 @@ export class NagiosCore extends AbstractMonitor {
             let hostdata;
             let servicedata;
             try {
+              if (a[0] === '\n' || a[0] === '') {
+                resolve(Monitor.ErrorMonitorData(
+                  'Empty host data response.'));
+              }
               hostdata = JSON.parse(a[0]);
             } catch (hosterr) {
               resolve(Monitor.ErrorMonitorData('Could not parse host data.', Constants.UrlDebug));
@@ -124,8 +134,8 @@ export class NagiosCore extends AbstractMonitor {
   }
 
   protected processData(
-    hostdata: IHostJsonData,
-    servicedata: IServiceJsonData
+    hostdata: INagiosCoreHostJsonData,
+    servicedata: INagiosCoreServiceJsonData
   ): Monitor.MonitorData {
     if (hostdata == null || servicedata == null) {
       return Monitor.ErrorMonitorData('Result empty');
@@ -139,9 +149,13 @@ export class NagiosCore extends AbstractMonitor {
       host.instanceindex = index;
       hostByName[host.name] = host;
       host.setState(NagiosHostStateToHostState(hostdatahost.status));
+      host.hostlink = this.settings.url + '/cgi-bin/extinfo.cgi?type=1&host=' + hostdatahost.name;
       host.checkresult = hostdatahost.plugin_output;
       host.hasBeenAcknowledged = hostdatahost.problem_has_been_acknowledged;
       host.isInSoftState = hostdatahost.state_type === 0;
+      host.notificationsDisabled = !hostdatahost.notifications_enabled;
+      host.checksDisabled = !hostdatahost.checks_enabled;
+      host.isInDowntime = hostdatahost.scheduled_downtime_depth > 0;
       m.addHost(host);
     });
 
@@ -156,12 +170,27 @@ export class NagiosCore extends AbstractMonitor {
           service.checkresult = servicedataservice.plugin_output;
           service.hasBeenAcknowledged = servicedataservice.problem_has_been_acknowledged;
           service.isInSoftState = servicedataservice.state_type === 0;
+          service.notificationsDisabled = !servicedataservice.notifications_enabled;
+          service.checksDisabled = !servicedataservice.checks_enabled;
+          service.isInDowntime = servicedataservice.scheduled_downtime_depth > 0;
           service.host = host.name;
+          service.servicelink = this.buildServiceLink(service);
           host.addService(service);
         }
       });
     });
 
     return m;
+  }
+
+  protected buildServiceLink(service: Monitor.Service): string {
+    const encodedServicename = encodeURIComponent(service.name).replace(/\%20/g, '+');
+    return this.settings.url +
+      '/cgi-bin/extinfo.cgi?' +
+      ([
+        'type=2',
+        'host=' + service.host,
+        'service=' + encodedServicename
+      ].join('&'));
   }
 }

@@ -1,13 +1,28 @@
 import 'mocha';
 import { fail } from 'assert';
-import { assert, expect } from 'chai';
-
+import { expect } from 'chai';
 import { Monitor, NagiosCore } from '../scripts/monitors';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { ImoinMonitorInstance } from '../scripts/Settings';
+import { SettingsBuilder } from './abstractHelpers/SettingsBuilder';
+import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
+import { LoadCallbackBuilder } from './abstractHelpers/LoadCallbackBuilder';
+import { filterSettingsTests } from './filterSettingsTestsCommons';
 
 describe('NagiosCore', () => {
-  it('should handle JSON.parse-exception for host data', (done) => {
+  function loadCallback(hostsdata: string, servicesdata: string) {
+    return (url: string): Promise<string> => {
+      if (url.indexOf('hostlist') > -1) {
+        return Promise.resolve(hostsdata);
+      }
+      if (url.indexOf('servicelist') > -1) {
+        return Promise.resolve(servicesdata);
+      }
+      fail('loadCallback not configured for ', url);
+    };
+  }
+
+  it('should handle JSON.parse-exception for host data', () => {
     const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
     e.loadCallback = (url, user, passwd): Promise<string> => {
@@ -29,17 +44,13 @@ describe('NagiosCore', () => {
       password: 'pass',
     };
     u.init(e, settings, 0);
-    u.fetchStatus().then((r) => {
+    return u.fetchStatus().then((r) => {
       expect(r.getState()).to.equal(Monitor.Status.RED);
       expect(r.getMessage()).to.equal('Could not parse host data.');
-      done();
-    }).catch((err) => {
-      fail(err);
-      done();
     });
   });
 
-  it('should handle JSON.parse-exception for service data', (done) => {
+  it('should handle JSON.parse-exception for service data', () => {
     const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
     e.loadCallback = (url, user, passwd): Promise<string> => {
@@ -61,171 +72,134 @@ describe('NagiosCore', () => {
       password: 'pass',
     };
     u.init(e, settings, 0);
-    u.fetchStatus().then((r) => {
+    return u.fetchStatus().then((r) => {
       expect(r.getState()).to.equal(Monitor.Status.RED);
       expect(r.getMessage()).to.equal('Could not parse service data.');
-      done();
-    }).catch((err) => {
-      fail(err);
-      done();
     });
   });
 
-  it('should set hasBeenAcknowledged on host', (done) => {
+  it('should set link to host page', () => {
+    const baseurl = 'http://nagioscore.demos.nagios.com/nagios';
+    const pathAndQuery = '/cgi-bin/extinfo.cgi?type=1&host=';
     const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
-    e.loadCallback = (url, user, passwd): Promise<string> => {
-      if (url.indexOf('hostlist') > -1) {
-        const hostdata = {
-          data: {
-            hostlist: {
-              host1 : {
-                name: 'host1',
-                status: 4,
-                plugin_output: '',
-                problem_has_been_acknowledged: false
-              },
-              host2 : {
-                name: 'host2',
-                status: 4,
-                plugin_output: '',
-                problem_has_been_acknowledged: true
-              },
-            }
-          }
-        };
-        return Promise.resolve(JSON.stringify(hostdata));
-      }
-      if (url.indexOf('servicelist') > -1) {
-        const servicedata = {
-          data: {
-            servicelist: {
-              host1: {
-                service1: {
-                  host_name: 'host1',
-                  description: '',
-                  status: 16,
-                  last_check: 1521236816000,
-                  plugin_output: '',
-                  problem_has_been_acknowledged: false
-                }
-              },
-              host2: {
-                service2: {
-                  host_name: 'host2',
-                  description: '',
-                  status: 16,
-                  last_check: 1521236816000,
-                  plugin_output: '',
-                  problem_has_been_acknowledged: true
-                }
-              },
-            }
-          }
-        };
-        return Promise.resolve(JSON.stringify(servicedata));
-      }
-      fail('loadCallback not configured for ', url);
-      return Promise.reject('No');
-    };
-    const settings: ImoinMonitorInstance = {
-      icingaversion: 'nagioshtml',
-      instancelabel: 'unittest',
-      url: '/unittest',
-      timerPeriod: 5,
-      username: 'user',
-      password: 'pass',
-    };
-    u.init(e, settings, 0);
-    u.fetchStatus().then((r) => {
-      expect(r.hosts).to.have.lengthOf(2);
-      expect(r.hosts[0].hasBeenAcknowledged).to.eq(false);
-      expect(r.hosts[1].hasBeenAcknowledged).to.eq(true);
-      expect(r.hosts[0].services[0].hasBeenAcknowledged).to.eq(false);
-      expect(r.hosts[1].services[0].hasBeenAcknowledged).to.eq(true);
-      done();
-    }).catch((err) => {
-      fail(err);
-      done();
-    });
-  });
+    const settings = SettingsBuilder.create('nagioscore').build();
+    settings.url = baseurl;
 
-  it('should set isInSoftState on host and service', () => {
-    const u = new NagiosCore();
-    const e = new MockAbstractEnvironment();
-    e.loadCallback = (url, user, passwd): Promise<string> => {
-      if (url.indexOf('hostlist') > -1) {
-        const hostdata = {
-          data: {
-            hostlist: {
-              host1 : {
-                name: 'host1',
-                status: 4,
-                plugin_output: '',
-                problem_has_been_acknowledged: false,
-                state_type: 1,
-              },
-              host2 : {
-                name: 'host2',
-                status: 4,
-                plugin_output: '',
-                problem_has_been_acknowledged: true,
-                state_type: 0,
-              },
-            }
-          }
-        };
-        return Promise.resolve(JSON.stringify(hostdata));
-      }
-      if (url.indexOf('servicelist') > -1) {
-        const servicedata = {
-          data: {
-            servicelist: {
-              host1: {
-                service1: {
-                  host_name: 'host1',
-                  description: '',
-                  status: 16,
-                  last_check: 1521236816000,
-                  plugin_output: '',
-                  problem_has_been_acknowledged: false,
-                  state_type: 1,
-                }
-              },
-              host2: {
-                service2: {
-                  host_name: 'host2',
-                  description: '',
-                  status: 16,
-                  last_check: 1521236816000,
-                  plugin_output: '',
-                  problem_has_been_acknowledged: true,
-                  state_type: 0,
-                }
-              },
-            }
-          }
-        };
-        return Promise.resolve(JSON.stringify(servicedata));
-      }
-      fail('loadCallback not configured for ', url);
-      return Promise.reject('No');
-    };
-    const settings: ImoinMonitorInstance = {
-      icingaversion: 'nagioshtml',
-      instancelabel: 'unittest',
-      url: '/unittest',
-      timerPeriod: 5,
-      username: 'user',
-      password: 'pass',
-    };
+    const data = new LoadCallbackBuilder()
+      .Host('H1')
+      .Host('H2')
+      .BuildCallbacks('nagioscore');
+
+    e.loadCallback = loadCallback(data[0], data[1]);
+
     u.init(e, settings, 0);
     return u.fetchStatus().then((r) => {
       expect(r.hosts).to.have.lengthOf(2);
-      expect(r.hosts[0].isInSoftState).to.eq(false);
-      expect(r.hosts[1].isInSoftState).to.eq(true);
-      expect(r.hosts[0].services[0].isInSoftState).to.eq(false);
-      expect(r.hosts[1].services[0].isInSoftState).to.eq(true);
+      expect(r.hosts[0].hostlink).to.equal(`${baseurl}${pathAndQuery}H1`);
+      expect(r.hosts[1].hostlink).to.equal(`${baseurl}${pathAndQuery}H2`);
+    });
+  });
+
+  it('should set link to service page', () => {
+    const baseurl = 'http://nagioscore.demos.nagios.com/nagios';
+    const pathAndQuery = '/cgi-bin/extinfo.cgi?type=2&';
+    const u = new NagiosCore();
+    const e = new MockAbstractEnvironment();
+    const settings = SettingsBuilder.create('nagioscore').build();
+    settings.url = baseurl;
+
+    const data = new LoadCallbackBuilder()
+      .Host('H1')
+      .Service('/ Disk Usage', () => { /* no op */ })
+      .Service('SSH Server', () => { /* no op */ })
+      .Host('H2')
+      .Service('S3', () => { /* no op */ })
+      .BuildCallbacks('nagioscore');
+
+    e.loadCallback = loadCallback(data[0], data[1]);
+
+    u.init(e, settings, 0);
+    return u.fetchStatus().then((r) => {
+      expect(r.hosts).to.have.lengthOf(2);
+      const host1 = r.hosts[0];
+      expect(host1.services).to.have.lengthOf(2);
+      expect(host1.services[0].servicelink)
+        .to.equal(`${baseurl}${pathAndQuery}host=H1&service=%2F+Disk+Usage`);
+      expect(host1.services[1].servicelink)
+        .to.equal(`${baseurl}${pathAndQuery}host=H1&service=SSH+Server`);
+      const host2 = r.hosts[1];
+      expect(host2.services).to.have.lengthOf(1);
+      expect(host2.services[0].servicelink).to.equal(`${baseurl}${pathAndQuery}host=H2&service=S3`);
+    });
+  });
+
+  Object.keys(filterSettingsTests).forEach((description) => {
+    const options = filterSettingsTests[description];
+    describe(description, () => {
+
+      function buildSettings() {
+        const settings = SettingsBuilder.create('nagioscore').build();
+        FilterSettingsBuilder.with(settings)
+          .setup(options.setupFilterSettingsBuilder);
+        return settings;
+      }
+
+      it('should set ' + options.hostProperty + ' on host', () => {
+        const u = new NagiosCore();
+        const e = new MockAbstractEnvironment();
+
+        const data = new LoadCallbackBuilder()
+          .Host('H1')
+          .setup(options.setupHost)
+          .Host('H2')
+          .BuildCallbacks('nagioscore');
+
+        e.loadCallback = loadCallback(data[0], data[1]);
+
+        const settings = buildSettings();
+
+        u.init(e, settings, 0);
+        return u.fetchStatus().then((r) => {
+          expect(r.hosts).to.have.lengthOf(2);
+          expect(r.hosts[0][options.hostProperty]).to.equal(true);
+          expect(r.hosts[1][options.hostProperty]).to.equal(false);
+        });
+      });
+
+      it('should set ' + options.serviceProperty + ' on service', () => {
+        const u = new NagiosCore();
+        const e = new MockAbstractEnvironment();
+        const settings = buildSettings();
+
+        const data = new LoadCallbackBuilder()
+          .Host('H1')
+          .Service('S1', options.setupService)
+          .Service('S2', () => { /* no op */ })
+          .BuildCallbacks('nagioscore');
+
+        e.loadCallback = loadCallback(data[0], data[1]);
+
+        u.init(e, settings, 0);
+        return u
+          .fetchStatus()
+          .then((v) => {
+            expect(v.hosts).to.have.lengthOf(1);
+            if (v.hosts.length > 0) {
+              expect(v.hosts[0].name).to.equal('H1');
+              const services = v.hosts[0].services;
+              expect(services).to.have.lengthOf(2);
+              if (services.length > 1) {
+                expect(services[0][options.serviceProperty]).to.equal(true);
+                expect(services[1][options.serviceProperty]).to.equal(false);
+              } else {
+                fail('Services missing');
+              }
+            } else {
+              fail('No host');
+            }
+          });
+      });
     });
   });
 });

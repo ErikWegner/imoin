@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import 'mocha';
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import { IcingaCgi } from '../scripts/monitors';
-import { IEnvironment } from '../scripts/IEnvironment';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import { ImoinMonitorInstance } from '../scripts/Settings';
 import { fail } from 'assert';
@@ -25,7 +24,7 @@ describe('icingacgi', () => {
         username: 'user',
         password: 'pass',
       };
-      e.loadCallback = (url, user, passwd) => {
+      e.loadCallback = () => {
         return Promise.resolve(data.toString());
       };
       u.init(e, settings, 0);

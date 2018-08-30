@@ -14,7 +14,12 @@ let paneldesign = 1;
 
 const filterSettingsNames = [
   'filterOutAcknowledged',
-  'filterOutSoftStates'
+  'filterOutSoftStates',
+  'filterOutDisabledNotifications',
+  'filterOutDisabledChecks',
+  'filterOutServicesOnDownHosts',
+  'filterOutServicesOnAcknowledgedHosts',
+  'filterOutDowntime',
 ];
 
 /*    ---- Custom elements   ---- */
@@ -67,7 +72,7 @@ function createInstance(title) {
   return {
     instancelabel: title,
     timerPeriod: 5,
-    icingaversion: 'cgi',
+    icingaversion: 'api1',
     url: '',
     username: '',
     password: '',

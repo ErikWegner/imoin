@@ -1,12 +1,13 @@
 {
   "name": "imoin",
-  "version": "21.1.1",
+  "version": "24.0.0",
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
-    "test": "npm run test:mocha && npm run test:karma",
+    "test": "yarn run test:mocha && yarn run test:karma",
     "test:mocha": "mocha -r ts-node/register test/test*.ts test/filters/*Tests.ts",
-    "test:mocha:watch": "mocha -w --watch-extensions ts -r ts-node/register test/test*.ts test/filters/*Tests.ts",
+    "test:mocha:watch": "mocha -R min -w --watch-extensions ts -r ts-node/register test/test*.ts test/filters/*Tests.ts",
+    "test:mocha:coverage": "nyc mocha -r ts-node/register -r source-map-support/register test/test*.ts test/filters/*Tests.ts",
     "test:karma": "karma start karma.conf.js",
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
     "lint": "tslint -c tslint.json scripts/*.ts scripts/**/*.ts tests/*.ts tests/**/*.ts",
@@ -18,14 +19,35 @@
     "build:chrome": "gulp chrome",
     "build:edge": "gulp edge",
     "build:opera": "gulp opera",
-    "watch:firefox": "npm run build:firefox && gulp firefox-watch",
-    "watch:chrome": "npm run build:chrome && gulp chrome-watch",
-    "watch:edge": "npm run build:edge && gulp edge-watch",
-    "watch:opera": "npm run build:opera && gulp opera-watch",
-    "package:firefox": "npm run build:firefox && cd release/firefox && web-ext build",
-    "sign:firefox": "npm run package:firefox && cd release/firefox && web-ext sign --api-key=${AMO_JWT_ISSUER} --api-secret=${AMO_JWT_SECRET}",
-    "run:firefox": "npm run build:firefox && cd release/firefox && web-ext run",
+    "watch:firefox": "yarn run build:firefox && gulp firefox-watch",
+    "watch:chrome": "yarn run build:chrome && gulp chrome-watch",
+    "watch:edge": "yarn run build:edge && gulp edge-watch",
+    "watch:opera": "yarn run build:opera && gulp opera-watch",
+    "package:firefox": "yarn run build:firefox && cd release/firefox && web-ext build",
+    "sign:firefox": "yarn run package:firefox && cd release/firefox && web-ext sign --api-key=${AMO_JWT_ISSUER} --api-secret=${AMO_JWT_SECRET}",
+    "run:firefox": "yarn run build:firefox && cd release/firefox && web-ext run",
     "clean": "gulp clean"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "release",
+      "html",
+      "test",
+      "coverage",
+      "layouts",
+      "gulpfile.js",
+      "karma.conf.js",
+      "webpack.config.js"
+    ],
+    "reporter": [
+      "html"
+    ],
+    "all": true
   },
   "repository": {
     "type": "git",
@@ -49,7 +71,7 @@
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.53",
-    "@types/sinon": "^2.3.6",
+    "@types/sinon": "^5.0.1",
     "awesome-typescript-loader": "^3.4.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
@@ -73,7 +95,9 @@
     "karma-jasmine": "^1.1.0",
     "karma-jasmine-sinon": "^1.0.4",
     "mocha": "^4.0.1",
+    "nyc": "^12.0.2",
     "sinon": "^4.0.1",
+    "source-map-support": "^0.5.6",
     "ts-node": "^6.0.0",
     "tslint": "^5.9.1",
     "typescript": "^2.6.1",
