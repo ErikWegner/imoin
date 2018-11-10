@@ -72,5 +72,6 @@ export class Settings {
 
     public instances: ImoinMonitorInstance[] = [];
     public fontsize: number = 100;
+    public inlineresults: boolean;
     public sounds: { [id: string]: Sound } = {};
 }

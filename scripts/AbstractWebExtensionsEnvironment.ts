@@ -28,6 +28,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
             if (storedSettings.fontsize && storedSettings.fontsize > 0) {
                 settings.fontsize = storedSettings.fontsize;
             }
+            settings.inlineresults = storedSettings.inlineresults === 1;
             if (storedSettings.sounds) {
                 settings.sounds = JSON.parse(storedSettings.sounds);
             }
@@ -39,7 +40,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
         return settings;
     }
 
-    protected static optionKeys = ['instances', 'fontsize', 'sounds'];
+    protected static optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
 
     protected portFromPanel: Port;
     protected abstract host: WebExtensionBrowser;
@@ -161,7 +162,8 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
             this.portFromPanel.postMessage({
                 command: 'uisettings',
                 data: {
-                    fontsize: this.settings.fontsize
+                    fontsize: this.settings.fontsize,
+                    inlineresults: this.settings.inlineresults,
                 }
             });
         }

@@ -49,7 +49,8 @@ export class NagiosHtml extends AbstractMonitor {
       const host = new Monitor.Host(hostmatches[1]);
       host.instanceindex = index;
       host.setState(hostmatches[2] === 'UP' ? 'UP' : 'DOWN');
-      host.checkresult = hostmatches[3].replace('&nbsp;', ' ').trim();
+      host.checkresult = this.decodeNumericEntities(
+        hostmatches[3].replace('&nbsp;', ' ').trim());
       hostByName[host.name] = host;
       m.addHost(host);
     }

@@ -6,6 +6,7 @@ describe('options html', () => {
   const documentGetElementByIdStub = sinon.stub(document, 'getElementById');
   const saveOptionsSpy = sinon.spy(window, 'saveOptions');
   const updateDOMforFiltersSpy = sinon.spy(window, 'updateDOMforFilters');
+  const updateDOMforPanelFieldsetSpy = sinon.spy(window, 'updateDOMforPanelFieldset');
   const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
 
   const filterOptionsNames = [
@@ -18,6 +19,10 @@ describe('options html', () => {
     'filterOutDowntime',
   ];
 
+  const otherCheckboxNames = [
+    'inlineresults',
+  ]
+
   const numberOfFilterOptions = filterOptionsNames.length;
 
   beforeEach(() => {
@@ -29,6 +34,7 @@ describe('options html', () => {
     // Reset all spies and stubs
     saveOptionsSpy.resetHistory();
     updateDOMforFiltersSpy.resetHistory();
+    updateDOMforPanelFieldsetSpy.resetHistory();
     getFormTextValueStub.reset();
     getCheckboxValueStub.reset();
     setCheckboxValueStub.reset();
@@ -213,7 +219,7 @@ describe('options html', () => {
       saveOptions();
 
       expect(setSpy.callCount).toBe(1);
-      expect(getCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
+      expect(getCheckboxValueStub.callCount).toBe(numberOfFilterOptions + otherCheckboxNames.length);
       expect(getCheckboxValueStub.args[index][0]).toBe(elementId);
 
       const arg = setSpy.args[0];
@@ -228,6 +234,12 @@ describe('options html', () => {
     return restoreOptions().then(() => {
       expect(updateDOMforFilters.calledOnce).toBe(true);
     });
+  });
+
+  it('should restore panel settings and update DOM', () => {
+    return restoreOptions().then(() => {
+      expect(updateDOMforPanelFieldset.calledOnce).toBe(true);
+    });    
   });
 
   filterOptionsNames.forEach((optionname, index) => {

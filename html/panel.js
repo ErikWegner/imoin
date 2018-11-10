@@ -58,8 +58,12 @@ function setupUISettings(data) {
     }
     s = document.createElement('style');
     s.setAttribute('id', 'uistyles');
-    const t = document.createTextNode('body {font-size:' + data.fontsize + '%}');
-    s.appendChild(t);
+    let t = document.createTextNode('body {font-size:' + data.fontsize + '%}');
+    s.appendChild(t);debugger
+    if (data.inlineresults) {
+        t = document.createTextNode('.hostcheckinfo, .service .info { display: inline; }');
+        s.appendChild(t);
+    }
     document.head.appendChild(s);
 }
 
