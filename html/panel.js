@@ -5,7 +5,19 @@ function log(o) {
 }
 function postPanelMessage(data) {
 }
+function messageFromBackgroundPage (message) {
+    var command = message.command || "";
+    var data = message.data || {};
 
+    if (command === "ProcessStatusUpdate") {
+        showAndUpdatePanelContent(data);
+    }
+
+    if (command === "uisettings") {
+        setupUISettings(data);
+    }
+
+}
 if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     // Web extension in Chrome or Firefox
     var host = chrome || browser;
@@ -16,24 +28,12 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
 
     // This script runs at the moment that the popup is displayed
     const myPort = host.runtime.connect();
-    myPort.onMessage.addListener(function (message) {
-        var command = message.command || "";
-        var data = message.data || {};
-
-        if (command === "ProcessStatusUpdate") {
-            showAndUpdatePanelContent(data);
-        }
-
-        if (command === "uisettings") {
-            setupUISettings(data);
-        }
-
-    });
+    myPort.onMessage.addListener(messageFromBackgroundPage);
 
     postPanelMessage = function (data) {
         myPort.postMessage(data);
     }
-} else if (typeof self === "object" && typeof self.addEventListener === "function") {
+} else if (typeof self === "object" && typeof self.addEventListener === "function" && typeof require === "function") {
     // Electron
     const { ipcRenderer } = require('electron');
 
@@ -78,16 +78,17 @@ function showAndUpdatePanelContent(data) {
 
     log("Render prep done");
     log("Removing");
-    while (document.body.childNodes.length > 0) {
-        document.body.removeChild(document.body.childNodes[document.body.childNodes.length - 1]);
+    const targetElement = document.getElementById('app') || document.body;
+    while (targetElement.childNodes.length > 0) {
+        targetElement.removeChild(targetElement.childNodes[targetElement.childNodes.length - 1]);
     }
     log("Adding");
     if (rendered_template.length > 0) {
         for (let i in rendered_template) {
-            document.body.appendChild(rendered_template[i]);
+            targetElement.appendChild(rendered_template[i]);
         }
     } else {
-        document.body.appendChild(rendered_template);
+        targetElement.appendChild(rendered_template);
     }
     log("Done")
 
