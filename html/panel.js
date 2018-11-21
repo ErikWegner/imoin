@@ -1,5 +1,14 @@
 'use strict';
 
+const panelsettings = {
+    design: 1,
+    lastdata: {
+        message: 'Waiting for data...',
+        hostgroupinfo: null,
+        updatetime: new Date().toISOString(),
+    },
+}
+
 function log(o) {
     //console.log(o);
 }
@@ -59,15 +68,25 @@ function setupUISettings(data) {
     s = document.createElement('style');
     s.setAttribute('id', 'uistyles');
     let t = document.createTextNode('body {font-size:' + data.fontsize + '%}');
-    s.appendChild(t);debugger
+    s.appendChild(t);
     if (data.inlineresults) {
         t = document.createTextNode('.hostcheckinfo, .service .info { display: inline; }');
         s.appendChild(t);
     }
     document.head.appendChild(s);
+
+    /* Check design */
+    if (data.design != panelsettings.design) {
+        panelsettings.design = data.design;
+        showAndUpdatePanelContent();
+    }
 }
 
-function showAndUpdatePanelContent(data) {
+function showAndUpdatePanelContent(newdata) {
+    if (newdata) {
+        panelsettings.lastdata = newdata;
+    }
+    const data = panelsettings.lastdata;
     const message = data.message;
     log("Rendering main template")
     rendered_template = renderMainTemplate(data);
@@ -513,4 +532,4 @@ function triggerShowOptions() {
     postPanelMessage({ command: "triggerShowOptions" });
 }
 
-showAndUpdatePanelContent({});
+showAndUpdatePanelContent();

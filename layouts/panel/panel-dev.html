@@ -91,11 +91,22 @@
             return r;
         }
 
+        function setDesign(design) {
+            messageFromBackgroundPage({
+                command: "uisettings",
+                data: {
+                    fontsize: '100%',
+                    inlineresults: false,
+                    design
+                }
+            });
+        }
+
         document.getElementById('btndesign1').addEventListener('click', () => {
-            panelapp.design = 1
+            setDesign(1);
         });
         document.getElementById('btndesign2').addEventListener('click', () => {
-            panelapp.design = 2
+            setDesign(2);
         });
 
         function update(hasMessages) {
@@ -151,6 +162,9 @@
 function postPanelMessage(message) {
     alert("PostPanelMessage");
     alert(JSON.stringify(message));
+}
+function log(o) {
+    console.log(o);
 }
 
     </script>
