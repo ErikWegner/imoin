@@ -12,7 +12,7 @@
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
     "lint": "tslint -c tslint.json scripts/*.ts scripts/**/*.ts tests/*.ts tests/**/*.ts",
     "demoserver": "node test/data/server.js",
-    "panel-dev": "cross-env NODE_ENV=development webpack-dev-server --config layouts/panel/webpack.config.js --content-base . --open-page layouts/panel/panel-dev.html --open --hot",
+    "panel-dev": "cross-env NODE_ENV=development webpack-dev-server --config layouts/panel/webpack.config.js --content-base . --open-page layouts/panel/panel-dev.html --open --hot --watch",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bump-minor",
     "build:firefox": "gulp firefox",
@@ -61,12 +61,17 @@
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "@babel/preset-react": "^7.0.0",
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.53",
     "@types/sinon": "^5.0.1",
     "awesome-typescript-loader": "^3.4.0",
+    "babel-loader": "^8.0.4",
     "chai": "^4.1.2",
+    "cross-env": "^5.2.0",
     "event-stream": "^3.3.4",
     "express": "^4.16.2",
     "gulp": "^3.9.1",
@@ -88,7 +93,9 @@
     "tslint": "^5.9.1",
     "typescript": "^2.6.1",
     "web-ext": "^1.8.1",
-    "webpack": "^3.8.1",
+    "webpack": "^4.26.0",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10",
     "webpack-stream": "^4.0.0"
   }
 }

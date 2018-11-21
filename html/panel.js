@@ -1,5 +1,9 @@
 'use strict';
 
+import './dom';
+import { render } from './design2/d';
+
+document.body.append(render())
 const panelsettings = {
     design: 1,
     lastdata: {
@@ -14,7 +18,7 @@ function log(o) {
 }
 function postPanelMessage(data) {
 }
-function messageFromBackgroundPage (message) {
+window.messageFromBackgroundPage = function messageFromBackgroundPage (message) {
     var command = message.command || "";
     var data = message.data || {};
 
@@ -44,15 +48,24 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     }
 } else if (typeof self === "object" && typeof self.addEventListener === "function" && typeof require === "function") {
     // Electron
-    const { ipcRenderer } = require('electron');
+    /*const { ipcRenderer } = require('electron');
 
     ipcRenderer.on('topanel', function (event) {
         log(event);
     });
+r.setAttribute("class", "service");
+    var span;
 
+    span = document.createElement("span");
+    span.setAttribute("class", "servicename");
+    if (servicedata.servicelink) {
+        span.setAttribute("data-url", servicedata.servicelink);
+    }
+    span.appendChild(document.createTextNode(servicedata.name));
+    r.appendChild(span);
     postPanelMessage = function (data) {
         ipcRenderer.send('frompanel', data);
-    }
+    }*/
 }
 
 // store a rendered template for later display
@@ -89,7 +102,15 @@ function showAndUpdatePanelContent(newdata) {
     const data = panelsettings.lastdata;
     const message = data.message;
     log("Rendering main template")
-    rendered_template = renderMainTemplate(data);
+    switch (panelsettings.design) {
+        case 1:
+        rendered_template = renderMainTemplate(data);
+        break;
+        case 2:
+        rendered_template = renderMainTemplateDesign2(data);
+        break;
+    }
+    
     if (message) {
         log("Message " + message)
         rendered_template.unshift(renderTemplateError(message));
@@ -202,6 +223,21 @@ function renderServiceTemplate(servicedata) {
     divc.appendChild(document.createTextNode(servicedata.checkresult));
     r.appendChild(divc);
 
+    return r;
+}renderServiceTemplate2
+
+function renderServiceTemplate2(servicedata) {
+    var r = document.createElement("tr");
+    r.setAttribute("class", "service");
+    var span;
+
+    span = document.createElement("td");
+    span.setAttribute("class", "servicename");
+    if (servicedata.servicelink) {
+        span.setAttribute("data-url", servicedata.servicelink);
+    }
+    span.appendChild(document.createTextNode(servicedata.name));
+    r.appendChild(span);
     return r;
 }
 
@@ -457,6 +493,13 @@ function renderMainTemplate(statusdata) {
     div1.appendChild(html1);
 
     return [r, div1];
+}
+
+function renderMainTemplateDesign2(data) {
+    return [
+        document.createTextNode('a'),
+        document.createTextNode('b')
+    ]
 }
 
 function AddInput(parent, value, id, labeltext) {
