@@ -12,7 +12,8 @@
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
     "lint": "tslint -c tslint.json scripts/*.ts scripts/**/*.ts tests/*.ts tests/**/*.ts",
     "demoserver": "node test/data/server.js",
-    "panel-dev": "cross-env NODE_ENV=development webpack-dev-server --config layouts/panel/webpack.config.js --content-base . --open-page layouts/panel/panel-dev.html --open --hot --watch",
+    "panel-dev": "cross-env NODE_ENV=development webpack-dev-server --config layouts/panel/webpack.dev.js --content-base . --open-page layouts/panel/panel-dev.html --open --hot --watch",
+    "panel-build": "webpack --config layouts/panel/webpack.prod.js",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bump-minor",
     "build:firefox": "gulp firefox",
@@ -96,6 +97,7 @@
     "webpack": "^4.26.0",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10",
+    "webpack-merge": "^4.1.4",
     "webpack-stream": "^4.0.0"
   }
 }

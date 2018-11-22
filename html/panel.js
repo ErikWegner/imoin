@@ -1,9 +1,9 @@
 'use strict';
 
 import './dom';
-import { render } from './design2/d';
+import { render as d2servicerow } from './design2/servicerow';
+import { render as d2hostrow } from './design2/hostrow';
 
-document.body.append(render())
 const panelsettings = {
     design: 1,
     lastdata: {
@@ -102,14 +102,7 @@ function showAndUpdatePanelContent(newdata) {
     const data = panelsettings.lastdata;
     const message = data.message;
     log("Rendering main template")
-    switch (panelsettings.design) {
-        case 1:
-        rendered_template = renderMainTemplate(data);
-        break;
-        case 2:
-        rendered_template = renderMainTemplateDesign2(data);
-        break;
-    }
+    rendered_template = renderMainTemplate(data);
     
     if (message) {
         log("Message " + message)
@@ -152,6 +145,9 @@ function renderTemplateError(message) {
 }
 
 function renderHostTemplate(hostdata) {
+    if (panelsettings.design == 2) {
+        return d2hostrow(hostdata, hostdata.servicesdata);
+    }
     var div2, span;
     var r = document.createElement("div");
     r.setAttribute("class", "host");
@@ -187,10 +183,13 @@ function renderHostTemplate(hostdata) {
         div2.appendChild(hostdata.servicesdata[i]);
     }
 
-    return r;
+    return [r];
 }
 
 function renderServiceTemplate(servicedata) {
+    if (panelsettings.design == 2) {
+        return d2servicerow(servicedata);
+    }
     var r = document.createElement("div");
     r.setAttribute("class", "service");
     var span;
@@ -379,15 +378,18 @@ function renderMainTemplate(statusdata) {
 
         // list 1
         if (show_host_in_list1) {
-            html1.appendChild(renderbuffer.cloneNode(true));
+            renderbuffer.forEach(e => 
+                html1.appendChild(e.cloneNode(true)));
         }
 
         // list 2
-        html2.appendChild(renderbuffer);
+        renderbuffer.forEach(e => 
+            html2.appendChild(e));
 
         // list 3
         hostdetail.servicesdata = all_serviceshtml;
-        html3.appendChild(renderHostTemplate(hostdetail));
+        renderHostTemplate(hostdetail).forEach(e => 
+            html3.appendChild(e));
     }
 
     var html4 = renderInstancesList(statusdata);
@@ -493,13 +495,6 @@ function renderMainTemplate(statusdata) {
     div1.appendChild(html1);
 
     return [r, div1];
-}
-
-function renderMainTemplateDesign2(data) {
-    return [
-        document.createTextNode('a'),
-        document.createTextNode('b')
-    ]
 }
 
 function AddInput(parent, value, id, labeltext) {

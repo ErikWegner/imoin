@@ -3,6 +3,7 @@ var webpack = require('webpack')
 
 module.exports = {
   entry: './html/panel.js',
+  mode: 'development',
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/html/',
