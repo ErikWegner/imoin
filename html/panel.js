@@ -1,6 +1,8 @@
 'use strict';
 
 import './dom';
+import { header } from './design1/header';
+import { instanceslist } from './design1/instanceslist';
 import { render as d2servicerow } from './design2/servicerow';
 import { render as d2hostrow } from './design2/hostrow';
 
@@ -16,7 +18,7 @@ const panelsettings = {
 function log(o) {
     //console.log(o);
 }
-function postPanelMessage(data) {
+window.postPanelMessage = function postPanelMessage(data) {
 }
 window.messageFromBackgroundPage = function messageFromBackgroundPage (message) {
     var command = message.command || "";
@@ -43,7 +45,7 @@ if (typeof chrome !== "undefined" || typeof browser !== "undefined") {
     const myPort = host.runtime.connect();
     myPort.onMessage.addListener(messageFromBackgroundPage);
 
-    postPanelMessage = function (data) {
+    window.postPanelMessage = function postPanelMessage(data) {
         myPort.postMessage(data);
     }
 } else if (typeof self === "object" && typeof self.addEventListener === "function" && typeof require === "function") {
@@ -223,7 +225,7 @@ function renderServiceTemplate(servicedata) {
     r.appendChild(divc);
 
     return r;
-}renderServiceTemplate2
+}
 
 function renderServiceTemplate2(servicedata) {
     var r = document.createElement("tr");
@@ -298,42 +300,6 @@ function registerDetailsEventHandlers() {
     registerEventHanderBySelector(triggerRefresh, '.instance .refresh');
 }
 
-function renderInstancesList(statusdata) {
-    var r = document.createElement("div");
-    if (statusdata.instances) {
-        var table = document.createElement("div");
-        r.appendChild(table);
-        Object.keys(statusdata.instances).forEach((key) => {
-            var instance = statusdata.instances[key];
-            var tr = document.createElement('div');
-            tr.setAttribute("class", "instance");
-            var td, a;
-
-            // Instance label
-            tr.appendChild(td = document.createElement('span'));
-            td.setAttribute("class", "instancename");
-            td.appendChild(document.createTextNode(instance.instancelabel));
-
-            // Instance update time
-            tr.appendChild(td = document.createElement('span'));
-            td.setAttribute("class", "instanceupdatetime")
-            td.appendChild(document.createTextNode(instance.updatetime));
-
-            // Instance actions
-            tr.appendChild(td = document.createElement('span'));
-            td.setAttribute("class", "actions")
-            td.setAttribute("data-instanceindex", key);
-            td.appendChild(a = document.createElement("span"));
-            a.setAttribute("class", "refresh");
-            a.appendChild(document.createTextNode("↺"));
-
-            table.appendChild(tr);
-        });
-    }
-
-    return r;
-}
-
 function renderMainTemplate(statusdata) {
     // render three lists
     // list 1: show a host, if any of its services is not ok, show service if it is not ok
@@ -392,7 +358,7 @@ function renderMainTemplate(statusdata) {
             html3.appendChild(e));
     }
 
-    var html4 = renderInstancesList(statusdata);
+    var html4 = instanceslist(statusdata);
 
     filtered_lists_templates = {
         filter0: html1,
@@ -403,122 +369,14 @@ function renderMainTemplate(statusdata) {
 
 
     // top table and hosts list
-    var r = document.createElement("div");
-    r.setAttribute("class", "header");
-    r.setAttribute("style", "text-align:center");
+    var r = header(statusdata);
 
-    var p, a, div1, table, tr, th, td, img;
-    r.appendChild(p = document.createElement("p"));
-    p.appendChild(a = document.createElement("span"));
-    a.setAttribute("class", "refresh");
-    a.appendChild(document.createTextNode("↺ Refresh"));
-    p.appendChild(document.createTextNode(" "));
-    p.appendChild(a = document.createElement("span"));
-    a.setAttribute("class", "options");
-    a.appendChild(img = document.createElement("img"));
-    img.setAttribute("style", "width: auto; height: 14px;");
-    img.setAttribute("src", "./gear.svg");
-    img.setAttribute("title", "Options");
-    if (statusdata.hostgroupinfo !== null && statusdata.hostgroupinfo !== "") p.appendChild(document.createTextNode(" " + statusdata.hostgroupinfo));
-
-    r.appendChild(div1 = document.createElement("div"));
-
-    div1.appendChild(table = document.createElement("table"));
-    table.setAttribute("class", "main");
-    table.setAttribute("cellspacing", "0");
-    table.setAttribute("style", "vertical-align:top; display: inline-block; margin-right: 1em");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.appendChild(th = document.createElement("th"));
-    th.appendChild(document.createTextNode("Service status"))
-    th.setAttribute("colspan", "2");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.className = "OK";
-    AddCellToTr(tr, "Ok");
-    AddCellToTr(tr, statusdata.filteredServiceok + "/" + statusdata.totalservices, "num");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.className = "WARN";
-    AddCellToTr(tr, "Warn");
-    AddCellToTr(tr, statusdata.filteredServicewarnings + "/" + statusdata.totalservices, "num");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.className = "CRIT";
-    AddCellToTr(tr, "Crit");
-    AddCellToTr(tr, statusdata.filteredServiceerrors + "/" + statusdata.totalservices, "num");
-
-    div1.appendChild(table = document.createElement("table"));
-    table.setAttribute("class", "main");
-    table.setAttribute("cellspacing", "0");
-    table.setAttribute("style", "display: inline-block");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.appendChild(th = document.createElement("th"));
-    th.appendChild(document.createTextNode("Host status"))
-    th.setAttribute("colspan", "2");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.className = "UP";
-    AddCellToTr(tr, "Up");
-    AddCellToTr(tr, statusdata.filteredHostup + "/" + statusdata.totalhosts, "num");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.className = "DOWN";
-    AddCellToTr(tr, "Down");
-    AddCellToTr(tr, statusdata.filteredHosterrors + "/" + statusdata.totalhosts, "num");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.className = "space";
-    tr.appendChild(td = document.createElement("td"));
-    td.setAttribute("colspan", "2");
-
-    table.appendChild(tr = document.createElement("tr"));
-    tr.className = "updatetime";
-    tr.appendChild(td = document.createElement("td"));
-    td.setAttribute("colspan", "2");
-    td.appendChild(document.createTextNode(statusdata.updatetime));
-
-    // buttons to switch between lists
-    r.appendChild(div1 = document.createElement("div"));
-    AddInput(div1, "filter0", "r1", "Errors/Warnings").setAttribute("checked", "checked");
-    AddInput(div1, "filter1", "r2", "All Hosts");
-    AddInput(div1, "filter2", "r3", "All Services");
-    
-    if (statusdata.instances && Object.keys(statusdata.instances).length > 1) {
-        AddInput(div1, "instances", "i", "Instances");
-    }
-
-    div1 = document.createElement("div");
+    const div1 = document.createElement("div");
     div1.setAttribute("class", "content");
     div1.id = "details";
     div1.appendChild(html1);
 
     return [r, div1];
-}
-
-function AddInput(parent, value, id, labeltext) {
-    var input = document.createElement("input");
-    parent.appendChild(input);
-    input.setAttribute("type", "radio");
-    input.setAttribute("class", "cb");
-    input.setAttribute("value", value);
-    input.setAttribute("name", "filter");
-    input.setAttribute("id", id);
-
-    var label = document.createElement("label");
-    parent.appendChild(label);
-    label.setAttribute("for", id);
-    label.appendChild(document.createTextNode(labeltext));
-    return input;
-}
-
-function AddCellToTr(tr, text, tdclass) {
-    var td = document.createElement("td")
-    td.appendChild(document.createTextNode(text));
-    if (tdclass !== null && tdclass !== "") td.className = tdclass;
-    tr.appendChild(td);
-    return tr;
 }
 
 function triggerRefresh(e) {
@@ -534,7 +392,7 @@ function triggerRefresh(e) {
         }
     }
 
-    postPanelMessage(message);
+    window.postPanelMessage(message);
 }
 
 function triggerCmdExec(e) {
@@ -550,7 +408,7 @@ function triggerCmdExec(e) {
     const servicename = parentElement.getAttribute("data-servicename") || "";
     const instanceindex = parentElement.getAttribute("data-instanceindex");
 
-    postPanelMessage({
+    window.postPanelMessage({
         command: "triggerCmdExec",
         hostname: hostname,
         servicename: servicename,
@@ -562,12 +420,12 @@ function triggerCmdExec(e) {
 function triggerOpenPage(e) {
     const url = e.target.getAttribute("data-url");
     if (url) {
-        postPanelMessage({ command: "triggerOpenPage", url: url });
+        window.postPanelMessage({ command: "triggerOpenPage", url: url });
     }
 }
 
 function triggerShowOptions() {
-    postPanelMessage({ command: "triggerShowOptions" });
+    window.postPanelMessage({ command: "triggerShowOptions" });
 }
 
 showAndUpdatePanelContent();

@@ -6,13 +6,21 @@ function ImoinDomRenderer(element, props, ...children) {
         });
     }
 
-    children.forEach(child => {
-        el.appendChild(
-            child instanceof HTMLElement
-            ? child
-            : document.createTextNode(child)
-        );
-    })
+    function appendChildren(children) {
+        children.forEach(child => {
+            if (Array.isArray(child)) {
+                appendChildren(child);
+                return;
+            } 
+            el.appendChild(
+                child instanceof HTMLElement
+                ? child
+                : document.createTextNode(child)
+            );
+        })
+    }
+
+    appendChildren(children);
 
     return el;
 }
