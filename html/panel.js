@@ -3,6 +3,8 @@
 import './dom';
 import { header } from './design1/header';
 import { instanceslist } from './design1/instanceslist';
+import { hosttemplate } from './design1/host';
+import { service } from './design1/service';
 import { render as d2servicerow } from './design2/servicerow';
 import { render as d2hostrow } from './design2/hostrow';
 
@@ -150,96 +152,14 @@ function renderHostTemplate(hostdata) {
     if (panelsettings.design == 2) {
         return d2hostrow(hostdata, hostdata.servicesdata);
     }
-    var div2, span;
-    var r = document.createElement("div");
-    r.setAttribute("class", "host");
-
-    r.appendChild(div2 = document.createElement("div"));
-    div2.appendChild(span = document.createElement("span"));
-    span.setAttribute("class", "hostname");
-    if (hostdata.hostlink) {
-        span.setAttribute("data-url", hostdata.hostlink);
-    }
-    span.appendChild(document.createTextNode(hostdata.name));
-
-    div2.appendChild(span = document.createElement("span"));
-    span.setAttribute("class", "status " + hostdata.status);
-    span.appendChild(document.createTextNode(hostdata.status));
-
-    div2.appendChild(span = document.createElement("span"));
-    span.setAttribute("class", "actions");
-    span.setAttribute("data-hostname", hostdata.name);
-    span.setAttribute("data-instanceindex", hostdata.instanceindex);
-    //span.appendChild(ackimg.cloneNode(true));
-    span.appendChild(document.createTextNode(" "));
-    span.appendChild(chkimg.cloneNode(true));
-
-    div2.appendChild(span = document.createElement("span"));
-    span.setAttribute("class", "hostcheckinfo");
-    span.appendChild(document.createTextNode(hostdata.checkresult));
-
-    r.appendChild(div2 = document.createElement("div"));
-    div2.setAttribute("class", "services");
-
-    for (var i in hostdata.servicesdata) {
-        div2.appendChild(hostdata.servicesdata[i]);
-    }
-
-    return [r];
+    return [hosttemplate(hostdata, chkimg)];
 }
 
 function renderServiceTemplate(servicedata) {
     if (panelsettings.design == 2) {
-        return d2servicerow(servicedata);
+        return d2servicerow(servicedata, chkimg);
     }
-    var r = document.createElement("div");
-    r.setAttribute("class", "service");
-    var span;
-
-    span = document.createElement("span");
-    span.setAttribute("class", "servicename");
-    if (servicedata.servicelink) {
-        span.setAttribute("data-url", servicedata.servicelink);
-    }
-    span.appendChild(document.createTextNode(servicedata.name));
-    r.appendChild(span);
-
-    span = document.createElement("span");
-    span.setAttribute("class", "status " + servicedata.status);
-    span.appendChild(document.createTextNode(servicedata.status));
-    r.appendChild(span);
-
-    span = document.createElement("span");
-    span.setAttribute("class", "actions");
-    span.setAttribute("data-hostname", servicedata.host.name);
-    span.setAttribute("data-instanceindex", servicedata.host.instanceindex);
-    span.setAttribute("data-servicename", servicedata.name);
-    //span.appendChild(ackimg.cloneNode(true));
-    span.appendChild(document.createTextNode(" "));
-    span.appendChild(chkimg.cloneNode(true));
-    r.appendChild(span);
-
-    var divc = document.createElement("div");
-    divc.setAttribute("class", "info");
-    divc.appendChild(document.createTextNode(servicedata.checkresult));
-    r.appendChild(divc);
-
-    return r;
-}
-
-function renderServiceTemplate2(servicedata) {
-    var r = document.createElement("tr");
-    r.setAttribute("class", "service");
-    var span;
-
-    span = document.createElement("td");
-    span.setAttribute("class", "servicename");
-    if (servicedata.servicelink) {
-        span.setAttribute("data-url", servicedata.servicelink);
-    }
-    span.appendChild(document.createTextNode(servicedata.name));
-    r.appendChild(span);
-    return r;
+    return service(servicedata, chkimg);
 }
 
 var chkimg = document.createElement("span");
