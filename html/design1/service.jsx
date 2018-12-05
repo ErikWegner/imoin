@@ -1,4 +1,4 @@
-export function service(servicedata, chkimg) {
+export function servicetemplate(servicedata, chkimg) {
   const statusClass = "status " + servicedata.status;
   /* TODO:
     if (servicedata.servicelink) {

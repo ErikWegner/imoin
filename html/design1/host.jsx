@@ -5,7 +5,7 @@ export function hosttemplate(hostdata, chkimg) {
         span.setAttribute("data-url", hostdata.hostlink);
     }
   */
-  return (
+  return ([
 <div class="host">
   <div>
     <span class="hostname">{hostdata.name}</span>
@@ -19,5 +19,5 @@ export function hosttemplate(hostdata, chkimg) {
   </div>
   <div class="services">{hostdata.servicesdata}</div>
 </div>
-  );
+  ]);
 }

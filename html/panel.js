@@ -1,15 +1,12 @@
 'use strict';
 
 import './dom';
-import { header } from './design1/header';
-import { instanceslist } from './design1/instanceslist';
-import { hosttemplate } from './design1/host';
-import { service } from './design1/service';
-import { render as d2servicerow } from './design2/servicerow';
-import { render as d2hostrow } from './design2/hostrow';
+import { design as design1 } from './design1';
+import { design as design2 } from './design2';
 
 const panelsettings = {
-    design: 1,
+    designId: 1,
+    design: design1,
     lastdata: {
         message: 'Waiting for data...',
         hostgroupinfo: null,
@@ -93,8 +90,13 @@ function setupUISettings(data) {
     document.head.appendChild(s);
 
     /* Check design */
-    if (data.design != panelsettings.design) {
-        panelsettings.design = data.design;
+    if (data.design != panelsettings.designId) {
+        panelsettings.designId = data.design;
+        if (panelsettings.designId == 2) {
+            panelsettings.design = design2;
+        } else {
+            panelsettings.design = design1;
+        }
         showAndUpdatePanelContent();
     }
 }
@@ -149,17 +151,11 @@ function renderTemplateError(message) {
 }
 
 function renderHostTemplate(hostdata) {
-    if (panelsettings.design == 2) {
-        return d2hostrow(hostdata, hostdata.servicesdata);
-    }
-    return [hosttemplate(hostdata, chkimg)];
+    return panelsettings.design.hosttemplate(hostdata, chkimg);
 }
 
 function renderServiceTemplate(servicedata) {
-    if (panelsettings.design == 2) {
-        return d2servicerow(servicedata, chkimg);
-    }
-    return service(servicedata, chkimg);
+    return panelsettings.design.servicetemplate(servicedata, chkimg);
 }
 
 var chkimg = document.createElement("span");
@@ -278,7 +274,7 @@ function renderMainTemplate(statusdata) {
             html3.appendChild(e));
     }
 
-    var html4 = instanceslist(statusdata);
+    var html4 = panelsettings.design.instanceslist(statusdata);
 
     filtered_lists_templates = {
         filter0: html1,
@@ -289,7 +285,7 @@ function renderMainTemplate(statusdata) {
 
 
     // top table and hosts list
-    var r = header(statusdata);
+    var r = panelsettings.design.header(statusdata);
 
     const div1 = document.createElement("div");
     div1.setAttribute("class", "content");
