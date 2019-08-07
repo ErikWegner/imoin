@@ -2,8 +2,6 @@
 const gulp = require('gulp');
 const webpack = require('webpack-stream');
 const clean = require('gulp-clean');
-const es = require('event-stream');
-const zip = require('gulp-zip');
 const bump = require('gulp-bump');
 const fs = require('fs');
 const semver = require('semver');
@@ -12,7 +10,8 @@ const path = require('path');
 let tsProject;
 let targetpaths = {};
 
-gulp.task('ts-scripts', function () {
+// ts-script
+function compileTS() {
     const wpconfig = require('./webpack.config.js');
     wpconfig.entry.index = './' + tsProject;
     wpconfig.output.path = path.resolve(__dirname, targetpaths.target);
@@ -20,148 +19,121 @@ gulp.task('ts-scripts', function () {
     return gulp.src(tsProject)
         .pipe(webpack(wpconfig))
         .pipe(gulp.dest(targetpaths.target));
-});
+}
 
-gulp.task('firefox-setpaths', function () {
+// firefox-setpaths
+function prepareFirefox(cb) {
     tsProject = 'scripts/firefox.ts';
     targetpaths.target = 'release/firefox';
-    targetpaths.icons = targetpaths.target + '/icons'
-    targetpaths.html = targetpaths.target + '/html'
-});
+    targetpaths.icons = targetpaths.target + '/icons';
+    targetpaths.html = targetpaths.target + '/html';
+    targetpaths.manifest = 'firefox/manifest.json';
+    cb();
+}
 
-gulp.task('chrome-setpaths', function () {
+// chrome-setpaths
+function prepareChrome(cb) {
     tsProject = 'scripts/chrome.ts';
     targetpaths.target = 'release/chrome';
-    targetpaths.icons = targetpaths.target + '/icons'
-    targetpaths.html = targetpaths.target + '/html'
-});
+    targetpaths.icons = targetpaths.target + '/icons';
+    targetpaths.html = targetpaths.target + '/html';
+    targetpaths.manifest = 'chrome/manifest.json';
+    cb();
+}
 
-gulp.task('edge-setpaths', function () {
+// edge-setpaths
+function prepareEdge(cb) {
     tsProject = 'scripts/edge.ts';
     targetpaths.target = 'release/edge';
-    targetpaths.icons = targetpaths.target + '/icons'
-    targetpaths.html = targetpaths.target + '/html'
-});
+    targetpaths.icons = targetpaths.target + '/icons';
+    targetpaths.html = targetpaths.target + '/html';
+    targetpaths.manifest = 'edge/manifest.json';
+    cb();
+}
 
-gulp.task('opera-setpaths', function () {
+// opera-setpaths
+function prepareOpera(cb) {
     tsProject = 'scripts/opera.ts';
     targetpaths.target = 'release/opera';
     targetpaths.icons = targetpaths.target + '/icons'
     targetpaths.html = targetpaths.target + '/html'
-});
+    targetpaths.manifest = 'opera/manifest.json';
+    cb();
+}
 
-gulp.task('copy-icons', function () {
+// copy-icons
+function copyIcons () {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
-})
+}
 
-gulp.task('copy-html', function () {
+// copy-html
+function copyHtml() {
     return gulp
         .src(['html/**/*'])
         .pipe(gulp.dest(targetpaths.html))
-})
+}
 
-gulp.task('firefox', [
-    'firefox-setpaths',
-    'copy-icons',
-    'ts-scripts',
-    'copy-html',
-], function () {
-    return es.concat(
-        gulp
-            .src([
-                'firefox/manifest.json'
-            ])
-            .pipe(gulp.dest(targetpaths.target))
-    )
-});
+function copyManifest() {
+    return gulp
+        .src([targetpaths.manifest])
+        .pipe(gulp.dest(targetpaths.target))
+}
 
-gulp.task('chrome', [
-    'chrome-setpaths',
-    'copy-icons',
-    'ts-scripts',
-    'copy-html',
-], function () {
-    return es.concat(
-        gulp
-            .src([
-                'chrome/manifest.json'
-            ])
-            .pipe(gulp.dest(targetpaths.target))
-    )
-});
+exports.firefox = gulp.series(
+    prepareFirefox,
+    gulp.parallel(copyIcons, copyHtml, compileTS, copyManifest)
+);
 
-gulp.task('edge', [
-    'edge-setpaths',
-    'copy-icons',
-    'ts-scripts',
-    'copy-html',
-], function () {
-    return es.concat(
-        gulp
-            .src([
-                'edge/manifest.json'
-            ])
-            .pipe(gulp.dest(targetpaths.target))
-    )
-});
+exports.chrome = gulp.series(
+    prepareChrome,
+    gulp.parallel(copyIcons, copyHtml, compileTS, copyManifest)
+);
 
-gulp.task('opera', [
-    'opera-setpaths',
-    'copy-icons',
-    'ts-scripts',
-    'copy-html',
-], function () {
-    return es.concat(
-        gulp
-            .src([
-                'opera/manifest.json'
-            ])
-            .pipe(gulp.dest(targetpaths.target))
-    )
-});
+exports.edge = gulp.series(
+    prepareChrome,
+    gulp.parallel(copyIcons, copyHtml, compileTS, copyManifest)
+);
 
-gulp.task('firefox-watch', [
-    'firefox-setpaths',
-    'ts-scripts',
-], function () {
+exports.opera = gulp.series(
+    prepareOpera,
+    gulp.parallel(copyIcons, copyHtml, compileTS, copyManifest)
+)
 
-    gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
+function watchTS() {
+    gulp.watch('scripts/*.ts', compileTS)
+    gulp.watch('html/*', copyHtml)
+}
 
-});
+// firefox-watch
+exports.firefoxWatch = gulp.series(
+    prepareFirefox,
+    compileTS,
+    watchTS
+);
 
-gulp.task('chrome-watch', [
-    'chrome-setpaths',
-    'ts-scripts',
-], function () {
+// chrome-watch
+exports.chromeWatch = gulp.series(
+    prepareChrome,
+    compileTS,
+    watchTS
+);
 
-    gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
+// edge-watch
+exports.edgeWatch = gulp.series(
+    prepareEdge,
+    compileTS,
+    watchTS
+);
 
-});
-
-gulp.task('edge-watch', [
-    'edge-setpaths',
-    'ts-scripts',
-], function () {
-
-    gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
-
-});
-
-gulp.task('opera-watch', [
-    'opera-setpaths',
-    'ts-scripts',
-], function () {
-
-    gulp.watch('scripts/*.ts', ['ts-scripts'])
-    gulp.watch('html/*', ['copy-html'])
-
-});
+// opera-watch
+exports.operaWatch = gulp.series(
+    prepareOpera,
+    compileTS,
+    watchTS
+);
 
 // bump versions on package/manifest
-gulp.task('bump', function () {
+exports.bump = function () {
     // read version from package.json
     var pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));;
     // increment version
@@ -177,10 +149,10 @@ gulp.task('bump', function () {
             version: newVer
         }))
         .pipe(gulp.dest('./'));
-});
+};
 
 // bump versions on package/manifest
-gulp.task('bump-minor', function () {
+exports.bumpMinor = function () {
     // read version from package.json
     var pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));;
     // increment version
@@ -196,33 +168,32 @@ gulp.task('bump-minor', function () {
             version: newVer
         }))
         .pipe(gulp.dest('./'));
-});
+};
 
-gulp.task('clean-firefox', ['firefox-setpaths'], function () {
-    return gulp.src(targetpaths.target, { read: false })
+function cleanTarget() {
+    return gulp.src(targetpaths.target, { read: false, allowEmpty: true })
         .pipe(clean());
-});
+}
 
-gulp.task('clean-chrome', ['chrome-setpaths'], function () {
-    return gulp.src(targetpaths.target, { read: false })
-        .pipe(clean());
-});
+// clean-firefox
+const cleanFirefox = gulp.series(prepareFirefox, cleanTarget);
+exports.cleanFirefox = cleanFirefox;
 
-gulp.task('clean-edge', ['edge-setpaths'], function () {
-    return gulp.src(targetpaths.target, { read: false })
-        .pipe(clean());
-});
+// clean-chrome
+const cleanChrome = gulp.series(prepareChrome, cleanTarget);
+exports.cleanChrome = cleanChrome;
 
-gulp.task('clean-opera', ['opera-setpaths'], function () {
-    return gulp.src(targetpaths.target, { read: false })
-        .pipe(clean());
-});
+// clean-edge
+const cleanEdge = gulp.series(prepareEdge, cleanTarget);
+exports.cleanEdge = cleanEdge;
 
-gulp.task('clean', [
-    'clean-firefox',
-    'clean-chrome',
-    'clean-edge',
-    'clean-opera',
-], function () {
+// clean-opera
+const cleanOpera = gulp.series(prepareOpera, cleanTarget);
+exports.cleanOpera = cleanOpera;
 
-});
+exports.clean = gulp.parallel(
+    cleanFirefox,
+    cleanChrome,
+    cleanEdge,
+    cleanOpera
+)

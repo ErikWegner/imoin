@@ -14,6 +14,7 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'release/chrome')
   },
+  mode: 'production',
 
   // Currently we need to add '.ts' to the resolve.extensions array.
   resolve: {
@@ -25,7 +26,7 @@ module.exports = {
 
   // Add the loader for .ts files.
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.tsx?$/,
         loader: 'awesome-typescript-loader'
@@ -33,6 +34,6 @@ module.exports = {
     ]
   },
   plugins: [
-      new CheckerPlugin()
+    new CheckerPlugin()
   ]
 };

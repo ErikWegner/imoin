@@ -15,11 +15,11 @@ export class MockAbstractMonitor extends AbstractMonitor {
     super.init(environment, settings, index);
   }
 
-  fetchStatus(): Promise<Monitor.MonitorData> {
+  public fetchStatus(): Promise<Monitor.MonitorData> {
     return this.fetchStatusSpy();
   }
 
-  handleUICommand(param: UICommand): void {
-    throw new Error("Method not implemented.");
+  protected handleUICommand(param: UICommand): void {
+    throw new Error('Method not implemented.');
   }
 }
