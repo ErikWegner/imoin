@@ -6,24 +6,26 @@ const bump = require('gulp-bump');
 const fs = require('fs');
 const semver = require('semver');
 const path = require('path');
+const browserify = require("browserify");
+const source = require("vinyl-source-stream");
+const tsify = require("tsify");
 
 let tsProject;
 let targetpaths = {};
 
 // ts-script
 function compileTS() {
-  return gulp
-    .src("./" + tsProject)
-    .pipe(
-      ts({
-        lib: ["dom"],
-        module: "amd",
-        moduleResolution: "node",
-        outFile: "script.js",
-        target: "es2016",
-      })
-    )
-    .js.pipe(gulp.dest(targetpaths.target));
+  return browserify({
+    basedir: ".",
+    debug: true,
+    entries: [tsProject],
+    cache: {},
+    packageCache: {},
+  })
+    .plugin(tsify)
+    .bundle()
+    .pipe(source("bundle.js"))
+    .pipe(gulp.dest(targetpaths.target));
 }
 
 // firefox-setpaths

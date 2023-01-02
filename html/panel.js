@@ -59,7 +59,7 @@ function setupUISettings(data) {
     s = document.createElement('style');
     s.setAttribute('id', 'uistyles');
     let t = document.createTextNode('body {font-size:' + data.fontsize + '%}');
-    s.appendChild(t);debugger
+    s.appendChild(t);
     if (data.inlineresults) {
         t = document.createTextNode('.hostcheckinfo, .service .info { display: inline; }');
         s.appendChild(t);

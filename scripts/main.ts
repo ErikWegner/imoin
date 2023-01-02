@@ -1,6 +1,12 @@
-import { IEnvironment } from './IEnvironment';
-import { Settings, ImoinMonitorInstance } from './Settings';
-import { IMonitor, IcingaCgi, IcingaApi, NagiosCore, NagiosHtml } from './monitors';
+import { IEnvironment } from "./IEnvironment";
+import {
+  IcingaApi,
+  IcingaCgi,
+  IMonitor,
+  NagiosCore,
+  NagiosHtml,
+} from "./monitors";
+import { ImoinMonitorInstance } from "./Settings";
 
 /*
  * Connecting all pieces together
@@ -11,51 +17,53 @@ import { IMonitor, IcingaCgi, IcingaApi, NagiosCore, NagiosHtml } from './monito
  *
  * @param instance The instance configuration
  */
-export function resolveMonitor(environment: IEnvironment, instance: ImoinMonitorInstance, index: number): IMonitor | null {
-    if (instance.icingaversion === 'api1') {
-        return new IcingaApi(environment, instance, index);
-    }
+export function resolveMonitor(
+  environment: IEnvironment,
+  instance: ImoinMonitorInstance,
+  index: number
+): IMonitor | null {
+  if (instance.icingaversion === "api1") {
+    return new IcingaApi(environment, instance, index);
+  }
 
-    if (instance.icingaversion === 'cgi') {
-        return new IcingaCgi(environment, instance, index);
-    }
+  if (instance.icingaversion === "cgi") {
+    return new IcingaCgi(environment, instance, index);
+  }
 
-    if (instance.icingaversion === 'nagioscore') {
-        return new NagiosCore(environment, instance, index);
-    }
+  if (instance.icingaversion === "nagioscore") {
+    return new NagiosCore(environment, instance, index);
+  }
 
-    if (instance.icingaversion === 'nagioshtml') {
-        return new NagiosHtml(environment, instance, index);
-    }
+  if (instance.icingaversion === "nagioshtml") {
+    return new NagiosHtml(environment, instance, index);
+  }
 
-    return null;
+  return null;
 }
 
 const monitors: IMonitor[] = [];
 
-export function init(e: IEnvironment) {
-
-    function start() {
-        let monitor;
-        while (monitors.length > 0) {
-            monitor = monitors.pop();
-            monitor?.shutdown();
-        }
-
-        e.loadSettings().then((settings) => {
-            settings.instances.forEach((instance, index) => {
-                e.registerMonitorInstance(index, {
-                    instancelabel: instance.instancelabel
-                });
-                monitor = resolveMonitor(e, instance, index);
-                if (monitor != null) {
-                    monitor.startTimer();
-                    monitors.push(monitor);
-                }
-            });
-        });
+export function init(environment: IEnvironment) {
+  function start() {
+    let monitor;
+    while ((monitor = monitors.pop())) {
+      monitor.shutdown();
     }
 
-    start();
-    e.onSettingsChanged(start);
+    environment.loadSettings().then((settings) => {
+      settings.instances.forEach((instance, index) => {
+        environment.registerMonitorInstance(index, {
+          instancelabel: instance.instancelabel,
+        });
+        monitor = resolveMonitor(environment, instance, index);
+        if (monitor != null) {
+          monitor.startTimer();
+          monitors.push(monitor);
+        }
+      });
+    });
+  }
+
+  start();
+  environment.onSettingsChanged(start);
 }
