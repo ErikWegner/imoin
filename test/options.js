@@ -6,8 +6,14 @@ describe('options html', () => {
   const documentGetElementByIdStub = sinon.stub(document, 'getElementById');
   const saveOptionsSpy = sinon.spy(window, 'saveOptions');
   const updateDOMforFiltersSpy = sinon.spy(window, 'updateDOMforFilters');
-  const updateDOMforPanelFieldsetSpy = sinon.spy(window, 'updateDOMforPanelFieldset');
-  const documentGetElementsByClassNameStub = sinon.stub(document, 'getElementsByClassName');
+  const updateDOMforPanelFieldsetSpy = sinon.spy(
+    window,
+    'updateDOMforPanelFieldset'
+  );
+  const documentGetElementsByClassNameStub = sinon.stub(
+    document,
+    'getElementsByClassName'
+  );
 
   const filterOptionsNames = [
     'filterOutAcknowledged',
@@ -19,9 +25,7 @@ describe('options html', () => {
     'filterOutDowntime',
   ];
 
-  const otherCheckboxNames = [
-    'inlineresults',
-  ]
+  const otherCheckboxNames = ['inlineresults'];
 
   const numberOfFilterOptions = filterOptionsNames.length;
 
@@ -40,25 +44,31 @@ describe('options html', () => {
     setCheckboxValueStub.reset();
     documentQuerySelectorStub.reset();
     documentGetElementsByClassNameStub.reset();
-    documentGetElementByIdStub.withArgs('fontsize').returns({ value: "100" });
-    documentGetElementByIdStub.withArgs('paneldesign1').returns({ checked: false });
-    documentQuerySelectorStub.withArgs('input[name = "paneldesign"]:checked').returns({ value: 1 });
-    loadOptions = sinon.stub().resolves({ instance: createInstance('Unit test default') });
+    documentGetElementByIdStub.withArgs('fontsize').returns({ value: '100' });
+    documentGetElementByIdStub
+      .withArgs('paneldesign1')
+      .returns({ checked: false });
+    documentQuerySelectorStub
+      .withArgs('input[name = "paneldesign"]:checked')
+      .returns({ value: 1 });
+    loadOptions = sinon
+      .stub()
+      .resolves({ instance: createInstance('Unit test default') });
     port = {
       postMessage: sinon.spy(),
-      disconnect: sinon.spy()
-    }
+      disconnect: sinon.spy(),
+    };
     host = {
       storage: {
         local: {
-          set: sinon.spy()
-        }
+          set: sinon.spy(),
+        },
       },
       runtime: {
         connect: function () {
           return port;
-        }
-      }
+        },
+      },
     };
   });
 
@@ -82,17 +92,18 @@ describe('options html', () => {
 
   it('should update instance', () => {
     // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
+    for (let i = 0; i < 4; i++) {
+      addInstance();
+    }
     // select instance 2
     selectedInstance = 1;
 
-    let callCounter = 0;
-    getFormTextValueStub.callsFake((selector, defaultValue) => {
+    getFormTextValueStub.callsFake((selector, _defaultValue) => {
       callCounter++;
       if ('#timerPeriod' === selector) {
-        return '17'
+        return '17';
       }
-      return "Call " + selector;
+      return 'Call ' + selector;
     });
     updateInstance();
 
@@ -122,7 +133,9 @@ describe('options html', () => {
 
   it('should remove selected instance', () => {
     // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
+    for (let i = 0; i < 4; i++) {
+      addInstance();
+    }
     // select instance 2
     selectedInstance = 1;
     const removedInstance = instances[selectedInstance];
@@ -135,7 +148,9 @@ describe('options html', () => {
 
   it('should remove last instance and update selectedInstance', () => {
     // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
+    for (let i = 0; i < 4; i++) {
+      addInstance();
+    }
     // select instance 2
     const l1 = selectedInstance;
     const removedInstance = instances[selectedInstance];
@@ -186,12 +201,17 @@ describe('options html', () => {
     return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(1);
-      expect(instances[0].instancelabel).toBe('should restore with filled storage instance');
+      expect(instances[0].instancelabel).toBe(
+        'should restore with filled storage instance'
+      );
     });
   });
 
   it('should restore 4 instances', () => {
-    loadOptions = sinon.stub().resolves({ instances: '[{"instancelabel":"Instance 0","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 1","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 2","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 3","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""}]' });
+    loadOptions = sinon.stub().resolves({
+      instances:
+        '[{"instancelabel":"Instance 0","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 1","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 2","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""},{"instancelabel":"Instance 3","timerPeriod":5,"icingaversion":"cgi","url":"","username":"","password":""}]',
+    });
     return restoreOptions().then(() => {
       expect(selectedInstance).toBe(0);
       expect(instances.length).toBe(4);
@@ -202,7 +222,9 @@ describe('options html', () => {
   it('should save instances object', () => {
     const setSpy = host.storage.local.set;
     // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
+    for (let i = 0; i < 4; i++) {
+      addInstance();
+    }
     saveOptions();
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
@@ -219,7 +241,9 @@ describe('options html', () => {
       saveOptions();
 
       expect(setSpy.callCount).toBe(1);
-      expect(getCheckboxValueStub.callCount).toBe(numberOfFilterOptions + otherCheckboxNames.length);
+      expect(getCheckboxValueStub.callCount).toBe(
+        numberOfFilterOptions + otherCheckboxNames.length
+      );
       expect(getCheckboxValueStub.args[index][0]).toBe(elementId);
 
       const arg = setSpy.args[0];
@@ -239,20 +263,23 @@ describe('options html', () => {
   it('should restore panel settings and update DOM', () => {
     return restoreOptions().then(() => {
       expect(updateDOMforPanelFieldset.calledOnce).toBe(true);
-    });    
+    });
   });
 
   filterOptionsNames.forEach((optionname, index) => {
-    it('should set ' + optionname + ' checkbox when updating DOM for filters', () => {
-      const a0 = setCheckboxValueStub.callCount;
-      const elementId = '#' + optionname;
+    it(
+      'should set ' + optionname + ' checkbox when updating DOM for filters',
+      () => {
+        const a0 = setCheckboxValueStub.callCount;
+        const elementId = '#' + optionname;
 
-      updateDOMforFilters();
+        updateDOMforFilters();
 
-      expect(a0).toBe(0);
-      expect(setCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
-      expect(setCheckboxValueStub.args[index][0]).toBe(elementId);
-    });
+        expect(a0).toBe(0);
+        expect(setCheckboxValueStub.callCount).toBe(numberOfFilterOptions);
+        expect(setCheckboxValueStub.args[index][0]).toBe(elementId);
+      }
+    );
   });
 
   /**
@@ -313,7 +340,9 @@ describe('options html', () => {
 
   it('should update selected instance', () => {
     // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
+    for (let i = 0; i < 4; i++) {
+      addInstance();
+    }
     const sel1 = selectedInstance;
     selectionChanged({ target: { value: '2' } });
     const sel2 = selectedInstance;
@@ -326,7 +355,9 @@ describe('options html', () => {
 
   it('should update dom after selected instance changes', () => {
     // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
+    for (let i = 0; i < 4; i++) {
+      addInstance();
+    }
     const dc1 = updateDOMforInstances.callCount;
     selectionChanged({ target: { value: '2' } });
     const dc2 = updateDOMforInstances.callCount;
@@ -340,15 +371,17 @@ describe('options html', () => {
   it('should update instance on saving options', () => {
     const setSpy = host.storage.local.set;
     // create 4 instances
-    for (let i = 0; i < 4; i++) { addInstance(); }
+    for (let i = 0; i < 4; i++) {
+      addInstance();
+    }
     // select instance 2
     selectedInstance = 1;
 
     getFormTextValueStub.callsFake((selector, defaultValue) => {
       if ('#timerPeriod' === selector) {
-        return '17'
+        return '17';
       }
-      return "Call " + selector;
+      return 'Call ' + selector;
     });
 
     updateSettings();
@@ -356,45 +389,49 @@ describe('options html', () => {
     expect(setSpy.callCount).toBe(1);
     const arg = setSpy.args[0];
     const emptyFiltersettings = {};
-    filterOptionsNames.forEach(
-      (optionname) => {
-        emptyFiltersettings[optionname] = false;
-      });
-    expect(arg[0].instances).toBe(JSON.stringify(
-      [
+    filterOptionsNames.forEach((optionname) => {
+      emptyFiltersettings[optionname] = false;
+    });
+    expect(arg[0].instances).toBe(
+      JSON.stringify([
         {
-          "instancelabel": "Instance 0",
-          "timerPeriod": 5,
-          "icingaversion": "api1",
-          "url": "",
-          "username": "",
-          "password": "",
-          filtersettings: emptyFiltersettings
-        }, {
-          "instancelabel": "Call #instancelabel",
-          "timerPeriod": 17,
-          "icingaversion": "Call #icingaversion",
-          "url": "Call #url",
-          "username": "Call #username",
-          "password": "Call #password",
-          filtersettings: emptyFiltersettings
-        }, {
-          "instancelabel": "Instance 2",
-          "timerPeriod": 5,
-          "icingaversion": "api1",
-          "url": "",
-          "username": "",
-          "password": "",
-          filtersettings: emptyFiltersettings
-        }, {
-          "instancelabel": "Instance 3",
-          "timerPeriod": 5,
-          "icingaversion": "api1",
-          "url": "",
-          "username": "",
-          "password": "",
-          filtersettings: emptyFiltersettings
-        }]));
+          instancelabel: 'Instance 0',
+          timerPeriod: 5,
+          icingaversion: 'api1',
+          url: '',
+          username: '',
+          password: '',
+          filtersettings: emptyFiltersettings,
+        },
+        {
+          instancelabel: 'Call #instancelabel',
+          timerPeriod: 17,
+          icingaversion: 'Call #icingaversion',
+          url: 'Call #url',
+          username: 'Call #username',
+          password: 'Call #password',
+          filtersettings: emptyFiltersettings,
+        },
+        {
+          instancelabel: 'Instance 2',
+          timerPeriod: 5,
+          icingaversion: 'api1',
+          url: '',
+          username: '',
+          password: '',
+          filtersettings: emptyFiltersettings,
+        },
+        {
+          instancelabel: 'Instance 3',
+          timerPeriod: 5,
+          icingaversion: 'api1',
+          url: '',
+          username: '',
+          password: '',
+          filtersettings: emptyFiltersettings,
+        },
+      ])
+    );
   });
 
   describe('Sound selection', () => {
@@ -404,43 +441,41 @@ describe('options html', () => {
 
     it('should provide functions', () => {
       expect(window.SoundFileSelectors).toBeDefined();
-      expect(typeof (window.SoundFileSelectors.setFiles)).toBe('function');
-      expect(typeof (window.SoundFileSelectors.getFiles)).toBe('function');
-      expect(typeof (window.SoundFileSelectors.init)).toBe('function');
+      expect(typeof window.SoundFileSelectors.setFiles).toBe('function');
+      expect(typeof window.SoundFileSelectors.getFiles).toBe('function');
+      expect(typeof window.SoundFileSelectors.init).toBe('function');
     });
 
     /** When querying for dom elements, return something usable */
     function fakeSoundFileSelectors(arr) {
-      documentGetElementsByClassNameStub
-        .withArgs('soundfileselector')
-        .returns({
-          length: arr.length,
-          item: (index) => {
-            return {
-              getAttribute: (attributeName) => {
-                if (attributeName == 'data-soundevent') {
-                  return arr[index];
-                }
-              },
-              appendChild: () => { }
-            }
-          }
-        });
+      documentGetElementsByClassNameStub.withArgs('soundfileselector').returns({
+        length: arr.length,
+        item: (index) => {
+          return {
+            getAttribute: (attributeName) => {
+              if (attributeName == 'data-soundevent') {
+                return arr[index];
+              }
+            },
+            appendChild: () => {},
+          };
+        },
+      });
       SoundFileSelectors.init();
     }
 
     it('should set and get files', () => {
       const filedata = {
-        'a': {
+        a: {
           id: 'a',
           filename: 'FILE-A',
-          data: '1234'
+          data: '1234',
         },
-        'x': {
+        x: {
           id: 'x',
           filename: 'FILE-X',
-          data: '1a2b'
-        }
+          data: '1a2b',
+        },
       };
 
       fakeSoundFileSelectors(['a', 'x']);
@@ -466,7 +501,7 @@ describe('options html', () => {
       const m = { textContent: 'gfdg8' };
       c.setUIFilename(m);
 
-      c.restore({ filename: '5g9d', data: 'l' })
+      c.restore({ filename: '5g9d', data: 'l' });
 
       expect(m.textContent).toBe('5g9d');
     });
@@ -512,7 +547,6 @@ describe('options html', () => {
       expect(c.hasAudioData).toBeTruthy();
     });
 
-
     it('should respond false to hasAudioData after delete', () => {
       const c = new SoundFileSelectorControl('a');
       c.filedata = 'abbd';
@@ -522,11 +556,17 @@ describe('options html', () => {
     });
 
     it('should restore settings from options', () => {
-      loadOptions = sinon.stub().resolves({ sounds: '{"sGREEN":{"id":"sGREEN","filename":"","data":null},"xRED":{"id":"xRED","filename":"","data":null}}' });
+      loadOptions = sinon.stub().resolves({
+        sounds:
+          '{"sGREEN":{"id":"sGREEN","filename":"","data":null},"xRED":{"id":"xRED","filename":"","data":null}}',
+      });
       const stub = sinon.stub(SoundFileSelectors, 'setFiles');
       return restoreOptions().then(() => {
         expect(stub.callCount).toBe(1);
-        expect(stub.args[0][0]).toEqual({ sGREEN: Object({ id: 'sGREEN', filename: '', data: null }), xRED: Object({ id: 'xRED', filename: '', data: null }) });
+        expect(stub.args[0][0]).toEqual({
+          sGREEN: Object({ id: 'sGREEN', filename: '', data: null }),
+          xRED: Object({ id: 'xRED', filename: '', data: null }),
+        });
         stub.restore();
       });
     });
@@ -536,9 +576,9 @@ describe('options html', () => {
       addInstance();
       getFormTextValueStub.callsFake((selector, defaultValue) => {
         if ('#timerPeriod' === selector) {
-          return '17'
+          return '17';
         }
-        return "Call " + selector;
+        return 'Call ' + selector;
       });
 
       fakeSoundFileSelectors(['sGREEN', 'xRED']);
@@ -547,7 +587,12 @@ describe('options html', () => {
 
       expect(setSpy.callCount).toBe(1);
       const arg = setSpy.args[0];
-      expect(arg[0].sounds).toEqual(JSON.stringify({ sGREEN: Object({ id: 'sGREEN', filename: '', data: null }), xRED: Object({ id: 'xRED', filename: '', data: null }) }));
+      expect(arg[0].sounds).toEqual(
+        JSON.stringify({
+          sGREEN: Object({ id: 'sGREEN', filename: '', data: null }),
+          xRED: Object({ id: 'xRED', filename: '', data: null }),
+        })
+      );
     });
   });
 });

@@ -1,0 +1,7 @@
+gulpfile.js
+html/*
+karma.conf.js
+layouts/*
+release/*
+test/*.js
+test/data/server.js

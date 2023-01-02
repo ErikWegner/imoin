@@ -1,8 +1,8 @@
+import { Host, MonitorData } from '../monitors';
 import { HostBuilder } from './HostBuilder';
-import { Monitor } from '../../scripts/monitors';
 
 export class MonitorStatusBuilder extends HostBuilder {
-  protected hosts: { [name: string]: Monitor.Host } = {};
+  protected hosts: { [name: string]: Host } = {};
 
   public Host(name: string) {
     super.Host(name);
@@ -14,8 +14,8 @@ export class MonitorStatusBuilder extends HostBuilder {
     return Object.keys(this.hosts).map((key) => this.hosts[key]);
   }
 
-  public BuildStatus(): Monitor.MonitorData {
-    const data = new Monitor.MonitorData();
+  public BuildStatus(): MonitorData {
+    const data = new MonitorData();
     this.GetHosts().forEach((host) => data.addHost(host));
     return data;
   }

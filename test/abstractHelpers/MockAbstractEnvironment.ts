@@ -1,13 +1,16 @@
+import * as sinon from 'sinon';
+
 import { AbstractEnvironment } from '../../scripts/AbstractEnvironment';
 import { Settings } from '../../scripts/Settings';
-import * as sinon from 'sinon';
-import { Monitor } from '../../scripts/monitors';
+import { MonitorData, Status } from '../monitors';
 
 export class MockAbstractEnvironment extends AbstractEnvironment {
-  public loadCallback: ((url: string, username: string, password: string) => Promise<string>) | null = null;
+  public loadCallback:
+    | ((url: string, username: string, password: string) => Promise<string>)
+    | null = null;
   public trySendDataToPopupSpy: sinon.SinonSpy;
   public audioNotificationSpy: sinon.SinonSpy;
-  public initTimerSpy: sinon.SinonSpy;
+  public initTimerSpy: sinon.SinonSpy<[number, number, () => void]>;
   public displayStatusSpy: sinon.SinonSpy;
   public displayStatusNotify: (() => void) | null = null;
 
@@ -15,7 +18,10 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
     super();
     this.trySendDataToPopupSpy = sinon.spy();
     this.audioNotificationSpy = sinon.spy(this, 'audioNotification');
-    this.initTimerSpy = sinon.spy(this, 'initTimer');
+    this.initTimerSpy = sinon.spy<MockAbstractEnvironment, 'initTimer'>(
+      this,
+      'initTimer'
+    );
     this.displayStatusSpy = sinon.spy(this, 'displayStatus');
   }
 
@@ -31,7 +37,11 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
     return this.dataBuffer;
   }
 
-  public load(url: string, username: string, password: string): Promise<string> {
+  public load(
+    url: string,
+    username: string,
+    password: string
+  ): Promise<string> {
     if (this.loadCallback) {
       return this.loadCallback(url, username, password);
     } else {
@@ -39,19 +49,24 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
     }
   }
 
-  public post(url: string, data: any, username: string, password: string): Promise<string> {
+  public post(
+    _url: string,
+    _data: never,
+    _username: string,
+    _password: string
+  ): Promise<string> {
     throw new Error('Method not implemented.');
   }
 
-  public debug(o: any): void {
+  public debug(_o: never): void {
     // no op
   }
 
-  public log(o: any): void {
+  public log(_o: never): void {
     throw new Error('Method not implemented.');
   }
 
-  public error(o: any): void {
+  public error(_o: never): void {
     // no op
   }
 
@@ -59,21 +74,21 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
     throw new Error('Method not implemented.');
   }
 
-  public initTimer(index: number, delay: number, callback: () => void) {
+  public initTimer(_index: number, _delay: number, _callback: () => void) {
     // no op
   }
 
-  public stopTimer(index: number): void {
+  public stopTimer(_index: number): void {
     throw new Error('Method not implemented.');
   }
 
-  public audioNotification(status: Monitor.Status): void {
+  public audioNotification(_status: Status): void {
     // this function is spied on
   }
 
-  public displayStatus(index: number, data: Monitor.MonitorData): void {
+  public displayStatus(index: number, data: MonitorData): void {
     super.displayStatus(index, data);
-    if (typeof (this.displayStatusNotify) === 'function') {
+    if (typeof this.displayStatusNotify === 'function') {
       this.displayStatusNotify();
     }
   }
@@ -82,7 +97,7 @@ export class MockAbstractEnvironment extends AbstractEnvironment {
     this.trySendDataToPopupSpy(this.dataBuffer);
   }
 
-  protected openWebPage(url: string): void {
+  protected openWebPage(_url: string): void {
     throw new Error('Method not implemented.');
   }
 

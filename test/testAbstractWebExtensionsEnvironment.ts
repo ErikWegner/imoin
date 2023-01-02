@@ -1,8 +1,8 @@
+import { expect } from 'chai';
 import 'mocha';
-import { assert, expect } from 'chai';
 
 import { AbstractWebExtensionsEnvironment } from '../scripts/AbstractWebExtensionsEnvironment';
-import { Monitor } from '../scripts/monitors';
+import { Status } from './monitors';
 
 describe('AbstractWebExtensionsEnvironment', () => {
   it('should remove slashes', () => {
@@ -22,47 +22,53 @@ describe('AbstractWebExtensionsEnvironment', () => {
   });
 
   it('should restore sounds is null', () => {
-    const i = { sounds: null as any };
+    const i = { sounds: null };
     const r = AbstractWebExtensionsEnvironment.processStoredSettings(i);
     expect(r.sounds).to.deep.eq({});
   });
 
   it('should restore sounds', () => {
     const storedData = {
-      sGREEN: Object({ id: 'sGREEN', filename: 'green.wav', data: 'blob:gggg' }),
-      xRED: Object({ id: 'xRED', filename: 'red.wav', data: 'blob:rrr' })
+      sGREEN: {
+        id: 'sGREEN',
+        filename: 'green.wav',
+        data: 'blob:gggg',
+      },
+      xRED: { id: 'xRED', filename: 'red.wav', data: 'blob:rrr' },
     };
     const i = {
-      sounds: JSON.stringify(storedData)
+      sounds: JSON.stringify(storedData),
     };
     const r = AbstractWebExtensionsEnvironment.processStoredSettings(i);
     expect(r.sounds).to.deep.eq(storedData);
   });
 
   describe('build sound id', () => {
-    function testRun(status: Monitor.Status, isNew: boolean, expected: string) {
-      const soundid = AbstractWebExtensionsEnvironment.buildSoundId(status, isNew);
+    function testRun(status: Status, isNew: boolean, expected: string) {
+      const soundid = AbstractWebExtensionsEnvironment.buildSoundId(
+        status,
+        isNew
+      );
       expect(soundid).to.equal(expected);
     }
 
     it('green, new', () => {
-      testRun(Monitor.Status.GREEN, true, 'ToGREEN');
+      testRun(Status.GREEN, true, 'ToGREEN');
     });
     it('green', () => {
-      testRun(Monitor.Status.GREEN, false, 'GREEN');
+      testRun(Status.GREEN, false, 'GREEN');
     });
     it('yellow, new', () => {
-      testRun(Monitor.Status.YELLOW, true, 'ToYELLOW');
+      testRun(Status.YELLOW, true, 'ToYELLOW');
     });
     it('yellow', () => {
-      testRun(Monitor.Status.YELLOW, false, 'YELLOW');
+      testRun(Status.YELLOW, false, 'YELLOW');
     });
     it('red, new', () => {
-      testRun(Monitor.Status.RED, true, 'ToRED');
+      testRun(Status.RED, true, 'ToRED');
     });
     it('red', () => {
-      testRun(Monitor.Status.RED, false, 'RED');
+      testRun(Status.RED, false, 'RED');
     });
   });
-
 });

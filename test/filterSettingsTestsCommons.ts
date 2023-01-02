@@ -1,29 +1,32 @@
-import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
-import { HostBuilder } from './abstractHelpers/HostBuilder';
-import { Monitor } from '../scripts/monitors';
-import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
+import { Host, Service } from '../scripts/monitors';
 import {
   FHost,
   filterAcknowledged,
-  filterSoftStates,
-  filterNotificationDisabled,
   filterChecksDisabled,
   filterDowntime,
+  filterNotificationDisabled,
+  filterSoftStates,
 } from '../scripts/monitors/filters';
 import { FilterSettings } from '../scripts/Settings';
+import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
+import { HostBuilder } from './abstractHelpers/HostBuilder';
+import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
 
 export const filterSettingsTests: {
   [filterName: string]: {
-    setupFilterSettingsBuilder: (fsb: FilterSettingsBuilder) => void,
-    setupHost: (lcb: HostBuilder) => void,
-    hostProperty: keyof Monitor.Host,
-    hostQueryParameter: string,
-    setupService: (sb: ServiceBuilder) => void,
-    serviceProperty: keyof Monitor.Service,
-    serviceQueryParameter: string,
-    filterFunction: (hosts: FHost[] | null, filtersettings?: FilterSettings) => FHost[] | null,
-    filterFlagText: string,
-  }
+    setupFilterSettingsBuilder: (fsb: FilterSettingsBuilder) => void;
+    setupHost: (lcb: HostBuilder) => void;
+    hostProperty: keyof Host;
+    hostQueryParameter: string;
+    setupService: (sb: ServiceBuilder) => void;
+    serviceProperty: keyof Service;
+    serviceQueryParameter: string;
+    filterFunction: (
+      hosts: FHost[] | null,
+      filtersettings?: FilterSettings
+    ) => FHost[] | null;
+    filterFlagText: string;
+  };
 } = {
   hasBeenAcknowledged: {
     setupFilterSettingsBuilder: (sb) => sb.filterOutAcknowledged(),

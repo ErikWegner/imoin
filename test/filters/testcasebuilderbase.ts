@@ -1,11 +1,12 @@
-import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
-import { FilterSettings } from '../../scripts/Settings';
-import { LoadCallbackBuilder } from '../abstractHelpers/LoadCallbackBuilder';
-import { Monitor } from '../../scripts/monitors';
-import { FHost } from '../../scripts/monitors/filters';
 import { expect } from 'chai';
-import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder';
+
+import { FHost } from '../../scripts/monitors/filters';
+import { FilterSettings } from '../../scripts/Settings';
+import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
 import { HostBuilder } from '../abstractHelpers/HostBuilder';
+import { LoadCallbackBuilder } from '../abstractHelpers/LoadCallbackBuilder';
+import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder';
+import { ServiceState } from '../monitors';
 
 export class TestCaseBuilderBase {
   protected hostStatus = 'UP';
@@ -15,15 +16,16 @@ export class TestCaseBuilderBase {
   protected flagText = '';
 
   constructor(
-    protected filter: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[] | null,
-    setupFilterSettings: (sb: FilterSettingsBuilder) => void,
+    protected filter: (
+      _hosts: FHost[],
+      _filtersettings?: FilterSettings
+    ) => FHost[] | null,
+    setupFilterSettings: (_sb: FilterSettingsBuilder) => void,
     protected filterFlagText: string,
-    protected setupHost: (lcb: HostBuilder) => void,
-    protected setupService: (sb: ServiceBuilder) => void,
+    protected setupHost: (_lcb: HostBuilder) => void,
+    protected setupService: (_sb: ServiceBuilder) => void
   ) {
-    const sb = FilterSettingsBuilder
-      .plain()
-      .setup(setupFilterSettings);
+    const sb = FilterSettingsBuilder.plain().setup(setupFilterSettings);
     this.s = sb.build();
   }
 
@@ -42,12 +44,12 @@ export class TestCaseBuilderBase {
     return this;
   }
 
-  public service(name: string, state: Monitor.ServiceState, setIndicatorFlag = false) {
+  public service(name: string, state: ServiceState, setIndicatorFlag = false) {
     this.servicetext = state + ' service';
     this.b.Service(name, (sb) => {
       sb.withStatus(state);
       if (setIndicatorFlag) {
-        this.servicetext = this.servicetext + ' ' + this.filterFlagText;
+        this.servicetext = `${this.servicetext} ${this.filterFlagText}`;
         this.setupService(sb);
       }
     });
@@ -87,17 +89,20 @@ export class TestCaseBuilderBase {
       // Assert
       expect(r).to.have.lengthOf(expectedHosts, 'number of hosts');
       if (r && r.length > 0) {
-        expect(r[0].getFServices()).to.have.lengthOf(expectedServices, 'number of services');
+        expect(r[0].getFServices()).to.have.lengthOf(
+          expectedServices,
+          'number of services'
+        );
       }
     });
   }
 
-  private hostDownWithIndicatorFlag(name: string, shouldSetFilterIndicator: boolean) {
+  private hostDownWithIndicatorFlag(
+    name: string,
+    shouldSetFilterIndicator: boolean
+  ) {
     this.hostStatus = 'DOWN';
-    this.b
-      .Host(name)
-      .Down()
-      ;
+    this.b.Host(name).Down();
     if (shouldSetFilterIndicator) {
       this.flagText = this.filterFlagText;
       this.b.setup(this.setupHost);

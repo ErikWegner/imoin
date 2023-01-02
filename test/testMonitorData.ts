@@ -1,14 +1,14 @@
+import { expect } from 'chai';
 import 'mocha';
-import { fail } from 'assert';
-import { assert, expect } from 'chai';
-import { Monitor } from '../scripts/monitors';
+
 import { FHost } from '../scripts/monitors/filters';
+import { Host, MonitorData, Service, Status } from './monitors';
 
 describe('MonitorData', () => {
   it('updateCounters: no filtered host array ⇒ still green', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
+    const m = new MonitorData();
+    const host = new Host('H1');
     m.addHost(host);
     host.setState('UP');
 
@@ -16,13 +16,13 @@ describe('MonitorData', () => {
     m.updateCounters();
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.GREEN);
+    expect(m.getFilteredState()).to.equal(Status.GREEN);
   });
 
   it('updateCounters: no filtered host array ⇒ still red', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
+    const m = new MonitorData();
+    const host = new Host('H1');
     m.addHost(host);
     host.setState('DOWN');
 
@@ -30,14 +30,14 @@ describe('MonitorData', () => {
     m.updateCounters();
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.RED);
+    expect(m.getFilteredState()).to.equal(Status.RED);
   });
 
   it('updateCounters: host with ok service, no filtered host array ⇒ still red', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
-    const service = new Monitor.Service('S1');
+    const m = new MonitorData();
+    const host = new Host('H1');
+    const service = new Service('S1');
     host.addService(service);
     m.addHost(host);
     host.setState('UP');
@@ -47,14 +47,14 @@ describe('MonitorData', () => {
     m.updateCounters();
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.GREEN);
+    expect(m.getFilteredState()).to.equal(Status.GREEN);
   });
 
   it('updateCounters: host with warning service, no filtered host array ⇒ still red', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
-    const service = new Monitor.Service('S1');
+    const m = new MonitorData();
+    const host = new Host('H1');
+    const service = new Service('S1');
     host.addService(service);
     m.addHost(host);
     host.setState('UP');
@@ -64,14 +64,14 @@ describe('MonitorData', () => {
     m.updateCounters();
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.YELLOW);
+    expect(m.getFilteredState()).to.equal(Status.YELLOW);
   });
 
   it('updateCounters: host with critical service, no filtered host array ⇒ still red', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
-    const service = new Monitor.Service('S1');
+    const m = new MonitorData();
+    const host = new Host('H1');
+    const service = new Service('S1');
     host.addService(service);
     m.addHost(host);
     host.setState('UP');
@@ -81,13 +81,13 @@ describe('MonitorData', () => {
     m.updateCounters();
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.RED);
+    expect(m.getFilteredState()).to.equal(Status.RED);
   });
 
   it('updateCounters: host up in filtered host array ⇒ still green', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
+    const m = new MonitorData();
+    const host = new Host('H1');
     const fhost = new FHost(host);
     const fhosts: FHost[] = [];
     m.addHost(host);
@@ -101,13 +101,13 @@ describe('MonitorData', () => {
     expect(m.filteredHosterrors).to.equal(0);
     expect(m.filteredServiceerrors).to.equal(0);
     expect(m.filteredServicewarnings).to.equal(0);
-    expect(m.getFilteredState()).to.equal(Monitor.Status.GREEN);
+    expect(m.getFilteredState()).to.equal(Status.GREEN);
   });
 
   it('updateCounters: host in filtered host array ⇒ still red', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
+    const m = new MonitorData();
+    const host = new Host('H1');
     const fhost = new FHost(host);
     const fhosts: FHost[] = [];
     m.addHost(host);
@@ -118,14 +118,13 @@ describe('MonitorData', () => {
     m.updateCounters(fhosts);
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.RED);
+    expect(m.getFilteredState()).to.equal(Status.RED);
   });
 
   it('updateCounters: host not in filtered host array ⇒ green', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
-    const fhost = new FHost(host);
+    const m = new MonitorData();
+    const host = new Host('H1');
     const fhosts: FHost[] = [];
     m.addHost(host);
     host.setState('DOWN');
@@ -134,14 +133,14 @@ describe('MonitorData', () => {
     m.updateCounters(fhosts);
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.GREEN);
+    expect(m.getFilteredState()).to.equal(Status.GREEN);
   });
 
   it('updateCounters: host with critical service in filtered host array ⇒ still red', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
-    const service = new Monitor.Service('S1');
+    const m = new MonitorData();
+    const host = new Host('H1');
+    const service = new Service('S1');
     host.addService(service);
     const fhost = new FHost(host);
     const fhosts: FHost[] = [];
@@ -154,14 +153,14 @@ describe('MonitorData', () => {
     m.updateCounters(fhosts);
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.RED);
+    expect(m.getFilteredState()).to.equal(Status.RED);
   });
 
   it('updateCounters: host with warning service in filtered host array ⇒ still yellow', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
-    const service = new Monitor.Service('S1');
+    const m = new MonitorData();
+    const host = new Host('H1');
+    const service = new Service('S1');
     host.addService(service);
     const fhost = new FHost(host);
     const fhosts: FHost[] = [];
@@ -174,14 +173,14 @@ describe('MonitorData', () => {
     m.updateCounters(fhosts);
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.YELLOW);
+    expect(m.getFilteredState()).to.equal(Status.YELLOW);
   });
 
   it('updateCounters: host up with ok service in filtered host array ⇒ still green', () => {
     // Arrange
-    const m = new Monitor.MonitorData();
-    const host = new Monitor.Host('H1');
-    const service = new Monitor.Service('S1');
+    const m = new MonitorData();
+    const host = new Host('H1');
+    const service = new Service('S1');
     host.addService(service);
     const fhost = new FHost(host);
     const fhosts: FHost[] = [];
@@ -194,6 +193,6 @@ describe('MonitorData', () => {
     m.updateCounters(fhosts);
 
     // Assert
-    expect(m.getFilteredState()).to.equal(Monitor.Status.GREEN);
+    expect(m.getFilteredState()).to.equal(Status.GREEN);
   });
 });

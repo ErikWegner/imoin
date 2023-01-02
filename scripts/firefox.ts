@@ -1,7 +1,7 @@
-import browser from './definitions/firefox-webextension';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
-import { Settings } from './Settings';
+import browser from './definitions/firefox-webextension';
 import { init } from './main';
+import { Settings } from './Settings';
 
 /**
  * Implementation for Firefox
@@ -17,56 +17,20 @@ export class Firefox extends AbstractWebExtensionsEnvironment {
   }
 
   public async loadSettings(): Promise<Settings> {
-    const i = this;
-    i.debug("Loading settings");
+    this.debug('Loading settings');
 
     try {
       const data = await browser.storage.local.get(
         AbstractWebExtensionsEnvironment.optionKeys
       );
-      i.settings = AbstractWebExtensionsEnvironment.processStoredSettings(data);
-      return i.settings;
+      this.settings =
+        AbstractWebExtensionsEnvironment.processStoredSettings(data);
+      return this.settings;
     } catch (e: unknown) {
-      i.error("Storage error");
-      i.error(e);
+      this.error('Storage error');
+      this.error(e);
       throw e;
     }
-  }
-
-  protected migrateSettings(): Promise<void> {
-    const i = this;
-    i.debug("Migrating settings");
-    return new Promise<void>((resolve, reject) => {
-      // load old single instance settings
-      browser.storage.local
-        .get([
-          "timerPeriod",
-          "icingaversion",
-          "url",
-          "username",
-          "password",
-          "instances",
-        ])
-        .then((data) => {
-          i.debug("Old settings loaded");
-          if (data.instances) {
-            // instances already present
-            i.debug("Instances already present, skipping");
-            reject();
-          }
-          const s = new Settings();
-          data.instancelabel = "Default";
-          s.instances.push(data);
-          // update settings
-          i.debug("Saving new settings");
-          browser.storage.local
-            .set({
-              instances: JSON.stringify(s.instances),
-              fontsize: s.fontsize,
-            })
-            .then(resolve);
-        });
-    });
   }
 }
 

@@ -1,17 +1,16 @@
-import { Monitor, IcingaStateType } from '../../scripts/monitors';
+import { Host, IcingaStateType } from '../../scripts/monitors';
 import {
   IIcinga2HostJsonData as IcingaHostJsonData,
-  IIcinga2ServiceJsonData as IcingaServiceJsonData
+  IIcinga2ServiceJsonData as IcingaServiceJsonData,
 } from '../../scripts/monitors/icingaapi';
 import {
   INagiosCoreHostJsonData as NagiosCoreHostJsonData,
-  INagiosCoreServiceJsonData as NagiosCoreServiceJsonData
+  INagiosCoreServiceJsonData as NagiosCoreServiceJsonData,
 } from '../../scripts/monitors/nagioscore';
 import { IcingaOptionsVersion } from '../../scripts/Settings';
 import { MonitorStatusBuilder } from './MonitorStatusBuilder';
 
 export class LoadCallbackBuilder extends MonitorStatusBuilder {
-
   public BuildCallbacks(i: IcingaOptionsVersion): string[] {
     if (i === 'api1') {
       return this.buildIcingaApi();
@@ -28,13 +27,13 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
     const hostdata = (): NagiosCoreHostJsonData => {
       const r: NagiosCoreHostJsonData = {
         data: {
-          hostlist: {}
-        }
+          hostlist: {},
+        },
       };
 
       Object.keys(this.hosts).map((hostname) => {
-        const host: Monitor.Host = this.hosts[hostname];
-        const hostobject: any = {
+        const host: Host = this.hosts[hostname];
+        const hostobject = {
           name: hostname,
           status: host.getState() === 'UP' ? 0 : 1,
           plugin_output: '',
@@ -53,11 +52,11 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
     const servicedata = (): NagiosCoreServiceJsonData => {
       const r: NagiosCoreServiceJsonData = {
         data: {
-          servicelist: {}
-        }
+          servicelist: {},
+        },
       };
       Object.keys(this.hosts).map((hostkey) => {
-        const host: Monitor.Host = this.hosts[hostkey];
+        const host: Host = this.hosts[hostkey];
         r.data.servicelist[hostkey] = {};
         host.services.forEach((service) => {
           r.data.servicelist[hostkey][service.name] = {
@@ -66,14 +65,19 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
             plugin_output: '',
             problem_has_been_acknowledged: service.hasBeenAcknowledged,
             last_check: 0,
-            status: service.getState() === 'OK' ? 2 : service.getState() === 'WARNING' ? 4 : 8,
+            status:
+              service.getState() === 'OK'
+                ? 2
+                : service.getState() === 'WARNING'
+                ? 4
+                : 8,
             state_type: service.isInSoftState ? 0 : 1,
             notifications_enabled: !service.notificationsDisabled,
             checks_enabled: !service.checksDisabled,
             scheduled_downtime_depth: service.isInDowntime ? 1 : 0,
           };
-          });
         });
+      });
       return r;
     };
 
@@ -81,7 +85,10 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
   }
 
   public buildIcingaApi() {
-    function addAttributes(host: Monitor.Host, hostobject: any) {
+    function addAttributes(
+      host: Host,
+      hostobject: { attrs: Record<string, unknown> }
+    ) {
       if (host.hasBeenAcknowledged) {
         hostobject.attrs['acknowledgement'] = 1.0;
       }
@@ -102,46 +109,51 @@ export class LoadCallbackBuilder extends MonitorStatusBuilder {
     const hostdata = (): IcingaHostJsonData => {
       return {
         results: Object.keys(this.hosts).map((hostkey) => {
-          const host: Monitor.Host = this.hosts[hostkey];
+          const host: Host = this.hosts[hostkey];
           /* Setup common response attributes */
-          const hostobject: any = {
+          const hostobject = {
             attrs: {
               display_name: host.name,
               last_check_result: {
                 state: host.getState() === 'UP' ? 0 : 1,
-                output: ''
+                output: '',
               },
             },
-            name: host.name
+            name: host.name,
           };
           addAttributes(host, hostobject);
           return hostobject;
-        })
+        }),
       };
     };
 
     const servicedata = (): IcingaServiceJsonData => {
       const a: IcingaServiceJsonData = {
-        results: []
+        results: [],
       };
       Object.keys(this.hosts).map((hostkey) => {
-        const host: Monitor.Host = this.hosts[hostkey];
+        const host: Host = this.hosts[hostkey];
         host.services.forEach((service) => {
-          let servicedataattributes: {attrs: {[key: string]: any}, name: string};
-          a.results.push(servicedataattributes = {
-            attrs: {
-              acknowledgement: service.hasBeenAcknowledged ? 1 : 0,
-              display_name: service.name,
-              enable_notifications: !service.notificationsDisabled,
-              last_check_result: {
-                /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
-                state: 0,
-                output: ''
+          let servicedataattributes: {
+            attrs: { [key: string]: unknown };
+            name: string;
+          };
+          a.results.push(
+            (servicedataattributes = {
+              attrs: {
+                acknowledgement: service.hasBeenAcknowledged ? 1 : 0,
+                display_name: service.name,
+                enable_notifications: !service.notificationsDisabled,
+                last_check_result: {
+                  /* (0 = OK, 1 = WARNING, 2 = CRITICAL, 3 = UNKNOWN). */
+                  state: 0,
+                  output: '',
+                },
+                state_type: service.isInSoftState ? 0 : 1,
               },
-              state_type: service.isInSoftState ? 0 : 1,
-            },
-            name: host.name + '!' + service.name
-          });
+              name: host.name + '!' + service.name,
+            })
+          );
           if (service.checksDisabled) {
             servicedataattributes.attrs['enable_active_checks'] = false;
           }

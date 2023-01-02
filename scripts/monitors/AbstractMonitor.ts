@@ -1,6 +1,6 @@
-import { IEnvironment } from "../IEnvironment";
-import { FilterSettings, ImoinMonitorInstance } from "../Settings";
-import { UICommand } from "../UICommand";
+import { IEnvironment } from '../IEnvironment';
+import { FilterSettings, ImoinMonitorInstance } from '../Settings';
+import { UICommand } from '../UICommand';
 import {
   FHost,
   filterAcknowledged,
@@ -11,9 +11,9 @@ import {
   filterServicesOnDownHosts,
   filterSoftStates,
   filterUp,
-} from "./filters";
-import { IMonitor } from "./IMonitor";
-import { Monitor } from "./MonitorData";
+} from './filters';
+import { IMonitor } from './IMonitor';
+import { MonitorData } from './MonitorData';
 
 export abstract class AbstractMonitor implements IMonitor {
   /**
@@ -25,7 +25,7 @@ export abstract class AbstractMonitor implements IMonitor {
    * @param filtersettings The filter settings
    */
   public static applyFilters(
-    status: Monitor.MonitorData,
+    status: MonitorData,
     filtersettings?: FilterSettings
   ) {
     let result: FHost[] | null = status
@@ -79,7 +79,7 @@ export abstract class AbstractMonitor implements IMonitor {
 
   public startTimer() {
     this.environment.initTimer(this.index, this.settings.timerPeriod, () => {
-      this.fetchStatus().then((status: Monitor.MonitorData) => {
+      void this.fetchStatus().then((status: MonitorData) => {
         const filteredHosts = AbstractMonitor.applyFilters(
           status,
           this.settings.filtersettings
@@ -95,7 +95,7 @@ export abstract class AbstractMonitor implements IMonitor {
     this.environment.stopTimer(this.index);
   }
 
-  public abstract fetchStatus(): Promise<Monitor.MonitorData>;
+  public abstract fetchStatus(): Promise<MonitorData>;
 
   protected abstract handleUICommand(param: UICommand): void;
 }

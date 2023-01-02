@@ -1,235 +1,260 @@
-import { Port, WebExtensionBrowser } from './definitions/common-webextension';
-import browser from './definitions/firefox-webextension';
 import { AbstractEnvironment } from './AbstractEnvironment';
-import { Settings } from './Settings';
-import { Monitor } from './monitors';
-import Status = Monitor.Status;
+import { Port, WebExtensionBrowser } from './definitions/common-webextension';
 import { IBadgeIcon } from './IconAndBadgetext';
+import { Status } from './monitors';
+import { ImoinMonitorInstance, Settings, Sound } from './Settings';
 
 /**
  * A common implementation
  */
 export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironment {
-    /**
-     * Build the id to lookup the sound settings
-     * @param status The overall status
-     * @param isNew A flag indicating that the status is different to the last call
-     */
-    public static buildSoundId(status: Monitor.Status, isNew: boolean): string {
-        return (isNew ? 'To' : '') + Monitor.Status[status];
+  /**
+   * Build the id to lookup the sound settings
+   * @param status The overall status
+   * @param isNew A flag indicating that the status is different to the last call
+   */
+  public static buildSoundId(status: Status, isNew: boolean): string {
+    return (isNew ? 'To' : '') + Status[status];
+  }
+
+  public static processStoredSettings(
+    storedSettings: Record<string, unknown>
+  ): Settings {
+    const settings = new Settings();
+    if (storedSettings && typeof storedSettings === 'object') {
+      if (typeof storedSettings.instances === 'string') {
+        settings.instances = JSON.parse(
+          storedSettings.instances
+        ) as ImoinMonitorInstance[];
+      }
+      if (
+        typeof storedSettings.fontsize === 'number' &&
+        storedSettings.fontsize > 0
+      ) {
+        settings.fontsize = storedSettings.fontsize;
+      }
+      settings.inlineresults = storedSettings.inlineresults === 1;
+      if (typeof storedSettings.sounds === 'string') {
+        settings.sounds = JSON.parse(storedSettings.sounds) as Record<
+          string,
+          Sound
+        >;
+      }
     }
 
-    public static processStoredSettings(storedSettings: any): Settings {
-        const settings = new Settings();
-        if (storedSettings) {
-            if (storedSettings.instances) {
-                settings.instances = JSON.parse(storedSettings.instances);
-            }
-            if (storedSettings.fontsize && storedSettings.fontsize > 0) {
-                settings.fontsize = storedSettings.fontsize;
-            }
-            settings.inlineresults = storedSettings.inlineresults === 1;
-            if (storedSettings.sounds) {
-                settings.sounds = JSON.parse(storedSettings.sounds);
-            }
-        }
+    // Remove trailing slash for all instances
+    settings.instances.forEach((i) => (i.url = Settings.urlNoTrailingSlash(i)));
 
-        // Remove trailing slash for all instances
-        settings.instances.forEach((i) => i.url = Settings.urlNoTrailingSlash(i));
+    return settings;
+  }
 
-        return settings;
-    }
+  protected static optionKeys = [
+    'instances',
+    'fontsize',
+    'sounds',
+    'inlineresults',
+  ];
 
-    protected static optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
+  protected portFromPanel: Port | null = null;
+  protected abstract host: WebExtensionBrowser;
+  protected abstract console: Console;
+  protected settings: Settings = new Settings();
 
-    protected portFromPanel: Port | null = null;
-    protected abstract host: WebExtensionBrowser;
-    protected abstract console: Console;
-    protected settings: Settings = new Settings();
+  private alarmListenerRegistered = false;
+  private audioPlayer: HTMLAudioElement = new Audio();
+  private audioPlayerSoundid = '';
 
-    private alarmListenerRegistered = false;
-    private audioPlayer: HTMLAudioElement = new Audio();
-    private audioPlayerSoundid: string = '';
-
-    public load(url: string, username: string, password: string): Promise<string> {
-        return new Promise<string>(
-            (resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', url, true);
-                if (username) {
-                    xhr.setRequestHeader(
-                        'Authorization', 'Basic ' + btoa(username + ':' + password));
-                    xhr.withCredentials = true;
-                }
-                xhr.onreadystatechange = () => {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            resolve(xhr.responseText);
-                        } else {
-                            reject(xhr.responseText);
-                        }
-                    }
-                };
-                xhr.send();
-            }
+  public load(
+    url: string,
+    username: string,
+    password: string
+  ): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      if (username) {
+        xhr.setRequestHeader(
+          'Authorization',
+          'Basic ' + btoa(username + ':' + password)
         );
-    }
-
-    public post(url: string, data: any, username: string, password: string): Promise<string> {
-        return new Promise<string>(
-            (resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', url, true);
-                if (username) {
-                    xhr.setRequestHeader(
-                        'Authorization', 'Basic ' + btoa(username + ':' + password));
-                    xhr.withCredentials = true;
-                }
-                xhr.onreadystatechange = () => {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            resolve(xhr.responseText);
-                        } else {
-                            reject(xhr.responseText);
-                        }
-                    }
-                };
-                xhr.setRequestHeader('Accept', 'application/json');
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.send(JSON.stringify(data));
-            }
-        );
-    }
-    public initTimer(index: number, delay: number, callback: () => void): void {
-        this.addAlarm(index, delay, callback);
-    }
-
-    public stopTimer(index: number) {
-        this.removeAlarm(index);
-    }
-
-    public audioNotification(status: Monitor.Status, isNew: boolean): void {
-        // Build the key
-        const soundid = AbstractWebExtensionsEnvironment.buildSoundId(status, isNew);
-
-        // Is it still playing?
-        if (this.audioPlayer.paused === false) {
-            // Is it still playing the last sound?
-            if (this.audioPlayerSoundid === soundid) {
-                // do nothing
-                return;
-            }
-            // Stop running player
-            this.audioPlayer.pause();
-        }
-
-        // Lookup settings
-        if (this.settings.sounds[soundid]) {
-            // Remember sound id
-            this.audioPlayerSoundid = soundid;
-
-            // Start player
-            if (this.settings.sounds[soundid].data) {
-                this.audioPlayer.src = this.settings.sounds[soundid].data;
-                this.audioPlayer.play();
-            }
-        }
-    }
-
-    protected openOptionsPage(): void {
-        if (this.host.runtime.openOptionsPage) {
-            this.host.runtime.openOptionsPage();
+        xhr.withCredentials = true;
+      }
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            resolve(xhr.responseText);
           } else {
-            window.open(this.host.runtime.getURL('html/options.html'));
+            reject(xhr.responseText);
           }
-    }
-
-    protected setIcon(icon: IBadgeIcon) {
-        this.host.browserAction.setIcon({ path: icon });
-    }
-
-    protected updateIconAndBadgetext() {
-        const iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
-        this.setIcon(iAndB.badgeIcon);
-        this.host.browserAction.setBadgeText({ text: iAndB.badgeText });
-        this.host.browserAction.setBadgeBackgroundColor({ color: iAndB.badgeColor });
-    }
-
-    protected trySendDataToPopup() {
-        if (this.portFromPanel) {
-            this.portFromPanel.postMessage(
-                { command: 'ProcessStatusUpdate', data: this.dataBuffer });
-            this.portFromPanel.postMessage({
-                command: 'uisettings',
-                data: {
-                    fontsize: this.settings.fontsize,
-                    inlineresults: this.settings.inlineresults,
-                }
-            });
         }
-    }
+      };
+      xhr.send();
+    });
+  }
 
-    protected connected(p: Port) {
-        this.debug('Panel opened');
-        const me = this;
-        this.portFromPanel = p;
-        this.portFromPanel.onMessage.addListener(this.handleMessage.bind(this));
-        this.portFromPanel.onDisconnect.addListener(() => {
-            me.debug('Panel closed');
-            me.portFromPanel = null;
-        });
-        this.trySendDataToPopup();
-    }
-
-    protected createHostAlarm(alarmName: string, delay: number) {
-        this.host.alarms.create(
-            alarmName,
-            {
-                periodInMinutes: delay
-            }
+  public post(
+    url: string,
+    data: unknown,
+    username: string,
+    password: string
+  ): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      if (username) {
+        xhr.setRequestHeader(
+          'Authorization',
+          'Basic ' + btoa(username + ':' + password)
         );
-
-        this.debug('Adding alarm listener');
-        if (!this.alarmListenerRegistered) {
-            this.alarmListenerRegistered = true;
-            this.host.alarms.onAlarm.addListener(this.handleAlarm.bind(this));
+        xhr.withCredentials = true;
+      }
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            resolve(xhr.responseText);
+          } else {
+            reject(xhr.responseText);
+          }
         }
+      };
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    });
+  }
+  public initTimer(index: number, delay: number, callback: () => void): void {
+    this.addAlarm(index, delay, callback);
+  }
+
+  public stopTimer(index: number) {
+    this.removeAlarm(index);
+  }
+
+  public audioNotification(status: Status, isNew: boolean): void {
+    // Build the key
+    const soundid = AbstractWebExtensionsEnvironment.buildSoundId(
+      status,
+      isNew
+    );
+
+    // Is it still playing?
+    if (this.audioPlayer.paused === false) {
+      // Is it still playing the last sound?
+      if (this.audioPlayerSoundid === soundid) {
+        // do nothing
+        return;
+      }
+      // Stop running player
+      this.audioPlayer.pause();
     }
 
-    protected removeHostAlarm(alarmName: string) {
-        this.host.alarms.clear(alarmName);
+    // Lookup settings
+    if (this.settings.sounds[soundid]) {
+      // Remember sound id
+      this.audioPlayerSoundid = soundid;
+
+      // Start player
+      if (this.settings.sounds[soundid].data) {
+        this.audioPlayer.src = this.settings.sounds[soundid].data;
+        void this.audioPlayer.play();
+      }
     }
+  }
 
-    protected addAlarm(index: number, delay: number, callback: () => void): void {
-        this.debug('Adding alarm every ' + delay + ' minutes');
-        const alarmName = AbstractEnvironment.alarmName(index);
-
-        this.createHostAlarm(alarmName, delay);
-
-        this.registerAlarmCallback(alarmName, callback);
-
-        this.debug('Triggering immediate update');
-        this.handleAlarm({ name: alarmName });
+  protected openOptionsPage(): void {
+    if (this.host.runtime.openOptionsPage) {
+      this.host.runtime.openOptionsPage();
+    } else {
+      window.open(this.host.runtime.getURL('html/options.html'));
     }
+  }
 
-    protected removeAlarm(index: number) {
-        const alarmName = AbstractEnvironment.alarmName(index);
-        this.removeHostAlarm(alarmName);
-    }
+  protected setIcon(icon: IBadgeIcon) {
+    this.host.browserAction.setIcon({ path: icon });
+  }
 
-    protected debug(o: any) {
-        this.console.debug(o);
-    }
+  protected updateIconAndBadgetext() {
+    const iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
+    this.setIcon(iAndB.badgeIcon);
+    this.host.browserAction.setBadgeText({ text: iAndB.badgeText });
+    this.host.browserAction.setBadgeBackgroundColor({
+      color: iAndB.badgeColor,
+    });
+  }
 
-    protected log(o: any) {
-        this.console.log(o);
+  protected trySendDataToPopup() {
+    if (this.portFromPanel) {
+      this.portFromPanel.postMessage({
+        command: 'ProcessStatusUpdate',
+        data: this.dataBuffer,
+      });
+      this.portFromPanel.postMessage({
+        command: 'uisettings',
+        data: {
+          fontsize: this.settings.fontsize,
+          inlineresults: this.settings.inlineresults,
+        },
+      });
     }
+  }
 
-    protected error(o: any) {
-        this.console.error(o);
-    }
+  protected connected(p: Port) {
+    this.debug('Panel opened');
+    this.portFromPanel = p;
+    this.portFromPanel.onMessage.addListener(this.handleMessage.bind(this));
+    this.portFromPanel.onDisconnect.addListener(() => {
+      this.debug('Panel closed');
+      this.portFromPanel = null;
+    });
+    this.trySendDataToPopup();
+  }
 
-    protected openWebPage(url: string) {
-        this.host.tabs.create({ url });
+  protected createHostAlarm(alarmName: string, delay: number) {
+    this.host.alarms.create(alarmName, {
+      periodInMinutes: delay,
+    });
+
+    this.debug('Adding alarm listener');
+    if (!this.alarmListenerRegistered) {
+      this.alarmListenerRegistered = true;
+      this.host.alarms.onAlarm.addListener(this.handleAlarm.bind(this));
     }
+  }
+
+  protected removeHostAlarm(alarmName: string) {
+    this.host.alarms.clear(alarmName);
+  }
+
+  protected addAlarm(index: number, delay: number, callback: () => void): void {
+    this.debug(`Adding alarm every ${delay} minutes`);
+    const alarmName = AbstractEnvironment.alarmName(index);
+
+    this.createHostAlarm(alarmName, delay);
+
+    this.registerAlarmCallback(alarmName, callback);
+
+    this.debug('Triggering immediate update');
+    this.handleAlarm({ name: alarmName });
+  }
+
+  protected removeAlarm(index: number) {
+    const alarmName = AbstractEnvironment.alarmName(index);
+    this.removeHostAlarm(alarmName);
+  }
+
+  protected debug(o: unknown) {
+    this.console.debug(o);
+  }
+
+  protected log(o: unknown) {
+    this.console.log(o);
+  }
+
+  protected error(o: unknown) {
+    this.console.error(o);
+  }
+
+  protected openWebPage(url: string) {
+    this.host.tabs.create({ url });
+  }
 }

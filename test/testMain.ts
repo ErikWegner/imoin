@@ -1,12 +1,18 @@
-import * as fs from 'fs';
+import { expect } from 'chai';
 import 'mocha';
-import { fail } from 'assert';
-import { assert, expect } from 'chai';
 
-import { resolveMonitor } from '../scripts/main';
-import { ImoinMonitorInstance, IcingaOptionsVersion } from '../scripts/Settings';
-import { IcingaCgi, IcingaApi, NagiosCore, NagiosHtml } from '../scripts/monitors';
 import { IEnvironment } from '../scripts/IEnvironment';
+import { resolveMonitor } from '../scripts/main';
+import {
+  IcingaApi,
+  IcingaCgi,
+  NagiosCore,
+  NagiosHtml,
+} from '../scripts/monitors';
+import {
+  IcingaOptionsVersion,
+  ImoinMonitorInstance,
+} from '../scripts/Settings';
 import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 
 describe('main', () => {
@@ -15,7 +21,7 @@ describe('main', () => {
 
     beforeEach(() => {
       e = new MockAbstractEnvironment();
-    })
+    });
     function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {
       return {
         instancelabel: '',
@@ -54,6 +60,5 @@ describe('main', () => {
       expect(r).to.be.not.null;
       expect(r).to.be.an.instanceOf(NagiosHtml);
     });
-
   });
 });

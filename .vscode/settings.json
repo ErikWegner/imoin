@@ -1,2 +1,5 @@
 {
+  "editor.defaultFormatter": "espenp.pretier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false
 }

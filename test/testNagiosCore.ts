@@ -1,12 +1,13 @@
-import 'mocha';
 import { fail } from 'assert';
 import { expect } from 'chai';
-import { Monitor, NagiosCore } from '../scripts/monitors';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
+import 'mocha';
+
+import { NagiosCore, Status } from '../scripts/monitors';
 import { ImoinMonitorInstance } from '../scripts/Settings';
-import { SettingsBuilder } from './abstractHelpers/SettingsBuilder';
 import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
 import { LoadCallbackBuilder } from './abstractHelpers/LoadCallbackBuilder';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
+import { SettingsBuilder } from './abstractHelpers/SettingsBuilder';
 import { filterSettingsTests } from './filterSettingsTestsCommons';
 
 describe('NagiosCore', () => {
@@ -33,7 +34,7 @@ describe('NagiosCore', () => {
       password: 'pass',
     };
     const u = new NagiosCore(e, settings, 0);
-    e.loadCallback = (url, user, passwd): Promise<string> => {
+    e.loadCallback = (url): Promise<string> => {
       if (url.indexOf('hostlist') > -1) {
         return Promise.resolve('defect{JSON}-"data');
       }
@@ -44,7 +45,7 @@ describe('NagiosCore', () => {
       return Promise.reject('loadCallback not configured for ' + url);
     };
     return u.fetchStatus().then((r) => {
-      expect(r.getState()).to.equal(Monitor.Status.RED);
+      expect(r.getState()).to.equal(Status.RED);
       expect(r.getMessage()).to.equal('Could not parse host data.');
     });
   });
@@ -59,8 +60,8 @@ describe('NagiosCore', () => {
       username: 'user',
       password: 'pass',
     };
-    const u = new NagiosCore(e, settings, 0)
-    e.loadCallback = (url, user, passwd): Promise<string> => {
+    const u = new NagiosCore(e, settings, 0);
+    e.loadCallback = (url): Promise<string> => {
       if (url.indexOf('hostlist') > -1) {
         return Promise.resolve('{}');
       }
@@ -71,7 +72,7 @@ describe('NagiosCore', () => {
       return Promise.reject('No');
     };
     return u.fetchStatus().then((r) => {
-      expect(r.getState()).to.equal(Monitor.Status.RED);
+      expect(r.getState()).to.equal(Status.RED);
       expect(r.getMessage()).to.equal('Could not parse service data.');
     });
   });
@@ -108,10 +109,16 @@ describe('NagiosCore', () => {
 
     const data = new LoadCallbackBuilder()
       .Host('H1')
-      .Service('/ Disk Usage', () => { /* no op */ })
-      .Service('SSH Server', () => { /* no op */ })
+      .Service('/ Disk Usage', () => {
+        /* no op */
+      })
+      .Service('SSH Server', () => {
+        /* no op */
+      })
       .Host('H2')
-      .Service('S3', () => { /* no op */ })
+      .Service('S3', () => {
+        /* no op */
+      })
       .BuildCallbacks('nagioscore');
 
     e.loadCallback = loadCallback(data[0], data[1]);
@@ -120,28 +127,32 @@ describe('NagiosCore', () => {
       expect(r.hosts).to.have.lengthOf(2);
       const host1 = r.hosts[0];
       expect(host1.services).to.have.lengthOf(2);
-      expect(host1.services[0].servicelink)
-        .to.equal(`${baseurl}${pathAndQuery}host=H1&service=%2F+Disk+Usage`);
-      expect(host1.services[1].servicelink)
-        .to.equal(`${baseurl}${pathAndQuery}host=H1&service=SSH+Server`);
+      expect(host1.services[0].servicelink).to.equal(
+        `${baseurl}${pathAndQuery}host=H1&service=%2F+Disk+Usage`
+      );
+      expect(host1.services[1].servicelink).to.equal(
+        `${baseurl}${pathAndQuery}host=H1&service=SSH+Server`
+      );
       const host2 = r.hosts[1];
       expect(host2.services).to.have.lengthOf(1);
-      expect(host2.services[0].servicelink).to.equal(`${baseurl}${pathAndQuery}host=H2&service=S3`);
+      expect(host2.services[0].servicelink).to.equal(
+        `${baseurl}${pathAndQuery}host=H2&service=S3`
+      );
     });
   });
 
   Object.keys(filterSettingsTests).forEach((description) => {
     const options = filterSettingsTests[description];
     describe(description, () => {
-
       function buildSettings() {
         const settings = SettingsBuilder.create('nagioscore').build();
-        FilterSettingsBuilder.with(settings)
-          .setup(options.setupFilterSettingsBuilder);
+        FilterSettingsBuilder.with(settings).setup(
+          options.setupFilterSettingsBuilder
+        );
         return settings;
       }
 
-      it('should set ' + options.hostProperty + ' on host', () => {
+      it(`should set ${options.hostProperty} on host`, () => {
         const e = new MockAbstractEnvironment();
 
         const data = new LoadCallbackBuilder()
@@ -170,29 +181,29 @@ describe('NagiosCore', () => {
         const data = new LoadCallbackBuilder()
           .Host('H1')
           .Service('S1', options.setupService)
-          .Service('S2', () => { /* no op */ })
+          .Service('S2', () => {
+            /* no op */
+          })
           .BuildCallbacks('nagioscore');
 
         e.loadCallback = loadCallback(data[0], data[1]);
 
-        return u
-          .fetchStatus()
-          .then((v) => {
-            expect(v.hosts).to.have.lengthOf(1);
-            if (v.hosts.length > 0) {
-              expect(v.hosts[0].name).to.equal('H1');
-              const services = v.hosts[0].services;
-              expect(services).to.have.lengthOf(2);
-              if (services.length > 1) {
-                expect(services[0][options.serviceProperty]).to.equal(true);
-                expect(services[1][options.serviceProperty]).to.equal(false);
-              } else {
-                fail('Services missing');
-              }
+        return u.fetchStatus().then((v) => {
+          expect(v.hosts).to.have.lengthOf(1);
+          if (v.hosts.length > 0) {
+            expect(v.hosts[0].name).to.equal('H1');
+            const services = v.hosts[0].services;
+            expect(services).to.have.lengthOf(2);
+            if (services.length > 1) {
+              expect(services[0][options.serviceProperty]).to.equal(true);
+              expect(services[1][options.serviceProperty]).to.equal(false);
             } else {
-              fail('No host');
+              fail('Services missing');
             }
-          });
+          } else {
+            fail('No host');
+          }
+        });
       });
     });
   });

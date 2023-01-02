@@ -1,17 +1,17 @@
-import { Monitor } from '../../scripts/monitors';
+import { Host, Service, ServiceState } from '../monitors';
 
 export class ServiceBuilder {
   public static create(name: string) {
     return new ServiceBuilder(name);
   }
 
-  protected service: Monitor.Service;
+  protected service: Service;
 
   constructor(name: string) {
-    this.service = new Monitor.Service(name);
+    this.service = new Service(name);
   }
 
-  public withStatus(state: Monitor.ServiceState) {
+  public withStatus(state: ServiceState) {
     this.service.setState(state);
     return this;
   }
@@ -31,17 +31,17 @@ export class ServiceBuilder {
     return this;
   }
 
-  public inSoftState(): any {
+  public inSoftState() {
     this.service.isInSoftState = true;
     return this;
   }
 
-  public inDowntime(): any {
+  public inDowntime() {
     this.service.isInDowntime = true;
     return this;
   }
 
-  public addToHost(host: Monitor.Host) {
+  public addToHost(host: Host) {
     host.addService(this.service);
     return this;
   }

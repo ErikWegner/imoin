@@ -1,9 +1,8 @@
-import { FilterSettings } from '../../Settings';
 import { FHost } from '.';
+import { FilterSettings } from '../../Settings';
 
 function removeAllOKServices(host: FHost) {
-  host
-    .filterServices((service) => service.getState() !== 'OK');
+  host.filterServices((service) => service.getState() !== 'OK');
 }
 
 function removeUPHostsWithoutServices(host: FHost): boolean {
@@ -17,10 +16,7 @@ function removeUPHostsWithoutServices(host: FHost): boolean {
  * @param hosts The list of hosts
  * @param filtersettings The filter settings
  */
-export function filterUp(
-  hosts: FHost[] | null,
-  filtersettings?: FilterSettings
-) {
+export function filterUp(hosts: FHost[] | null, _filtersettings?: FilterSettings) {
   if (hosts === null) {
     return null;
   }

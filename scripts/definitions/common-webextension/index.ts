@@ -1,100 +1,109 @@
+import { UICommand } from '../../UICommand';
+
 export interface WebExtensionBrowser {
-    tabs: Tabs;
-    runtime: Runtime;
-    storage: BrowserStorage;
-    browserAction: BrowserAction;
-    windows: Windows;
-    extension: Extension;
-    alarms: Alarms;
+  tabs: Tabs;
+  runtime: Runtime;
+  storage: BrowserStorage;
+  browserAction: BrowserAction;
+  windows: Windows;
+  extension: Extension;
+  alarms: Alarms;
 }
 
 interface WindowsCreateOptions {
-    url?: string;
+  url?: string;
+}
+
+interface AlarmEvent {
+  name: string;
 }
 
 interface Alarms {
-    onAlarm: RuntimeEvent;
-    create(name: string, alarmInfo: AlarmInfo): void;
-    clear(name: string): void;
+  onAlarm: RuntimeEvent<AlarmEvent>;
+  create(name: string, alarmInfo: AlarmInfo): void;
+  clear(name: string): void;
 }
 
 interface AlarmInfo {
-    when?: number;
-    delayInMinutes?: number;
-    periodInMinutes?: number;
+  when?: number;
+  delayInMinutes?: number;
+  periodInMinutes?: number;
 }
 
 interface Extension {
-    getBackgroundPage(): Window;
+  getBackgroundPage(): Window;
 }
 
 interface Windows {
-    create(options: WindowsCreateOptions): void;
+  create(options: WindowsCreateOptions): void;
 }
 
 declare global {
-    interface Window {
-        console: Console;
-    }
+  interface Window {
+    console: Console;
+  }
 }
 
 interface Tabs {
-    create(params: { url?: string }): void;
+  create(params: { url?: string }): void;
 }
 
 interface Runtime {
-    onInstalled: InstalledEvent;
-    onConnect: RuntimeEvent;
-    connect(
-        extensionId?: string,
-        connectInfo?: { name?: string, includeTlsChannelId?: boolean }
-    ): Port;
-    openOptionsPage(): void;
-    getURL(url: string): string;
+  onInstalled: InstalledEvent;
+  onConnect: RuntimeEvent<Port>;
+  connect(
+    extensionId?: string,
+    connectInfo?: { name?: string; includeTlsChannelId?: boolean }
+  ): Port;
+  openOptionsPage(): void;
+  getURL(url: string): string;
 }
 
 interface InstalledEventDetails {
-    id?: string;
-    previousVersion?: string;
-    reason: string;
-    temporary: boolean;
+  id?: string;
+  previousVersion?: string;
+  reason: string;
+  temporary: boolean;
 }
 
 interface InstalledEvent {
-    addListener(callback: (details: InstalledEventDetails) => void): void;
+  addListener(callback: (details: InstalledEventDetails) => void): void;
 }
 
-interface RuntimeEvent {
-    addListener(
-        callback: (
-            message?: any,
-            sender?: any,
-            sendResponse?: (response: any) => void
-        ) => void): void;
-    removeListener(callback: () => void): void;
+interface RuntimeEvent<T> {
+  addListener(
+    callback: (
+      message: T,
+      sender?: unknown,
+      sendResponse?: (response: unknown) => void
+    ) => void
+  ): void;
+  removeListener(callback: () => void): void;
 }
 
 export interface Port {
-    onMessage: RuntimeEvent;
-    onDisconnect: RuntimeEvent;
-    postMessage(message: any): void;
+  onMessage: RuntimeEvent<UICommand>;
+  onDisconnect: RuntimeEvent<UICommand>;
+  postMessage(message: UICommand): void;
 }
 
 interface BrowserStorage {
-    local: StorageArea;
+  local: StorageArea;
 }
 
 interface StorageArea {
-    get(keys: string | string[]): Promise<any>;
-    get(keys: string | string[], callback: (items: any) => void): void;
-    set(data: object): Promise<void>;
+  get(keys: string | string[]): Promise<Record<string, unknown>>;
+  get(
+    keys: string | string[],
+    callback: (items: Record<string, unknown>) => void
+  ): void;
+  set(data: object): Promise<void>;
 }
 
 interface BrowserAction {
-    setIcon(
-        icon: {
-            path: { 40?: string, 32?: string, 24?: string, 20?: string, 16?: string }
-        }): void;
-    setBadgeText(badge: { text: string }): void;
-    setBadgeBackgroundColor(details: { color: string }): void;
+  setIcon(icon: {
+    path: { 40?: string; 32?: string; 24?: string; 20?: string; 16?: string };
+  }): void;
+  setBadgeText(badge: { text: string }): void;
+  setBadgeBackgroundColor(details: { color: string }): void;
 }

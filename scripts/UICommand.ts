@@ -1,5 +1,9 @@
 export interface UICommand {
-    command: string;
-    hostname: string;
-    servicename: string;
+  command: string;
+  data?: unknown;
+  hostname?: string;
+  instanceindex?: number;
+  remoteCommand?: string;
+  servicename?: string;
+  url?: string;
 }

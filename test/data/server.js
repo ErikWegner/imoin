@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const fs = require('fs');
-const path = require("path");
+const path = require('path');
 
 app.get('/', (req, res) => res.send('Demo server for Icinga and Nagios!'))
 

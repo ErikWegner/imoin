@@ -1,11 +1,11 @@
-import { Monitor } from '../../scripts/monitors';
+import { Host } from '../monitors';
 import { ServiceBuilder } from './ServiceBuilder';
 
 export class HostBuilder {
-  protected activeHost: Monitor.Host = new Monitor.Host('uninitialized');
+  protected activeHost: Host = new Host('uninitialized');
 
   public Host(name: string) {
-    this.activeHost = new Monitor.Host(name);
+    this.activeHost = new Host(name);
     return this;
   }
 
@@ -44,12 +44,8 @@ export class HostBuilder {
     return this;
   }
 
-  public Service(
-    name: string,
-    servicesetup: (b: ServiceBuilder) => void
-  ) {
-    const sb = ServiceBuilder
-      .create(name);
+  public Service(name: string, servicesetup: (b: ServiceBuilder) => void) {
+    const sb = ServiceBuilder.create(name);
     servicesetup(sb);
     sb.addToHost(this.activeHost);
     return this;

@@ -25,7 +25,7 @@
 
   /** Create child elements */
   function populateRootElement(element) {
-    console.log("populate");
+    console.log('populate');
 
     const soundid = element.getAttribute('data-soundevent');
 

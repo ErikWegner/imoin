@@ -182,7 +182,7 @@ class SoundFileSelectorControl {
   }
 
 
-  global["SoundFileSelectors"] = {
+  global['SoundFileSelectors'] = {
     setFiles: function (filedata) {
       for (let key in filedata) {
         if (key in controls) {
