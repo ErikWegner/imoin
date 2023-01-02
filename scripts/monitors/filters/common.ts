@@ -1,7 +1,7 @@
 import { FilterSettings } from '../../Settings';
 
 export function optionalFiltersettings(
-  filtersettings: FilterSettings,
+  filtersettings: FilterSettings | undefined,
   p: keyof FilterSettings): boolean {
 
   if (filtersettings) {

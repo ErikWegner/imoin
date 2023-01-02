@@ -27,8 +27,7 @@ describe('AbstractMonitor', () => {
 
   it('should call initTimer on environment', () => {
     const mae = new MockAbstractEnvironment();
-    const mam = new MockAbstractMonitor();
-    mam.init(mae, buildInstance('api1'), 0);
+    const mam = new MockAbstractMonitor(mae, buildInstance('api1'), 0);
 
     mam.startTimer();
 
@@ -37,8 +36,7 @@ describe('AbstractMonitor', () => {
 
   it('should provide valid callback function as argument to initTimer', () => {
     const mae = new MockAbstractEnvironment();
-    const mam = new MockAbstractMonitor();
-    mam.init(mae, buildInstance('api1'), 0);
+    const mam = new MockAbstractMonitor(mae, buildInstance('api1'), 0);
 
     mam.startTimer();
 
@@ -48,8 +46,7 @@ describe('AbstractMonitor', () => {
 
   it('should call abstract fetchStatus function on timer callback', () => {
     const mae = new MockAbstractEnvironment();
-    const mam = new MockAbstractMonitor();
-    mam.init(mae, buildInstance('api1'), 0);
+    const mam = new MockAbstractMonitor(mae, buildInstance('api1'), 0);
     mam.startTimer();
     const timerCallback = mae.initTimerSpy.getCall(0).args[2];
 
@@ -60,9 +57,8 @@ describe('AbstractMonitor', () => {
 
   it('should call display status function on timer callback', (done) => {
     const mae = new MockAbstractEnvironment();
-    const mam = new MockAbstractMonitor();
     const instance = buildInstance('api1');
-    mam.init(mae, instance, 0);
+    const mam = new MockAbstractMonitor(mae, instance, 0);
     mam.startTimer();
     const timerCallback = mae.initTimerSpy.getCall(0).args[2];
     mae.displayStatusNotify = () => {
@@ -75,9 +71,8 @@ describe('AbstractMonitor', () => {
 
   it('should apply filter settings on timer callback', (done) => {
     const mae = new MockAbstractEnvironment();
-    const mam = new MockAbstractMonitor();
     const instance = buildInstance('api1');
-    mam.init(mae, instance, 0);
+    const mam = new MockAbstractMonitor(mae, instance, 0);
     mam.startTimer();
     const timerCallback = mae.initTimerSpy.getCall(0).args[2];
 
@@ -118,7 +113,7 @@ describe('AbstractMonitor', () => {
           const result = AbstractMonitor.applyFilters(status, filtersettings);
 
           // Assert
-          expect(result.map((h) => h.getHost().appearsInShortlist)).to.deep.equal([
+          expect(result?.map((h) => h.getHost().appearsInShortlist)).to.deep.equal([
             true, true, true, true
           ]);
           expect(status.hosts.map((h) => h.appearsInShortlist)).to.deep.equal([
@@ -229,18 +224,22 @@ describe('AbstractMonitor', () => {
           const filtersettings = buildSettings();
           const result = AbstractMonitor.applyFilters(status, filtersettings);
 
-          // S1 service has no problem
-          expect(result[0].getHost().services[0].appearsInShortlist).to.eq(false);
-          // S2 has a problem and problem is not acknowledged
-          expect(result[0].getHost().services[1].appearsInShortlist).to.eq(true);
-          // S3 has a problem and problem is acknowledged
-          expect(result[0].getHost().services[2].appearsInShortlist).to.eq(false);
-          // S4 service has no problem
-          expect(result[1].getHost().services[0].appearsInShortlist).to.eq(false);
-          // S5 has a problem and problem is acknowledged
-          expect(result[1].getHost().services[1].appearsInShortlist).to.eq(false);
-          // S6 has a problem and problem is not acknowledged
-          expect(result[1].getHost().services[2].appearsInShortlist).to.eq(true);
+          if (result) {
+            // S1 service has no problem
+            expect(result[0].getHost().services[0].appearsInShortlist).to.eq(false);
+            // S2 has a problem and problem is not acknowledged
+            expect(result[0].getHost().services[1].appearsInShortlist).to.eq(true);
+            // S3 has a problem and problem is acknowledged
+            expect(result[0].getHost().services[2].appearsInShortlist).to.eq(false);
+            // S4 service has no problem
+            expect(result[1].getHost().services[0].appearsInShortlist).to.eq(false);
+            // S5 has a problem and problem is acknowledged
+            expect(result[1].getHost().services[1].appearsInShortlist).to.eq(false);
+            // S6 has a problem and problem is not acknowledged
+            expect(result[1].getHost().services[2].appearsInShortlist).to.eq(true);
+          } else {
+            fail('result is null');
+          }
         });
       });
     });
@@ -263,7 +262,7 @@ describe('AbstractMonitor', () => {
       const result = AbstractMonitor.applyFilters(status, filtersettings);
 
       expect(result).to.have.lengthOf(4);
-      result.forEach((fhost) => {
+      result?.forEach((fhost) => {
         expect(fhost.getFServices()).to.have.lengthOf(0);
       });
     });
@@ -289,7 +288,7 @@ describe('AbstractMonitor', () => {
       const result = AbstractMonitor.applyFilters(status, filtersettings);
 
       const resultHostsAndServices: { [hostname: string]: number } = {};
-      result.forEach(
+      result?.forEach(
         (host) => resultHostsAndServices[host.getHost().name] = host.getFServices().length
       );
       expect(resultHostsAndServices).to.deep.equal({

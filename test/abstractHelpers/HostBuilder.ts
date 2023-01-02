@@ -2,7 +2,7 @@ import { Monitor } from '../../scripts/monitors';
 import { ServiceBuilder } from './ServiceBuilder';
 
 export class HostBuilder {
-  protected activeHost: Monitor.Host = null;
+  protected activeHost: Monitor.Host = new Monitor.Host('uninitialized');
 
   public Host(name: string) {
     this.activeHost = new Monitor.Host(name);

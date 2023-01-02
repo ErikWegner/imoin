@@ -4,12 +4,12 @@ import * as sinon from 'sinon';
 import { Monitor } from '../../scripts/monitors';
 
 export class MockAbstractEnvironment extends AbstractEnvironment {
-  public loadCallback: (url: string, username: string, password: string) => Promise<string> = null;
+  public loadCallback: ((url: string, username: string, password: string) => Promise<string>) | null = null;
   public trySendDataToPopupSpy: sinon.SinonSpy;
   public audioNotificationSpy: sinon.SinonSpy;
   public initTimerSpy: sinon.SinonSpy;
   public displayStatusSpy: sinon.SinonSpy;
-  public displayStatusNotify: () => void;
+  public displayStatusNotify: (() => void) | null = null;
 
   constructor() {
     super();

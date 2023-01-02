@@ -43,9 +43,8 @@ export class NagiosHtml extends AbstractMonitor {
     const index = this.index;
     // tslint:disable-next-line:max-line-length
     const r1 = /extinfo.cgi.*?>(.*?)<\/a>[\s\S]*?>(UP|DOWN|PENDING|UNREACHABLE)[\s\S]*?valign='center'>(.*?)<\/td>/gi;
-    let hostmatches: RegExpExecArray;
-    const nexthostmatch = () => hostmatches = r1.exec(hosthtml);
-    while (nexthostmatch()) {
+    let hostmatches: RegExpExecArray | null;
+    while ((hostmatches = r1.exec(hosthtml)) !== null) {
       const host = new Monitor.Host(hostmatches[1]);
       host.instanceindex = index;
       host.setState(hostmatches[2] === 'UP' ? 'UP' : 'DOWN');
@@ -57,9 +56,8 @@ export class NagiosHtml extends AbstractMonitor {
 
     // tslint:disable-next-line:max-line-length
     const r2 = /extinfo\.cgi.*?host=(.*?)&(amp;)?service=(.*?)['"]>(.*?)<\/a>[\s\S]*?>(CRITICAL|OK|WARNING|PENDING|UNKNOWN)<\/td>[\s\S]*?valign=['"]center['"]>(.*?)<\/td>/gi;
-    let servicematches: RegExpExecArray;
-    const nextservicematch = () => servicematches = r2.exec(servicehtml);
-    while (nextservicematch()) {
+    let servicematches: RegExpExecArray | null;
+    while ((servicematches = r2.exec(servicehtml)) != null) {
       const host = hostByName[servicematches[1]];
       if (!host) {
         continue;

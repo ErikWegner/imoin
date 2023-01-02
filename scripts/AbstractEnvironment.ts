@@ -98,13 +98,13 @@ export abstract class AbstractEnvironment implements IEnvironment {
     }
 
     protected dataBuffer = AbstractEnvironment.createUpdatePendingResult();
-    protected onSettingsChangedCallback: () => void;
+    protected onSettingsChangedCallback?: () => void;
 
     private onUICommandCallbacks: { [index: number]: (param: UICommand) => void } = {};
     private alarmCallbacks: { [alarmName: string]: () => void } = {};
     private dataBuffers: { [index: number]: Monitor.MonitorData } = {};
     private panelMonitorData: { [index: number]: IPanelMonitorData } = {};
-    private lastState: Monitor.Status = null;
+    private lastState?: Monitor.Status;
 
     public abstract load(url: string, username: string, password: string): Promise<string>;
     public abstract post(
@@ -208,11 +208,11 @@ export abstract class AbstractEnvironment implements IEnvironment {
         }
 
         if (command === 'triggerCmdExec') {
-            const c = new UICommand();
-            c.command = request.remoteCommand;
-            c.hostname = request.hostname;
-            c.servicename = request.servicename;
-
+            const c = <UICommand>{
+              command: request.remoteCommand,
+              hostname: request.hostname,
+              servicename: request.servicename,
+            };
             this.emitUICommand(request.instanceindex, c);
         }
 

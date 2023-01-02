@@ -11,21 +11,21 @@ import { IMonitor, IcingaCgi, IcingaApi, NagiosCore, NagiosHtml } from './monito
  *
  * @param instance The instance configuration
  */
-export function resolveMonitor(instance: ImoinMonitorInstance): IMonitor {
+export function resolveMonitor(environment: IEnvironment, instance: ImoinMonitorInstance, index: number): IMonitor | null {
     if (instance.icingaversion === 'api1') {
-        return new IcingaApi();
+        return new IcingaApi(environment, instance, index);
     }
 
     if (instance.icingaversion === 'cgi') {
-        return new IcingaCgi();
+        return new IcingaCgi(environment, instance, index);
     }
 
     if (instance.icingaversion === 'nagioscore') {
-        return new NagiosCore();
+        return new NagiosCore(environment, instance, index);
     }
 
     if (instance.icingaversion === 'nagioshtml') {
-        return new NagiosHtml();
+        return new NagiosHtml(environment, instance, index);
     }
 
     return null;
@@ -39,7 +39,7 @@ export function init(e: IEnvironment) {
         let monitor;
         while (monitors.length > 0) {
             monitor = monitors.pop();
-            monitor.shutdown();
+            monitor?.shutdown();
         }
 
         e.loadSettings().then((settings) => {
@@ -47,9 +47,8 @@ export function init(e: IEnvironment) {
                 e.registerMonitorInstance(index, {
                     instancelabel: instance.instancelabel
                 });
-                monitor = resolveMonitor(instance);
+                monitor = resolveMonitor(e, instance, index);
                 if (monitor != null) {
-                    monitor.init(e, instance, index);
                     monitor.startTimer();
                     monitors.push(monitor);
                 }

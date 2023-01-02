@@ -1,11 +1,11 @@
-export class WebExtensionBrowser {
-    public tabs: Tabs;
-    public runtime: Runtime;
-    public storage: BrowserStorage;
-    public browserAction: BrowserAction;
-    public windows: Windows;
-    public extension: Extension;
-    public alarms: Alarms;
+export interface WebExtensionBrowser {
+    tabs: Tabs;
+    runtime: Runtime;
+    storage: BrowserStorage;
+    browserAction: BrowserAction;
+    windows: Windows;
+    extension: Extension;
+    alarms: Alarms;
 }
 
 interface WindowsCreateOptions {
@@ -30,6 +30,12 @@ interface Extension {
 
 interface Windows {
     create(options: WindowsCreateOptions): void;
+}
+
+declare global {
+    interface Window {
+        console: Console;
+    }
 }
 
 interface Tabs {

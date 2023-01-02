@@ -8,7 +8,7 @@ import { HostBuilder } from '../abstractHelpers/HostBuilder';
 import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder';
 
 export function testcases(
-  filter: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[],
+  filter: (hosts: FHost[] | null, filtersettings?: FilterSettings) => FHost[] | null,
   setupFilterSettings: (sb: FilterSettingsBuilder) => void,
   hostFlagText: string,
   setupHost: (lcb: HostBuilder) => void,
@@ -67,7 +67,7 @@ export function testcases(
       .service('S1', 'OK')
       .shouldKeepHostWithService(); // the filter does not handle this
 
-    ['WARNING', 'CRITIAL'].forEach((v: Monitor.ServiceState) => {
+    (<Monitor.ServiceState[]>['WARNING', 'CRITIAL']).forEach((v: Monitor.ServiceState) => {
 
       testcasebuilder()
         .hostUp('H1')

@@ -36,9 +36,9 @@ export interface FilterSettings {
     filterOutAllUnknown: boolean;
     filterOutAllWarning: boolean;
     filterOutAllCritical: boolean;
-    filterHosts: RegExMatchSettings;
-    filterServices: RegExMatchSettings;
-    filterInformation: RegExMatchSettings;
+    filterHosts: RegExMatchSettings | null;
+    filterServices: RegExMatchSettings | null;
+    filterInformation: RegExMatchSettings | null;
 }
 
 export class Settings {
@@ -72,6 +72,6 @@ export class Settings {
 
     public instances: ImoinMonitorInstance[] = [];
     public fontsize: number = 100;
-    public inlineresults: boolean;
+    public inlineresults: boolean = false;
     public sounds: { [id: string]: Sound } = {};
 }

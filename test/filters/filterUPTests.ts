@@ -85,7 +85,9 @@ describe('Filters', () => {
 
       // Assert
       expect(r).to.have.lengthOf(1);
-      expect(r[0].getFServices()).to.have.lengthOf(1);
+      if (r) {
+        expect(r[0].getFServices()).to.have.lengthOf(1);
+      }
     });
 
     it('should keep UP host with service CRITICAL', () => {
@@ -103,7 +105,9 @@ describe('Filters', () => {
 
       // Assert
       expect(r).to.have.lengthOf(1);
-      expect(r[0].getFServices()).to.have.lengthOf(1);
+      if (r) {
+        expect(r[0].getFServices()).to.have.lengthOf(1);
+      }
     });
 
     it('should keep DOWN host with service OK', () => {
@@ -121,7 +125,9 @@ describe('Filters', () => {
 
       // Assert
       expect(r).to.have.lengthOf(1);
-      expect(r[0].getFServices()).to.have.lengthOf(0);
+      if (r) {
+        expect(r[0].getFServices()).to.have.lengthOf(0);
+      }
     });
 
     it('should keep UP host with service WARNING and remove SERVICE OK', () => {
@@ -142,7 +148,9 @@ describe('Filters', () => {
 
       // Assert
       expect(r).to.have.lengthOf(1);
-      expect(r[0].getFServices()).to.have.lengthOf(1);
+      if (r) {
+        expect(r[0].getFServices()).to.have.lengthOf(1);
+      }
     });
 
     it('should keep UP host with service CRITICAL and remove SERVICE OK', () => {
@@ -163,7 +171,9 @@ describe('Filters', () => {
 
       // Assert
       expect(r).to.have.lengthOf(1);
-      expect(r[0].getFServices()).to.have.lengthOf(1);
+      if (r) {
+        expect(r[0].getFServices()).to.have.lengthOf(1);
+      }
     });
 
   });

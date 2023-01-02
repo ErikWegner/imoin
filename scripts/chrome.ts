@@ -1,8 +1,6 @@
 import chrome from './definitions/chrome-webextension/index';
 import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
 import { Settings } from './Settings';
-import { Monitor } from './monitors';
-import Status = Monitor.Status;
 import { init } from './main';
 
 /**

@@ -42,7 +42,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
     protected static optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
 
-    protected portFromPanel: Port;
+    protected portFromPanel: Port | null = null;
     protected abstract host: WebExtensionBrowser;
     protected abstract console: Console;
     protected settings: Settings = new Settings();

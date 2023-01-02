@@ -3,7 +3,7 @@ import { FilterSettings } from '../../Settings';
 import { optionalFiltersettings } from './common';
 
 export function filterServicesOnDownHosts(
-  hosts: FHost[],
+  hosts: FHost[] | null,
   filtersettings?: FilterSettings
 ) {
   if (

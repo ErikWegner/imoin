@@ -8,7 +8,7 @@ function removeAllServicesWithNotificationsDisabled(host: FHost) {
 }
 
 export function filterNotificationDisabled(
-  hosts: FHost[],
+  hosts: FHost[] | null,
   filtersettings?: FilterSettings
 ) {
   if (

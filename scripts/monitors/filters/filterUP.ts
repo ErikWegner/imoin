@@ -18,7 +18,7 @@ function removeUPHostsWithoutServices(host: FHost): boolean {
  * @param filtersettings The filter settings
  */
 export function filterUp(
-  hosts: FHost[],
+  hosts: FHost[] | null,
   filtersettings?: FilterSettings
 ) {
   if (hosts === null) {

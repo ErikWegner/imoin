@@ -23,8 +23,16 @@ describe('NagiosCore', () => {
   }
 
   it('should handle JSON.parse-exception for host data', () => {
-    const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
+    const settings: ImoinMonitorInstance = {
+      icingaversion: 'nagioshtml',
+      instancelabel: 'unittest',
+      url: '/unittest',
+      timerPeriod: 5,
+      username: 'user',
+      password: 'pass',
+    };
+    const u = new NagiosCore(e, settings, 0);
     e.loadCallback = (url, user, passwd): Promise<string> => {
       if (url.indexOf('hostlist') > -1) {
         return Promise.resolve('defect{JSON}-"data');
@@ -35,15 +43,6 @@ describe('NagiosCore', () => {
       fail('loadCallback not configured for ' + url);
       return Promise.reject('loadCallback not configured for ' + url);
     };
-    const settings: ImoinMonitorInstance = {
-      icingaversion: 'nagioshtml',
-      instancelabel: 'unittest',
-      url: '/unittest',
-      timerPeriod: 5,
-      username: 'user',
-      password: 'pass',
-    };
-    u.init(e, settings, 0);
     return u.fetchStatus().then((r) => {
       expect(r.getState()).to.equal(Monitor.Status.RED);
       expect(r.getMessage()).to.equal('Could not parse host data.');
@@ -51,18 +50,7 @@ describe('NagiosCore', () => {
   });
 
   it('should handle JSON.parse-exception for service data', () => {
-    const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
-    e.loadCallback = (url, user, passwd): Promise<string> => {
-      if (url.indexOf('hostlist') > -1) {
-        return Promise.resolve('{}');
-      }
-      if (url.indexOf('servicelist') > -1) {
-        return Promise.resolve('defect{JSON');
-      }
-      fail('loadCallback not configured for ', url);
-      return Promise.reject('No');
-    };
     const settings: ImoinMonitorInstance = {
       icingaversion: 'nagioshtml',
       instancelabel: 'unittest',
@@ -71,7 +59,17 @@ describe('NagiosCore', () => {
       username: 'user',
       password: 'pass',
     };
-    u.init(e, settings, 0);
+    const u = new NagiosCore(e, settings, 0)
+    e.loadCallback = (url, user, passwd): Promise<string> => {
+      if (url.indexOf('hostlist') > -1) {
+        return Promise.resolve('{}');
+      }
+      if (url.indexOf('servicelist') > -1) {
+        return Promise.resolve('defect{JSON');
+      }
+      fail('loadCallback not configured for ' + url);
+      return Promise.reject('No');
+    };
     return u.fetchStatus().then((r) => {
       expect(r.getState()).to.equal(Monitor.Status.RED);
       expect(r.getMessage()).to.equal('Could not parse service data.');
@@ -81,9 +79,9 @@ describe('NagiosCore', () => {
   it('should set link to host page', () => {
     const baseurl = 'http://nagioscore.demos.nagios.com/nagios';
     const pathAndQuery = '/cgi-bin/extinfo.cgi?type=1&host=';
-    const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
     const settings = SettingsBuilder.create('nagioscore').build();
+    const u = new NagiosCore(e, settings, 0);
     settings.url = baseurl;
 
     const data = new LoadCallbackBuilder()
@@ -93,7 +91,6 @@ describe('NagiosCore', () => {
 
     e.loadCallback = loadCallback(data[0], data[1]);
 
-    u.init(e, settings, 0);
     return u.fetchStatus().then((r) => {
       expect(r.hosts).to.have.lengthOf(2);
       expect(r.hosts[0].hostlink).to.equal(`${baseurl}${pathAndQuery}H1`);
@@ -104,9 +101,9 @@ describe('NagiosCore', () => {
   it('should set link to service page', () => {
     const baseurl = 'http://nagioscore.demos.nagios.com/nagios';
     const pathAndQuery = '/cgi-bin/extinfo.cgi?type=2&';
-    const u = new NagiosCore();
     const e = new MockAbstractEnvironment();
     const settings = SettingsBuilder.create('nagioscore').build();
+    const u = new NagiosCore(e, settings, 0);
     settings.url = baseurl;
 
     const data = new LoadCallbackBuilder()
@@ -119,7 +116,6 @@ describe('NagiosCore', () => {
 
     e.loadCallback = loadCallback(data[0], data[1]);
 
-    u.init(e, settings, 0);
     return u.fetchStatus().then((r) => {
       expect(r.hosts).to.have.lengthOf(2);
       const host1 = r.hosts[0];
@@ -146,7 +142,6 @@ describe('NagiosCore', () => {
       }
 
       it('should set ' + options.hostProperty + ' on host', () => {
-        const u = new NagiosCore();
         const e = new MockAbstractEnvironment();
 
         const data = new LoadCallbackBuilder()
@@ -159,7 +154,7 @@ describe('NagiosCore', () => {
 
         const settings = buildSettings();
 
-        u.init(e, settings, 0);
+        const u = new NagiosCore(e, settings, 0);
         return u.fetchStatus().then((r) => {
           expect(r.hosts).to.have.lengthOf(2);
           expect(r.hosts[0][options.hostProperty]).to.equal(true);
@@ -168,9 +163,9 @@ describe('NagiosCore', () => {
       });
 
       it('should set ' + options.serviceProperty + ' on service', () => {
-        const u = new NagiosCore();
         const e = new MockAbstractEnvironment();
         const settings = buildSettings();
+        const u = new NagiosCore(e, settings, 0);
 
         const data = new LoadCallbackBuilder()
           .Host('H1')
@@ -180,7 +175,6 @@ describe('NagiosCore', () => {
 
         e.loadCallback = loadCallback(data[0], data[1]);
 
-        u.init(e, settings, 0);
         return u
           .fetchStatus()
           .then((v) => {

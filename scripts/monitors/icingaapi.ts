@@ -70,7 +70,7 @@ export class IcingaApi extends AbstractMonitor {
             host.setState(hostdatahost.attrs.last_check_result.state === 0 ? 'UP' : 'DOWN');
             host.isInSoftState = hostdatahost.attrs.state_type === 0;
             host.checkresult = hostdatahost.attrs.last_check_result.output;
-            if (hostdatahost.attrs.acknowledgement > 0) {
+            if ((hostdatahost.attrs.acknowledgement ?? 0) > 0) {
                 host.hasBeenAcknowledged = true;
             }
             host.notificationsDisabled =
@@ -103,7 +103,7 @@ export class IcingaApi extends AbstractMonitor {
                     service.checkresult = 'Check did not run yet.';
                 }
                 service.host = host.name;
-                if (jsonservice.attrs.acknowledgement > 0) {
+                if ((jsonservice.attrs.acknowledgement ?? 0) > 0) {
                     service.hasBeenAcknowledged = true;
                 }
                 service.isInSoftState = jsonservice.attrs.state_type === 0;

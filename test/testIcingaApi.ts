@@ -21,20 +21,19 @@ describe('IcingaApi', () => {
         return Promise.resolve(servicesdata);
       }
 
-      Promise.reject('');
+      return Promise.reject('');
     };
   }
 
   it('should use minimal query parameters for host request', () => {
     const e = new MockAbstractEnvironment();
-    const u = new IcingaApi();
     const requestUrls: string[] = [];
     const settings = SettingsBuilder.create('api1').build();
     e.loadCallback = (url) => {
       requestUrls.push(url);
       return Promise.reject('');
     };
-    u.init(e, settings, 0);
+    const u = new IcingaApi(e, settings, 0);
     return u
       .fetchStatus()
       .then(() => {
@@ -47,14 +46,13 @@ describe('IcingaApi', () => {
 
   it('should use minimal query parameters for service request', () => {
     const e = new MockAbstractEnvironment();
-    const u = new IcingaApi();
     const requestUrls: string[] = [];
     const settings = SettingsBuilder.create('api1').build();
     e.loadCallback = (url) => {
       requestUrls.push(url);
       return Promise.reject('');
     };
-    u.init(e, settings, 0);
+    const u = new IcingaApi(e, settings, 0);
     return u
       .fetchStatus()
       .then(() => {
@@ -78,7 +76,6 @@ describe('IcingaApi', () => {
 
       it('should add attribute to host query', () => {
         const e = new MockAbstractEnvironment();
-        const u = new IcingaApi();
         const settings = buildSettings();
 
         const requestUrls: string[] = [];
@@ -86,7 +83,7 @@ describe('IcingaApi', () => {
           requestUrls.push(url);
           return Promise.reject('');
         };
-        u.init(e, settings, 0);
+        const u = new IcingaApi(e, settings, 0);
         return u
           .fetchStatus()
           .then(() => {
@@ -102,7 +99,6 @@ describe('IcingaApi', () => {
 
       it('should add attribute to service query', () => {
         const e = new MockAbstractEnvironment();
-        const u = new IcingaApi();
         const settings = buildSettings();
 
         const requestUrls: string[] = [];
@@ -110,7 +106,7 @@ describe('IcingaApi', () => {
           requestUrls.push(url);
           return Promise.reject('');
         };
-        u.init(e, settings, 0);
+        const u = new IcingaApi(e, settings, 0);
         return u
           .fetchStatus()
           .then(() => {
@@ -126,7 +122,6 @@ describe('IcingaApi', () => {
 
       it('should set ' + options.hostProperty + ' on host', () => {
         const e = new MockAbstractEnvironment();
-        const u = new IcingaApi();
         const settings = buildSettings();
 
         const data = new LoadCallbackBuilder()
@@ -137,7 +132,7 @@ describe('IcingaApi', () => {
 
         e.loadCallback = loadCallback(data[0], data[1]);
 
-        u.init(e, settings, 0);
+        const u = new IcingaApi(e, settings, 0);
         return u
           .fetchStatus()
           .then((v) => {
@@ -152,7 +147,6 @@ describe('IcingaApi', () => {
 
       it('should not set ' + description + ' on host when attribute is not in response', () => {
         const e = new MockAbstractEnvironment();
-        const u = new IcingaApi();
         const settings = buildSettings();
 
         const data = new LoadCallbackBuilder()
@@ -161,7 +155,7 @@ describe('IcingaApi', () => {
           .BuildCallbacks('api1');
 
         e.loadCallback = loadCallback(data[0], data[1]);
-        u.init(e, settings, 0);
+        const u = new IcingaApi(e, settings, 0);
         return u
           .fetchStatus()
           .then((v) => {
@@ -176,7 +170,6 @@ describe('IcingaApi', () => {
 
       it('should set ' + description + ' on service', () => {
         const e = new MockAbstractEnvironment();
-        const u = new IcingaApi();
         const settings = buildSettings();
 
         const data = new LoadCallbackBuilder()
@@ -187,7 +180,7 @@ describe('IcingaApi', () => {
 
         e.loadCallback = loadCallback(data[0], data[1]);
 
-        u.init(e, settings, 0);
+        const u = new IcingaApi(e, settings, 0);
         // https://github.com/domenic/chai-as-promised/issues/112#issuecomment-114906474
         return u
           .fetchStatus()

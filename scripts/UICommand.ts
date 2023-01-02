@@ -1,5 +1,5 @@
-export class UICommand {
-    public command: string;
-    public hostname: string;
-    public servicename: string;
+export interface UICommand {
+    command: string;
+    hostname: string;
+    servicename: string;
 }

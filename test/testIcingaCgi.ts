@@ -15,7 +15,6 @@ describe('icingacgi', () => {
         return;
       }
       const e = new MockAbstractEnvironment();
-      const u = new IcingaCgi();
       const settings: ImoinMonitorInstance = {
         icingaversion: 'cgi',
         instancelabel: 'unittest',
@@ -27,7 +26,7 @@ describe('icingacgi', () => {
       e.loadCallback = () => {
         return Promise.resolve(data.toString());
       };
-      u.init(e, settings, 0);
+      const u = new IcingaCgi(e, settings, 0);
       u.fetchStatus().then((monitordata) => {
         expect(monitordata.hosts.length).to.be.greaterThan(0);
         done();

@@ -21,7 +21,7 @@ export const filterSettingsTests: {
     setupService: (sb: ServiceBuilder) => void,
     serviceProperty: keyof Monitor.Service,
     serviceQueryParameter: string,
-    filterFunction: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[],
+    filterFunction: (hosts: FHost[] | null, filtersettings?: FilterSettings) => FHost[] | null,
     filterFlagText: string,
   }
 } = {

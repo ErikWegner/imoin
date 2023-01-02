@@ -13,7 +13,7 @@ function removeAllServicesWithinDowntime(host: FHost) {
  * @param filtersettings The filter settings
  */
 export function filterDowntime(
-  hosts: FHost[],
+  hosts: FHost[] | null,
   filtersettings?: FilterSettings
 ) {
   if (

@@ -76,7 +76,9 @@ describe('Filters', () => {
 
         // Assert
         expect(r).to.have.lengthOf(1);
-        expect(r[0].getFServices()).to.have.lengthOf(1);
+        if (r) {
+          expect(r[0].getFServices()).to.have.lengthOf(1);
+        }  
       });
 
       it('should keep DOWN host with service ' + serviceState + ' and remove service', () => {
@@ -94,7 +96,9 @@ describe('Filters', () => {
 
         // Assert
         expect(r).to.have.lengthOf(1);
-        expect(r[0].getFServices()).to.have.lengthOf(0);
+        if (r) {
+          expect(r[0].getFServices()).to.have.lengthOf(0);
+        }
       });
     });
   });

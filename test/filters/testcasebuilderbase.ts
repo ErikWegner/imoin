@@ -15,7 +15,7 @@ export class TestCaseBuilderBase {
   protected flagText = '';
 
   constructor(
-    protected filter: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[],
+    protected filter: (hosts: FHost[], filtersettings?: FilterSettings) => FHost[] | null,
     setupFilterSettings: (sb: FilterSettingsBuilder) => void,
     protected filterFlagText: string,
     protected setupHost: (lcb: HostBuilder) => void,
@@ -86,7 +86,7 @@ export class TestCaseBuilderBase {
 
       // Assert
       expect(r).to.have.lengthOf(expectedHosts, 'number of hosts');
-      if (r.length > 0) {
+      if (r && r.length > 0) {
         expect(r[0].getFServices()).to.have.lengthOf(expectedServices, 'number of services');
       }
     });

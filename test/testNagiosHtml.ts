@@ -24,7 +24,15 @@ describe('NagiosHtml', () => {
         }
 
         const e = new MockAbstractEnvironment();
-        const u = new NagiosHtml();
+        const settings: ImoinMonitorInstance = {
+          icingaversion: 'nagioshtml',
+          instancelabel: 'unittest',
+          url: '/unittest',
+          timerPeriod: 5,
+          username: 'user',
+          password: 'pass',
+        };
+        const u = new NagiosHtml(e, settings, 0);
         e.loadCallback = (url, user, passwd): Promise<string> => {
           if (url === '/unittest/cgi-bin/status.cgi?hostgroup=all&style=hostdetail&limit=0') {
             return Promise.resolve(hostshtml.toString());
@@ -36,15 +44,6 @@ describe('NagiosHtml', () => {
           console.log(errtext);
           return Promise.reject(errtext);
         };
-        const settings: ImoinMonitorInstance = {
-          icingaversion: 'nagioshtml',
-          instancelabel: 'unittest',
-          url: '/unittest',
-          timerPeriod: 5,
-          username: 'user',
-          password: 'pass',
-        };
-        u.init(e, settings, 0);
         u.fetchStatus().then((monitordata) => {
           expect(monitordata.hosts.length).to.equal(54);
           expect(monitordata.hosts.filter((hf) => hf.getState() !== 'UP').length).to.equal(8);
@@ -88,7 +87,15 @@ describe('NagiosHtml', () => {
       }
 
       const e = new MockAbstractEnvironment();
-      const u = new NagiosHtml();
+      const settings: ImoinMonitorInstance = {
+        icingaversion: 'nagioshtml',
+        instancelabel: 'unittest',
+        url: '/unittest',
+        timerPeriod: 5,
+        username: 'user',
+        password: 'pass',
+      };
+      const u = new NagiosHtml(e, settings, 0);
       e.loadCallback = (url, user, passwd): Promise<string> => {
         if (url === '/unittest/cgi-bin/status.cgi?hostgroup=all&style=hostdetail&limit=0') {
           return Promise.resolve(hostshtml);
@@ -100,15 +107,6 @@ describe('NagiosHtml', () => {
         console.log(errtext);
         return Promise.reject(errtext);
       };
-      const settings: ImoinMonitorInstance = {
-        icingaversion: 'nagioshtml',
-        instancelabel: 'unittest',
-        url: '/unittest',
-        timerPeriod: 5,
-        username: 'user',
-        password: 'pass',
-      };
-      u.init(e, settings, 0);
       u.fetchStatus().then((monitordata) => {
         if (monitordata.hosts.length < 1) {
           fail('No host detected');

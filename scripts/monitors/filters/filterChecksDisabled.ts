@@ -8,7 +8,7 @@ function removeAllServicesWithChecksDisabled(host: FHost) {
 }
 
 export function filterChecksDisabled(
-  hosts: FHost[],
+  hosts: FHost[] | null,
   filtersettings?: FilterSettings
 ) {
   if (

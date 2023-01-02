@@ -29,7 +29,7 @@ export abstract class AbstractMonitor implements IMonitor {
         status: Monitor.MonitorData,
         filtersettings?: FilterSettings,
     ) {
-        let result = status.getHosts().map((host) => new FHost(host));
+        let result: FHost[] | null = status.getHosts().map((host) => new FHost(host));
         /* filterOutUP */
         result = filterUp(result);
         /* filterOutAcknowledged */
@@ -58,7 +58,7 @@ export abstract class AbstractMonitor implements IMonitor {
         /* filterOutUP again */
         result = filterUp(result);
         // last step
-        result.forEach((fhost) => {
+        result?.forEach((fhost) => {
             const host = fhost.getHost();
             host.appearsInShortlist = true;
             fhost.getFServices().forEach((service) => {
@@ -68,19 +68,12 @@ export abstract class AbstractMonitor implements IMonitor {
         return result;
     }
 
-    protected environment: IEnvironment;
-    protected settings: ImoinMonitorInstance;
-    protected index: number;
-
-    public init(environment: IEnvironment, settings: ImoinMonitorInstance, index: number) {
-        this.environment = environment;
-        this.settings = settings;
-        this.index = index;
-
+    constructor(protected environment: IEnvironment, protected settings: ImoinMonitorInstance, protected index: number) {
         this.environment.onUICommand(index, this.handleUICommand.bind(this));
     }
 
     public startTimer() {
+        if (this.environment && this.settings && this.index) {
         this.environment.initTimer(
             this.index,
             this.settings.timerPeriod,
@@ -95,6 +88,7 @@ export abstract class AbstractMonitor implements IMonitor {
                     }
                 );
             });
+        }
     }
 
     public shutdown() {

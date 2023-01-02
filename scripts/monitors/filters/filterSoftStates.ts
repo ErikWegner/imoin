@@ -8,7 +8,7 @@ function removeAllSoftStateServices(host: FHost) {
 }
 
 export function filterSoftStates(
-  hosts: FHost[],
+  hosts: FHost[] | null,
   filtersettings?: FilterSettings
 ) {
   if (

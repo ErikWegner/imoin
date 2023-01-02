@@ -13,9 +13,9 @@ export namespace Monitor {
     }
 
     export class Service {
-        public host: string;
-        public checkresult: string;
-        public servicelink: string;
+        public host?: string;
+        public checkresult?: string;
+        public servicelink?: string;
         public hasBeenAcknowledged = false;
         public notificationsDisabled = false;
         public checksDisabled = false;
@@ -42,14 +42,14 @@ export namespace Monitor {
     export class Host {
         public static readonly IgnoreServices = false;
         public services: Service[] = [];
-        public hostlink: string;
+        public hostlink?: string;
         public hasBeenAcknowledged = false;
         public notificationsDisabled = false;
         public checksDisabled = false;
         public isInSoftState = false;
         public isInDowntime = false;
-        public checkresult: string;
-        public instanceindex: number;
+        public checkresult?: string;
+        public instanceindex?: number;
         public appearsInShortlist: boolean = false;
         private status: HostState = 'DOWN';
         private filteredStatus: HostState = 'DOWN';
@@ -104,9 +104,9 @@ export namespace Monitor {
         }
 
         public hosts: Host[] = [];
-        public message: string;
-        public url: string;
-        public hostgroupinfo: string = null;
+        public message?: string;
+        public url?: string;
+        public hostgroupinfo: string | null = null;
         public totalhosts: number = 0;
         public totalservices: number = 0;
         public hostup: number = 0;
@@ -114,8 +114,8 @@ export namespace Monitor {
         public serviceok: number = 0;
         public servicewarnings: number = 0;
         public serviceerrors: number = 0;
-        public updatetime: string;
-        public instanceLabel: string;
+        public updatetime?: string;
+        public instanceLabel?: string;
         public state: Status = Status.GREEN;
         public filteredState: Status = Status.GREEN;
         public filteredHostup: number = 0;
@@ -168,9 +168,9 @@ export namespace Monitor {
             return b;
         }
 
-        public updateCounters(filteredHosts?: FHost[]) {
+        public updateCounters(filteredHosts?: FHost[] | null) {
             this.updateCountersUnmodified();
-            this.updateCountersFiltered(filteredHosts);
+            this.updateCountersFiltered(filteredHosts ?? null);
 
             this.setUpdatetime();
             this.updateState();
@@ -221,7 +221,7 @@ export namespace Monitor {
             this.hosterrors = this.totalhosts - this.hostup;
         }
 
-        private updateCountersFiltered(filteredHosts: FHost[]) {
+        private updateCountersFiltered(filteredHosts: FHost[] | null) {
             if (filteredHosts == null) {
                 // copy values to filtered fields
                 this.filteredServiceerrors = this.serviceerrors;

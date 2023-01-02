@@ -8,7 +8,7 @@ function removeAllAckServices(host: FHost) {
 }
 
 export function filterAcknowledged(
-  hosts: FHost[],
+  hosts: FHost[] | null,
   filtersettings?: FilterSettings
 ) {
   if (

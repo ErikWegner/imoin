@@ -10,9 +10,9 @@ export class MockAbstractMonitor extends AbstractMonitor {
   public defaultFetchStatusResponse = Promise.resolve(Monitor.ErrorMonitorData('Not implemented'));
   public fetchStatusSpy = sinon.stub().returns(this.defaultFetchStatusResponse);
 
-  public init(environment: IEnvironment, settings: ImoinMonitorInstance, index: number) {
+  constructor(environment: IEnvironment, settings: ImoinMonitorInstance, index: number) {
     environment.registerMonitorInstance(index, { instancelabel: 't1' });
-    super.init(environment, settings, index);
+    super(environment, settings, index);
   }
 
   public fetchStatus(): Promise<Monitor.MonitorData> {

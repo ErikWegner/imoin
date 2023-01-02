@@ -35,8 +35,7 @@ describe('nagioscore', () => {
       registerMonitorInstance: sinon.spy(),
     };
 
-    monitor = new NagiosCore();
-    monitor.init(mockEnv, settings, 0);
+    monitor = new NagiosCore(mockEnv, settings, 0);
   });
 
   function fetchDataAndRunTests(testexecutions: () => void) {
