@@ -16,9 +16,7 @@
   },
 
   "background": {
-    "scripts": [
-      "bundle.js"
-    ]
+    "page": "background-page.html"
   },
 
   "action": {
