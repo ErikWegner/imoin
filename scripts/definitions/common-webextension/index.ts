@@ -4,9 +4,8 @@ export interface WebExtensionBrowser {
   tabs: Tabs;
   runtime: Runtime;
   storage: BrowserStorage;
-  browserAction: BrowserAction;
+  action: BrowserAction;
   windows: Windows;
-  extension: Extension;
   alarms: Alarms;
 }
 
@@ -28,10 +27,6 @@ interface AlarmInfo {
   when?: number;
   delayInMinutes?: number;
   periodInMinutes?: number;
-}
-
-interface Extension {
-  getBackgroundPage(): Window;
 }
 
 interface Windows {
@@ -57,6 +52,7 @@ interface Runtime {
   ): Port;
   openOptionsPage(): void;
   getURL(url: string): string;
+  getBackgroundPage(): Window;
 }
 
 interface InstalledEventDetails {

@@ -9,7 +9,7 @@ import { Settings } from './Settings';
 export class Opera extends AbstractWebExtensionsEnvironment {
   protected host = chrome;
 
-  protected console = chrome.extension.getBackgroundPage().console;
+  protected console = chrome.runtime.getBackgroundPage().console;
 
   constructor() {
     super();

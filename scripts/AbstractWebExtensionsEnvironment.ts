@@ -64,64 +64,57 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
   private audioPlayer: HTMLAudioElement = new Audio();
   private audioPlayerSoundid = '';
 
-  public load(
+  public async load(
     url: string,
     username: string,
     password: string
   ): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      if (username) {
-        xhr.setRequestHeader(
-          'Authorization',
-          'Basic ' + btoa(username + ':' + password)
-        );
-        xhr.withCredentials = true;
-      }
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            resolve(xhr.responseText);
-          } else {
-            reject(xhr.responseText);
-          }
-        }
-      };
-      xhr.send();
+    const headers = new Headers();
+    if (username) {
+      headers.append(
+        'Authorization',
+        'Basic ' + btoa(username + ':' + password)
+      );
+    }
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers,
+      method: 'GET',
     });
+    if (res.status === 200) {
+      return res.text();
+    }
+    throw new Error(`Network failure: ${res.status} ${res.statusText}`);
   }
 
-  public post(
+  public async post(
     url: string,
-    data: unknown,
+    data: object,
     username: string,
     password: string
   ): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', url, true);
-      if (username) {
-        xhr.setRequestHeader(
-          'Authorization',
-          'Basic ' + btoa(username + ':' + password)
-        );
-        xhr.withCredentials = true;
-      }
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            resolve(xhr.responseText);
-          } else {
-            reject(xhr.responseText);
-          }
-        }
-      };
-      xhr.setRequestHeader('Accept', 'application/json');
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.send(JSON.stringify(data));
+    const headers = new Headers({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     });
+    if (username) {
+      headers.append(
+        'Authorization',
+        'Basic ' + btoa(username + ':' + password)
+      );
+    }
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers,
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (res.status === 200) {
+      return res.text();
+    }
+    throw new Error(`Network failure: ${res.status} ${res.statusText}`);
   }
+
   public initTimer(index: number, delay: number, callback: () => void): void {
     this.addAlarm(index, delay, callback);
   }
@@ -170,14 +163,14 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
   }
 
   protected setIcon(icon: IBadgeIcon) {
-    this.host.browserAction.setIcon({ path: icon });
+    this.host.action.setIcon({ path: icon });
   }
 
   protected updateIconAndBadgetext() {
     const iAndB = AbstractEnvironment.prepareIconAndBadgetext(this.dataBuffer);
     this.setIcon(iAndB.badgeIcon);
-    this.host.browserAction.setBadgeText({ text: iAndB.badgeText });
-    this.host.browserAction.setBadgeBackgroundColor({
+    this.host.action.setBadgeText({ text: iAndB.badgeText });
+    this.host.action.setBadgeBackgroundColor({
       color: iAndB.badgeColor,
     });
   }

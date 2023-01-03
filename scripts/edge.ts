@@ -54,7 +54,7 @@ export class Edge extends AbstractWebExtensionsEnvironment {
       20: icon['20'],
       40: icon['40'],
     };
-    this.host.browserAction.setIcon({ path: onlyEdgeSized });
+    this.host.action.setIcon({ path: onlyEdgeSized });
   }
 }
 
