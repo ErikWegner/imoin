@@ -1,4 +1,4 @@
-import { Host, MonitorData } from '../monitors';
+import { Host, MonitorData } from '../../scripts/monitors';
 import { HostBuilder } from './HostBuilder';
 
 export class MonitorStatusBuilder extends HostBuilder {

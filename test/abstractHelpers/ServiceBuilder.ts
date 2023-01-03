@@ -1,4 +1,4 @@
-import { Host, Service, ServiceState } from '../monitors';
+import { Host, Service, ServiceState } from '../../scripts/monitors';
 
 export class ServiceBuilder {
   public static create(name: string) {

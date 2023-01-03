@@ -4,14 +4,14 @@ import 'mocha';
 import * as sinon from 'sinon';
 
 import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 import {
   ErrorMonitorData,
   Host,
   MonitorData,
   Service,
   Status,
-} from './monitors';
+} from '../scripts/monitors';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
 
 describe('AbstractEnvironnment', () => {
   it('should register and handle one alarm', () => {

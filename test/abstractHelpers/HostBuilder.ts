@@ -1,4 +1,4 @@
-import { Host } from '../monitors';
+import { Host } from '../../scripts/monitors';
 import { ServiceBuilder } from './ServiceBuilder';
 
 export class HostBuilder {

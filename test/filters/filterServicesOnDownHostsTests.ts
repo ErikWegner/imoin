@@ -1,17 +1,16 @@
-import 'mocha';
 import { expect } from 'chai';
+import 'mocha';
 
+import { Host, Service, ServiceState } from '../../scripts/monitors';
 import {
-  filterServicesOnDownHosts,
   FHost,
+  filterServicesOnDownHosts,
 } from '../../scripts/monitors/filters';
 import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
-import { Host, Service, ServiceState } from '../monitors';
 
 describe('Filters', () => {
   describe('filterServicesOnDownHosts', () => {
-    const filterSettings = FilterSettingsBuilder
-      .plain()
+    const filterSettings = FilterSettingsBuilder.plain()
       .filterOutServicesOnDownHosts()
       .build();
 
