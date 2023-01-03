@@ -99,7 +99,6 @@ describe('options html', () => {
     selectedInstance = 1;
 
     getFormTextValueStub.callsFake((selector, _defaultValue) => {
-      callCounter++;
       if ('#timerPeriod' === selector) {
         return '17';
       }

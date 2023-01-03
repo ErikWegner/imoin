@@ -10,7 +10,7 @@
     "test:mocha:coverage": "nyc mocha -r ts-node/register -r source-map-support/register test/test*.ts test/filters/*Tests.ts",
     "test:karma": "karma start karma.conf.js",
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
-    "lint": "tslint -c tslint.json scripts/*.ts scripts/**/*.ts tests/*.ts tests/**/*.ts",
+    "lint": "eslint .",
     "demoserver": "node test/data/server.js",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bumpMinor",
@@ -87,8 +87,6 @@
     "tsify": "^5.0.4",
     "typescript": "^4.9.4",
     "vinyl-source-stream": "^2.0.0",
-    "web-ext": "^7.4.0",
-    "webpack": "^5.75.0",
-    "webpack-stream": "^7.0.0"
+    "web-ext": "^7.4.0"
   }
 }

@@ -262,7 +262,6 @@ function addDropdownEventHandler(callback) {
 }
 
 /*    ---- Initialize ---- */
-document.addEventListener('DOMContentLoaded', restoreOptions);
 addClickHandler('#addInstance', addInstance);
 addClickHandler('#updateSettings', updateSettings);
 addClickHandler('#removeInstance', removeInstance);
