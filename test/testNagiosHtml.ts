@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 
-import { NagiosHtml } from '../scripts/monitors';
-import { ImoinMonitorInstance } from '../scripts/Settings';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
+import { NagiosHtml } from '../scripts/monitors/index.js';
+import { ImoinMonitorInstance } from '../scripts/Settings.js';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment.js';
 
 describe('NagiosHtml', () => {
   it('should fetch status', (done) => {

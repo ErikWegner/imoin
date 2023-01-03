@@ -3,9 +3,9 @@ import { assert, expect } from 'chai';
 import * as sinon from 'sinon';
 import * as fs from 'fs';
 
-import { NagiosCore } from '../scripts/monitors';
-import { IEnvironment } from '../scripts/IEnvironment';
-import { Settings } from '../scripts/Settings';
+import { NagiosCore } from '../scripts/monitors/index.js';
+import { IEnvironment } from '../scripts/IEnvironment.js';
+import { Settings } from '../scripts/Settings.js';
 
 describe('Array', () => {
   describe('#indexOf()', () => {

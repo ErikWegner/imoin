@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { AbstractWebExtensionsEnvironment } from '../scripts/AbstractWebExtensionsEnvironment';
-import { Status } from '../scripts/monitors';
+import { AbstractWebExtensionsEnvironment } from '../scripts/AbstractWebExtensionsEnvironment.js';
+import { Status } from '../scripts/monitors/index.js';
 
 describe('AbstractWebExtensionsEnvironment', () => {
   it('should remove slashes', () => {

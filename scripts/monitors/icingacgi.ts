@@ -1,6 +1,6 @@
-import { ImoinMonitorInstance, Settings } from '../Settings';
-import { UICommand } from '../UICommand';
-import { AbstractMonitor } from './AbstractMonitor';
+import { ImoinMonitorInstance, Settings } from '../Settings.js';
+import { UICommand } from '../UICommand.js';
+import { AbstractMonitor } from './AbstractMonitor.js';
 import {
   ErrorMonitorData,
   Host,
@@ -8,7 +8,7 @@ import {
   MonitorData,
   Service,
   ServiceState,
-} from './MonitorData';
+} from './MonitorData.js';
 
 interface IIcingaCgiHostStatusJson {
   host_name: string;

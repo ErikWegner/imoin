@@ -1,5 +1,5 @@
-import { FHost } from '.';
-import { FilterSettings } from '../../Settings';
+import { FilterSettings } from '../../Settings.js';
+import { FHost } from './FHost.js';
 
 function removeAllOKServices(host: FHost) {
   host.filterServices((service) => service.getState() !== 'OK');

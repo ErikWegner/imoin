@@ -1,19 +1,19 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { IEnvironment } from '../scripts/IEnvironment';
-import { resolveMonitor } from '../scripts/main';
+import { IEnvironment } from '../scripts/IEnvironment.js';
+import { resolveMonitor } from '../scripts/main.js';
 import {
   IcingaApi,
   IcingaCgi,
   NagiosCore,
   NagiosHtml,
-} from '../scripts/monitors';
+} from '../scripts/monitors/index.js';
 import {
   IcingaOptionsVersion,
   ImoinMonitorInstance,
-} from '../scripts/Settings';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
+} from '../scripts/Settings.js';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment.js';
 
 describe('main', () => {
   describe('resolveMonitor', () => {

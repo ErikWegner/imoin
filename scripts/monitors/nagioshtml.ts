@@ -1,6 +1,6 @@
-import { UICommand } from '../UICommand';
-import { AbstractMonitor } from './AbstractMonitor';
-import { ErrorMonitorData, Host, MonitorData, Service } from './MonitorData';
+import { UICommand } from '../UICommand.js';
+import { AbstractMonitor } from './AbstractMonitor.js';
+import { ErrorMonitorData, Host, MonitorData, Service } from './MonitorData.js';
 
 export class NagiosHtml extends AbstractMonitor {
   public fetchStatus(): Promise<MonitorData> {

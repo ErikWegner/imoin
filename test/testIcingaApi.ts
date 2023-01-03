@@ -2,12 +2,12 @@ import { fail } from 'assert';
 import { expect } from 'chai';
 import 'mocha';
 
-import { IcingaApi } from '../scripts/monitors';
-import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
-import { LoadCallbackBuilder } from './abstractHelpers/LoadCallbackBuilder';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
-import { SettingsBuilder } from './abstractHelpers/SettingsBuilder';
-import { filterSettingsTests } from './filterSettingsTestsCommons';
+import { IcingaApi } from '../scripts/monitors/index.js';
+import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder.js';
+import { LoadCallbackBuilder } from './abstractHelpers/LoadCallbackBuilder.js';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment.js';
+import { SettingsBuilder } from './abstractHelpers/SettingsBuilder.js';
+import { filterSettingsTests } from './filterSettingsTestsCommons.js';
 
 describe('IcingaApi', () => {
   const baseurl =

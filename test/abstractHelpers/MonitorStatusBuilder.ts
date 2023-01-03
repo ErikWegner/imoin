@@ -1,5 +1,5 @@
-import { Host, MonitorData } from '../../scripts/monitors';
-import { HostBuilder } from './HostBuilder';
+import { Host, MonitorData } from '../../scripts/monitors/index.js';
+import { HostBuilder } from './HostBuilder.js';
 
 export class MonitorStatusBuilder extends HostBuilder {
   protected hosts: { [name: string]: Host } = {};

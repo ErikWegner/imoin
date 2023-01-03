@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Host, Service, ServiceState } from '../../scripts/monitors';
+import { Host, Service, ServiceState } from '../../scripts/monitors/index.js';
 import {
   FHost,
   filterServicesOnDownHosts,
-} from '../../scripts/monitors/filters';
-import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
+} from '../../scripts/monitors/filters/index.js';
+import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder.js';
 
 describe('Filters', () => {
   describe('filterServicesOnDownHosts', () => {

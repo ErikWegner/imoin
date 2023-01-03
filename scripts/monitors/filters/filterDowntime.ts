@@ -1,6 +1,6 @@
-import { FilterSettings } from '../../Settings';
-import { optionalFiltersettings } from './common';
-import { FHost } from '.';
+import { FilterSettings } from '../../Settings.js';
+import { optionalFiltersettings } from './common.js';
+import { FHost } from './FHost.js';
 
 function removeAllServicesWithinDowntime(host: FHost) {
   host

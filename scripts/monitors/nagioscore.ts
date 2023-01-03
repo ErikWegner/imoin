@@ -1,7 +1,7 @@
-import { Constants } from '../constants';
-import { UICommand } from '../UICommand';
-import { AbstractMonitor } from './AbstractMonitor';
-import { ErrorMonitorData, Host, MonitorData, Service } from './MonitorData';
+import { Constants } from '../constants.js';
+import { UICommand } from '../UICommand.js';
+import { AbstractMonitor } from './AbstractMonitor.js';
+import { ErrorMonitorData, Host, MonitorData, Service } from './MonitorData.js';
 
 enum NagiosStateType {
   SOFT = 0,

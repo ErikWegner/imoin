@@ -1,6 +1,6 @@
-import { IEnvironment } from '../IEnvironment';
-import { FilterSettings, ImoinMonitorInstance } from '../Settings';
-import { UICommand } from '../UICommand';
+import { IEnvironment } from '../IEnvironment.js';
+import { FilterSettings, ImoinMonitorInstance } from '../Settings.js';
+import { UICommand } from '../UICommand.js';
 import {
   FHost,
   filterAcknowledged,
@@ -11,9 +11,9 @@ import {
   filterServicesOnDownHosts,
   filterSoftStates,
   filterUp,
-} from './filters';
-import { IMonitor } from './IMonitor';
-import { MonitorData } from './MonitorData';
+} from './filters/index.js';
+import { IMonitor } from './IMonitor.js';
+import { MonitorData } from './MonitorData.js';
 
 export abstract class AbstractMonitor implements IMonitor {
   /**

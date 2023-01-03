@@ -1,6 +1,6 @@
-import { FHost } from '.';
-import { FilterSettings } from '../../Settings';
-import { optionalFiltersettings } from './common';
+import { FHost } from './FHost.js';
+import { FilterSettings } from '../../Settings.js';
+import { optionalFiltersettings } from './common.js';
 
 export function filterServicesOnAcknowledgedHosts(
   hosts: FHost[] | null,

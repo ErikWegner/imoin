@@ -1,14 +1,14 @@
-import { Host, IcingaStateType } from '../../scripts/monitors';
+import { Host, IcingaStateType } from '../../scripts/monitors/index.js';
 import {
   IIcinga2HostJsonData as IcingaHostJsonData,
   IIcinga2ServiceJsonData as IcingaServiceJsonData,
-} from '../../scripts/monitors/icingaapi';
+} from '../../scripts/monitors/icingaapi.js';
 import {
   INagiosCoreHostJsonData as NagiosCoreHostJsonData,
   INagiosCoreServiceJsonData as NagiosCoreServiceJsonData,
-} from '../../scripts/monitors/nagioscore';
-import { IcingaOptionsVersion } from '../../scripts/Settings';
-import { MonitorStatusBuilder } from './MonitorStatusBuilder';
+} from '../../scripts/monitors/nagioscore.js';
+import { IcingaOptionsVersion } from '../../scripts/Settings.js';
+import { MonitorStatusBuilder } from './MonitorStatusBuilder.js';
 
 export class LoadCallbackBuilder extends MonitorStatusBuilder {
   public BuildCallbacks(i: IcingaOptionsVersion): string[] {

@@ -1,7 +1,7 @@
-import { FilterSettings } from '../Settings';
-import { UICommand } from '../UICommand';
-import { AbstractMonitor } from './AbstractMonitor';
-import { ErrorMonitorData, Host, MonitorData, Service } from './MonitorData';
+import { FilterSettings } from '../Settings.js';
+import { UICommand } from '../UICommand.js';
+import { AbstractMonitor } from './AbstractMonitor.js';
+import { ErrorMonitorData, Host, MonitorData, Service } from './MonitorData.js';
 
 export enum IcingaStateType {
   SOFT = 0,

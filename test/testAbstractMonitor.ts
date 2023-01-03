@@ -3,17 +3,17 @@ import { expect } from 'chai';
 import 'mocha';
 import * as sinon from 'sinon';
 
-import { AbstractMonitor, Host, MonitorData } from '../scripts/monitors';
+import { AbstractMonitor, Host, MonitorData } from '../scripts/monitors/index.js';
 import {
   IcingaOptionsVersion,
   ImoinMonitorInstance,
-} from '../scripts/Settings';
-import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
-import { MockAbstractMonitor } from './abstractHelpers/MockAbstractMonitor';
-import { MonitorStatusBuilder } from './abstractHelpers/MonitorStatusBuilder';
-import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
-import { filterSettingsTests } from './filterSettingsTestsCommons';
+} from '../scripts/Settings.js';
+import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder.js';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment.js';
+import { MockAbstractMonitor } from './abstractHelpers/MockAbstractMonitor.js';
+import { MonitorStatusBuilder } from './abstractHelpers/MonitorStatusBuilder.js';
+import { ServiceBuilder } from './abstractHelpers/ServiceBuilder.js';
+import { filterSettingsTests } from './filterSettingsTestsCommons.js';
 
 describe('AbstractMonitor', () => {
   function buildInstance(v: IcingaOptionsVersion): ImoinMonitorInstance {

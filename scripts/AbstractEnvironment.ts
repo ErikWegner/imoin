@@ -1,9 +1,9 @@
-import { IconAndBadgetext } from './IconAndBadgetext';
-import { IEnvironment } from './IEnvironment';
-import { IPanelMonitorData } from './IPanelMonitorData';
-import { MonitorData, PanelMonitorData, Status } from './monitors';
-import { Settings } from './Settings';
-import { UICommand } from './UICommand';
+import { IconAndBadgetext } from './IconAndBadgetext.js';
+import { IEnvironment } from './IEnvironment.js';
+import { IPanelMonitorData } from './IPanelMonitorData.js';
+import { MonitorData, PanelMonitorData, Status } from './monitors/index.js';
+import { Settings } from './Settings.js';
+import { UICommand } from './UICommand.js';
 
 export abstract class AbstractEnvironment implements IEnvironment {
   public static mergeResultsFromAllInstances(buffers: {

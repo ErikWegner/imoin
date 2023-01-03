@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 
-import { IcingaCgi } from '../scripts/monitors';
-import { ImoinMonitorInstance } from '../scripts/Settings';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
+import { IcingaCgi } from '../scripts/monitors/index.js';
+import { ImoinMonitorInstance } from '../scripts/Settings.js';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment.js';
 
 describe('icingacgi', () => {
   it('should fetchStatus for 1.10', (done) => {

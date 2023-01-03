@@ -3,15 +3,15 @@ import { expect } from 'chai';
 import 'mocha';
 import * as sinon from 'sinon';
 
-import { AbstractEnvironment } from '../scripts/AbstractEnvironment';
+import { AbstractEnvironment } from '../scripts/AbstractEnvironment.js';
 import {
   ErrorMonitorData,
   Host,
   MonitorData,
   Service,
   Status,
-} from '../scripts/monitors';
-import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment';
+} from '../scripts/monitors/index.js';
+import { MockAbstractEnvironment } from './abstractHelpers/MockAbstractEnvironment.js';
 
 describe('AbstractEnvironnment', () => {
   it('should register and handle one alarm', () => {

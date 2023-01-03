@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 
-import { FHost } from '../../scripts/monitors/filters';
-import { FilterSettings } from '../../scripts/Settings';
-import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
-import { HostBuilder } from '../abstractHelpers/HostBuilder';
-import { LoadCallbackBuilder } from '../abstractHelpers/LoadCallbackBuilder';
-import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder';
-import { ServiceState } from '../monitors';
+import { FHost } from '../../scripts/monitors/filters/index.js';
+import { FilterSettings } from '../../scripts/Settings.js';
+import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder.js';
+import { HostBuilder } from '../abstractHelpers/HostBuilder.js';
+import { LoadCallbackBuilder } from '../abstractHelpers/LoadCallbackBuilder.js';
+import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder.js';
+import { ServiceState } from '../monitors/index.js';
 
 export class TestCaseBuilderBase {
   protected hostStatus = 'UP';

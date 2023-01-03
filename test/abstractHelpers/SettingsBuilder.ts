@@ -1,4 +1,4 @@
-import { IcingaOptionsVersion, ImoinMonitorInstance } from '../../scripts/Settings';
+import { IcingaOptionsVersion, ImoinMonitorInstance } from '../../scripts/Settings.js';
 
 export class SettingsBuilder {
   public static create(version: IcingaOptionsVersion) {

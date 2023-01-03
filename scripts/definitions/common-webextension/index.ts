@@ -1,4 +1,4 @@
-import { UICommand } from '../../UICommand';
+import { UICommand } from '../../UICommand.js';
 
 export interface WebExtensionBrowser {
   tabs: Tabs;

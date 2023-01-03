@@ -1,5 +1,5 @@
-import { filterSettingsTests } from '../filterSettingsTestsCommons';
-import { testcases } from './testcases';
+import { filterSettingsTests } from '../filterSettingsTestsCommons.js';
+import { testcases } from './testcases.js';
 
 describe('Filters', () => {
   Object.keys(filterSettingsTests).forEach((description) => {

@@ -1,8 +1,8 @@
-import { AbstractEnvironment } from './AbstractEnvironment';
-import { Port, WebExtensionBrowser } from './definitions/common-webextension';
-import { IBadgeIcon } from './IconAndBadgetext';
-import { Status } from './monitors';
-import { ImoinMonitorInstance, Settings, Sound } from './Settings';
+import { AbstractEnvironment } from './AbstractEnvironment.js';
+import { Port, WebExtensionBrowser } from './definitions/common-webextension/index.js';
+import { IBadgeIcon } from './IconAndBadgetext.js';
+import { Status } from './monitors/index.js';
+import { ImoinMonitorInstance, Settings, Sound } from './Settings.js';
 
 /**
  * A common implementation

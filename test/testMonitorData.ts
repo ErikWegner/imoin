@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Host, MonitorData, Service, Status } from '../scripts/monitors';
-import { FHost } from '../scripts/monitors/filters';
+import { Host, MonitorData, Service, Status } from '../scripts/monitors/index.js';
+import { FHost } from './monitors/filters/FHost.js';
 
 describe('MonitorData', () => {
   it('updateCounters: no filtered host array ⇒ still green', () => {

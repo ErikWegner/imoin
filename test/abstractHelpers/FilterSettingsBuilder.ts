@@ -1,4 +1,4 @@
-import { ImoinMonitorInstance, FilterSettings } from '../../scripts/Settings';
+import { ImoinMonitorInstance, FilterSettings } from '../../scripts/Settings.js';
 
 export class FilterSettingsBuilder {
   public static plain() {

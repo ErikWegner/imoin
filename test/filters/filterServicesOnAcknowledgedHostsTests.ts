@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Host, HostState, Service, ServiceState } from '../../scripts/monitors';
+import { Host, HostState, Service, ServiceState } from '../../scripts/monitors/index.js';
 import {
   FHost,
   filterServicesOnAcknowledgedHosts,
-} from '../../scripts/monitors/filters';
-import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
+} from '../../scripts/monitors/filters/index.js';
+import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder.js';
 
 describe('Filters', () => {
   describe('filterServicesOnAcknowledgedHosts', () => {

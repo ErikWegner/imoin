@@ -1,7 +1,7 @@
-import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
-import browser from './definitions/firefox-webextension';
-import { init } from './main';
-import { Settings } from './Settings';
+import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment.js';
+import browser from './definitions/firefox-webextension/index.js';
+import { init } from './main.js';
+import { Settings } from './Settings.js';
 
 /**
  * Implementation for Firefox

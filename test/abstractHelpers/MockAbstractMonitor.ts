@@ -1,13 +1,13 @@
 import * as sinon from 'sinon';
 
-import { IEnvironment } from '../../scripts/IEnvironment';
+import { IEnvironment } from '../../scripts/IEnvironment.js';
 import {
   AbstractMonitor,
   ErrorMonitorData,
   MonitorData,
-} from '../../scripts/monitors';
-import { ImoinMonitorInstance } from '../../scripts/Settings';
-import { UICommand } from '../../scripts/UICommand';
+} from '../../scripts/monitors/index.js';
+import { ImoinMonitorInstance } from '../../scripts/Settings.js';
+import { UICommand } from '../../scripts/UICommand.js';
 
 export class MockAbstractMonitor extends AbstractMonitor {
   public defaultFetchStatusResponse = Promise.resolve(

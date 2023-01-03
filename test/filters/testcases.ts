@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 
-import { FHost } from '../../scripts/monitors/filters';
-import { FilterSettings } from '../../scripts/Settings';
-import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
-import { HostBuilder } from '../abstractHelpers/HostBuilder';
-import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder';
-import { Host, ServiceState } from '../monitors';
-import { TestCaseBuilderBase } from './testcasebuilderbase';
+import { FHost } from '../../scripts/monitors/filters/index.js';
+import { FilterSettings } from '../../scripts/Settings.js';
+import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder.js';
+import { HostBuilder } from '../abstractHelpers/HostBuilder.js';
+import { ServiceBuilder } from '../abstractHelpers/ServiceBuilder.js';
+import { Host, ServiceState } from '../monitors/index.js';
+import { TestCaseBuilderBase } from './testcasebuilderbase.js';
 
 export function testcases(
   filter: (

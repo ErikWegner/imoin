@@ -1,5 +1,5 @@
-import { Host } from '../../scripts/monitors';
-import { ServiceBuilder } from './ServiceBuilder';
+import { Host } from '../../scripts/monitors/index.js';
+import { ServiceBuilder } from './ServiceBuilder.js';
 
 export class HostBuilder {
   protected activeHost: Host = new Host('uninitialized');

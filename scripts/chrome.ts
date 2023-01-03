@@ -1,7 +1,7 @@
-import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment';
-import chrome from './definitions/chrome-webextension/index';
-import { init } from './main';
-import { Settings } from './Settings';
+import { AbstractWebExtensionsEnvironment } from './AbstractWebExtensionsEnvironment.js';
+import chrome from './definitions/chrome-webextension/index.js';
+import { init } from './main.js';
+import { Settings } from './Settings.js';
 
 /**
  * Implementation for Chrome

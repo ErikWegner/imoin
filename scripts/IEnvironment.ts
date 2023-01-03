@@ -1,7 +1,7 @@
-import { IPanelMonitorData } from './IPanelMonitorData';
-import { MonitorData } from './monitors';
-import { Settings } from './Settings';
-import { UICommand } from './UICommand';
+import { IPanelMonitorData } from './IPanelMonitorData.js';
+import { MonitorData } from './monitors/index.js';
+import { Settings } from './Settings.js';
+import { UICommand } from './UICommand.js';
 
 export interface IEnvironment {
   /**

@@ -1,4 +1,4 @@
-import { Host, Service } from '../scripts/monitors';
+import { Host, Service } from '../scripts/monitors/index.js';
 import {
   FHost,
   filterAcknowledged,
@@ -6,11 +6,11 @@ import {
   filterDowntime,
   filterNotificationDisabled,
   filterSoftStates,
-} from '../scripts/monitors/filters';
-import { FilterSettings } from '../scripts/Settings';
-import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder';
-import { HostBuilder } from './abstractHelpers/HostBuilder';
-import { ServiceBuilder } from './abstractHelpers/ServiceBuilder';
+} from '../scripts/monitors/filters/index.js';
+import { FilterSettings } from '../scripts/Settings.js';
+import { FilterSettingsBuilder } from './abstractHelpers/FilterSettingsBuilder.js';
+import { HostBuilder } from './abstractHelpers/HostBuilder.js';
+import { ServiceBuilder } from './abstractHelpers/ServiceBuilder.js';
 
 export const filterSettingsTests: {
   [filterName: string]: {

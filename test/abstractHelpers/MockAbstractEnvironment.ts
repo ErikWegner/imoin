@@ -1,8 +1,8 @@
 import * as sinon from 'sinon';
 
-import { AbstractEnvironment } from '../../scripts/AbstractEnvironment';
-import { Settings } from '../../scripts/Settings';
-import { MonitorData, Status } from '../monitors';
+import { AbstractEnvironment } from '../../scripts/AbstractEnvironment.js';
+import { Settings } from '../../scripts/Settings.js';
+import { MonitorData, Status } from '../monitors/index.js';
 
 export class MockAbstractEnvironment extends AbstractEnvironment {
   public loadCallback:

@@ -1,5 +1,5 @@
-import { IPanelMonitorData } from '../IPanelMonitorData';
-import { FHost } from './filters';
+import { IPanelMonitorData } from '../IPanelMonitorData.js';
+import { FHost } from './filters/index.js';
 
 export type HostState = 'UP' | 'DOWN';
 export type ServiceState = 'OK' | 'WARNING' | 'CRITICAL';

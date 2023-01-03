@@ -1,4 +1,4 @@
-import { FilterSettings } from '../../Settings';
+import { FilterSettings } from '../../Settings.js';
 
 export function optionalFiltersettings(
   filtersettings: FilterSettings | undefined,

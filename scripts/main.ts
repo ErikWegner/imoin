@@ -1,12 +1,12 @@
-import { IEnvironment } from './IEnvironment';
+import { IEnvironment } from './IEnvironment.js';
 import {
   IcingaApi,
   IcingaCgi,
   IMonitor,
   NagiosCore,
   NagiosHtml,
-} from './monitors';
-import { ImoinMonitorInstance } from './Settings';
+} from './monitors/index.js';
+import { ImoinMonitorInstance } from './Settings.js';
 
 /*
  * Connecting all pieces together

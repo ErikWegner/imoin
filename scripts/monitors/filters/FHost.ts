@@ -1,4 +1,4 @@
-import { Host, Service } from '../MonitorData';
+import { Host, Service } from '../MonitorData.js';
 
 /**
  * Filtering host.

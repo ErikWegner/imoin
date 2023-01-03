@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { Host, Service } from '../../scripts/monitors';
-import { FHost, filterUp } from '../../scripts/monitors/filters';
+import { Host, Service } from '../../scripts/monitors/index.js';
+import { FHost, filterUp } from '../../scripts/monitors/filters/index.js';
 
 describe('Filters', () => {
   describe('filterUP', () => {
