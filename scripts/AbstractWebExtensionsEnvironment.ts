@@ -61,7 +61,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
   protected settings: Settings = new Settings();
 
   private alarmListenerRegistered = false;
-  private audioPlayer: HTMLAudioElement = new Audio();
+  private audioPlayer: HTMLAudioElement = new Audio(); // TODO: https://developer.chrome.com/docs/extensions/mv3/migrating_to_service_workers/#audio_vidio
   private audioPlayerSoundid = '';
 
   public async load(
@@ -77,7 +77,6 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
       );
     }
     const res = await fetch(url, {
-      credentials: 'include',
       headers,
       method: 'GET',
     });
@@ -104,7 +103,6 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
       );
     }
     const res = await fetch(url, {
-      credentials: 'include',
       headers,
       method: 'POST',
       body: JSON.stringify(data),

@@ -14,11 +14,11 @@
   },
 
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "chrome.js",
     "type": "module"
   },
 
-  "browser_action": {
+  "action": {
     "browser_style": false,
     "default_popup": "html/panel.html",
     "default_title": "imoin",

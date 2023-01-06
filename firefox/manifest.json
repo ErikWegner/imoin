@@ -38,6 +38,7 @@
     "alarms",
     "storage"
   ],
+
   "host_permissions": [
     "https://*/",
     "http://*/"
