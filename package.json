@@ -1,6 +1,6 @@
 {
   "name": "imoin",
-  "version": "24.2.0",
+  "version": "25.0.0",
   "description": "Icinga/Nagios status display",
   "main": "",
   "scripts": {
@@ -58,8 +58,7 @@
   ],
   "author": "Erik Wegner",
   "license": "ISC",
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "@types/chai": "^4.0.4",
     "@types/mocha": "^5.2.7",
     "@types/sinon": "^7.0.13",
@@ -77,6 +76,7 @@
     "karma-jasmine-sinon": "^1.0.4",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
+    "semver": "^7.5.4",
     "sinon": "^7.4.1",
     "source-map-support": "^0.5.6",
     "ts-node": "^8.3.0",

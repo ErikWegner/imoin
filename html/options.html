@@ -92,6 +92,24 @@
         <input type="checkbox" id="filterOutDowntime" name="filterOutDowntime" class="mr2"/>
         <label for="filterOutDowntime" class="lh-copy">No alarm and no highlighting for services or hosts that are in scheduled downtime (Icinga API, Nagios Core).</label>
       </div>
+      <div class="flex mb2 items-center">
+        <select id="filterHostsReB" name="filterHostsReB">
+          <option value="">Disabled</option>
+          <option value="keep">Alarm and Highlighting only for hosts matching the regular expression</option>
+          <option value="remove">No alarm and no highlighting for hosts matching the regular expression</option>
+        </select>
+        <label for="filterHostsRe" class="lh-copy">Regular expression to filter hosts (Icinga API, Nagios Core).
+        <input type="text" id="filterHostsRe" name="filterHostsRe" /></label>
+      </div>
+      <div class="flex mb2 items-center">
+        <select id="filterServicesReB" name="filterServicesReB">
+          <option value="">Disabled</option>
+          <option value="keep">Alarm and Highlighting only for services matching the regular expression</option>
+          <option value="remove">No alarm and no highlighting for services matching the regular expression</option>
+        </select>
+        <label for="filterServicesRe" class="lh-copy">Regular expression to filter services (Icinga API, Nagios Core).
+        <input type="text" id="filterServicesRe" name="filterServicesRe" /></label>
+      </div>
     </fieldset>
     <fieldset>
       <legend>Audio notifications</legend>

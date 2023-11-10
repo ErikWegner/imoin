@@ -19,7 +19,7 @@ export interface Sound {
 
 export interface RegExMatchSettings {
     re: RegExp;
-    filterOut: boolean;
+    state: '' | 'keep' | 'remove';
 }
 
 export interface FilterSettings {
