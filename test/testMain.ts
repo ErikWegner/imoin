@@ -1,6 +1,4 @@
-import * as fs from 'fs';
 import 'mocha';
-import { fail } from 'assert';
 import { assert, expect } from 'chai';
 
 import { resolveMonitor } from '../scripts/main';

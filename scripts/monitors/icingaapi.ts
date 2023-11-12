@@ -9,7 +9,7 @@ export enum IcingaStateType {
 }
 
 export interface IIcinga2HostJsonData {
-    results: Array<{
+    results: {
         attrs: {
             acknowledgement?: number
             display_name: string
@@ -23,11 +23,11 @@ export interface IIcinga2HostJsonData {
             enable_active_checks?: boolean,
         }
         name: string
-    }>;
+    }[];
 }
 
 export interface IIcinga2ServiceJsonData {
-    results: Array<{
+    results: {
         attrs: {
             acknowledgement?: number
             display_name: string
@@ -42,7 +42,7 @@ export interface IIcinga2ServiceJsonData {
             enable_active_checks?: boolean,
         }
         name: string
-    }>;
+    }[];
 }
 
 export class IcingaApi extends AbstractMonitor {
