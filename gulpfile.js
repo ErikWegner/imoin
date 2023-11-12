@@ -1,24 +1,26 @@
 "use strict";
 const gulp = require('gulp');
-const webpack = require('webpack-stream');
 const clean = require('gulp-clean');
 const bump = require('gulp-bump');
 const fs = require('fs');
 const semver = require('semver');
 const path = require('path');
+const esbuild = require('gulp-esbuild');
 
 let tsProject;
 let targetpaths = {};
 
 // ts-script
 function compileTS() {
-    const wpconfig = require('./webpack.config.js');
-    wpconfig.entry.index = './' + tsProject;
-    wpconfig.output.path = path.resolve(__dirname, targetpaths.target);
-
-    return gulp.src(tsProject)
-        .pipe(webpack(wpconfig))
-        .pipe(gulp.dest(targetpaths.target));
+    return gulp.src('./' + tsProject)
+        .pipe(esbuild({
+            outfile: path.resolve(__dirname, targetpaths.target + '.js'),
+            bundle: true,
+            loader: {
+                '.tsx': 'tsx',
+            },
+        }))
+        .pipe(gulp.dest('./dist'))
 }
 
 // firefox-setpaths
@@ -62,7 +64,7 @@ function prepareOpera(cb) {
 }
 
 // copy-icons
-function copyIcons () {
+function copyIcons() {
     return gulp.src(['icons/**/*']).pipe(gulp.dest(targetpaths.icons));
 }
 
@@ -133,7 +135,7 @@ exports.operaWatch = gulp.series(
 );
 
 // bump versions on package/manifest
-exports.bump = function () {
+exports.bump = function() {
     // read version from package.json
     var pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));;
     // increment version
@@ -152,7 +154,7 @@ exports.bump = function () {
 };
 
 // bump versions on package/manifest
-exports.bumpMinor = function () {
+exports.bumpMinor = function() {
     // read version from package.json
     var pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));;
     // increment version

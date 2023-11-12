@@ -3,10 +3,8 @@
     "tslint:recommended"
   ],
   "rules": {
-    // Custom
     "trailing-comma": [false, {"multiline": "always", "singleline": "never"}],
     "interface-name": [false, "always-prefix"],
-    // General
     "no-console": [true,
       "time",
       "timeEnd",
