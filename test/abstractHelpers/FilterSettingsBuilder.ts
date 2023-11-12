@@ -75,11 +75,20 @@ export class FilterSettingsBuilder {
     return this;
   }
 
-  public filterOutKeepByRegexHost(): void {
+  public filterRemoveByRegexHost(re: RegExp) {
+    this.filtersettings.filterHosts = {
+      state: 'remove',
+      re,
+    }
+    return this;
+  }
+
+  public filterKeepByRegexHost(re: RegExp) {
     this.filtersettings.filterHosts = {
       state: 'keep',
-      re: /iii/,
+      re,
     }
+    return this;
   }
 
   public build() {

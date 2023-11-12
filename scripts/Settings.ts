@@ -18,7 +18,7 @@ export interface Sound {
 }
 
 export interface RegExMatchSettings {
-    re: RegExp;
+    re: RegExp | null;
     state: '' | 'keep' | 'remove';
 }
 
