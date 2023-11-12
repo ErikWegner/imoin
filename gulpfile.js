@@ -14,13 +14,13 @@ let targetpaths = {};
 function compileTS() {
     return gulp.src('./' + tsProject)
         .pipe(esbuild({
-            outfile: path.resolve(__dirname, targetpaths.target + '.js'),
+            outfile: path.resolve(__dirname, targetpaths.target + '/bundle.js'),
             bundle: true,
             loader: {
                 '.tsx': 'tsx',
             },
         }))
-        .pipe(gulp.dest('./dist'))
+        .pipe(gulp.dest('./'))
 }
 
 // firefox-setpaths
