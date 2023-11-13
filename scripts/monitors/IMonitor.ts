@@ -1,5 +1,3 @@
-import { Monitor } from './MonitorData';
-import MonitorData = Monitor.MonitorData;
 import { IEnvironment } from '../IEnvironment';
 import { ImoinMonitorInstance } from '../Settings';
 

@@ -91,6 +91,22 @@ export class FilterSettingsBuilder {
     return this;
   }
 
+  public filterRemoveByRegexService(re: RegExp) {
+    this.filtersettings.filterServices = {
+      state: 'remove',
+      re,
+    }
+    return this;
+  }
+
+  public filterKeepByRegexService(re: RegExp) {
+    this.filtersettings.filterServices = {
+      state: 'keep',
+      re,
+    }
+    return this;
+  }
+
   public build() {
     return this.filtersettings;
   }

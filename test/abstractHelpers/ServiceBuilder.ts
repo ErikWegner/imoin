@@ -31,12 +31,12 @@ export class ServiceBuilder {
     return this;
   }
 
-  public inSoftState(): any {
+  public inSoftState() {
     this.service.isInSoftState = true;
     return this;
   }
 
-  public inDowntime(): any {
+  public inDowntime() {
     this.service.isInDowntime = true;
     return this;
   }
