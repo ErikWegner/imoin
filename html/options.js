@@ -1,5 +1,5 @@
-var hosttype = (typeof(chrome) !== "undefined" && chrome) ? 'chrome' : (typeof(browser) !== "undefined" && browser) ? 'browser' : 'na';
-var host = (typeof(chrome) !== "undefined" && chrome) || (typeof(browser) !== "undefined" && browser);
+var hosttype = (typeof (chrome) !== "undefined" && chrome) ? 'chrome' : (typeof (browser) !== "undefined" && browser) ? 'browser' : 'na';
+var host = (typeof (chrome) !== "undefined" && chrome) || (typeof (browser) !== "undefined" && browser);
 // Edge browser
 if (typeof browser !== "undefined" && browser.runtime !== null) {
   host = browser;
@@ -20,6 +20,9 @@ const filterSettingsNames = [
   'filterOutServicesOnDownHosts',
   'filterOutServicesOnAcknowledgedHosts',
   'filterOutDowntime',
+];
+const filterSettingsNamesRe = [
+  'filterServices', 'filterHosts'
 ];
 
 /*    ---- Custom elements   ---- */
@@ -183,6 +186,13 @@ function updateDOMforFilters() {
   filterSettingsNames.forEach((settingname) => {
     setCheckboxValue('#' + settingname, filtersettings[settingname]);
   });
+  filterSettingsNamesRe.forEach((name) => {
+    const f = filtersettings[name];
+    if (f) {
+      document.querySelector('#' + name + 'ReB').value = f.state ?? '';
+      document.querySelector('#' + name + 'Re').value = f.re?.source ?? "";
+    }
+  });
 }
 
 function addClickHandler(selector, handler) {
@@ -219,6 +229,15 @@ function collectFilterSettings() {
   filterSettingsNames.forEach((settingname) => {
     r[settingname] = getCheckboxValue('#' + settingname, 0) === 1;
   });
+  filterSettingsNamesRe.forEach((name) => {
+    r[name] = {
+      state: document.querySelector('#' + name + 'ReB').value,
+      re: {
+        source: document.querySelector('#' + name + 'Re').value
+      }
+    };
+  });
+
   return r;
 }
 

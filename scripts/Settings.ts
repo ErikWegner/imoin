@@ -18,7 +18,7 @@ export interface Sound {
 }
 
 export interface RegExMatchSettings {
-    re: RegExp | null;
+    re: string | null;
     state: '' | 'keep' | 'remove';
 }
 
@@ -49,7 +49,7 @@ export class Settings {
         if (url[l - 1] === '/') {
             l = l - 1;
         }
-        return url.substr(0, l);
+        return url.substring(0, l);
     }
 
     public static paramsToInstance(

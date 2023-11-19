@@ -21,7 +21,7 @@ describe('Filter regex', () => {
     it('Should keep host', () => {
       // Arrage
       const m = ['hjp1', 'hkp1', 'hji1', 'hjp2'].map(name => new Monitor.Host(name));
-      const s = FilterSettingsBuilder.plain().filterKeepByRegexHost(/hj.\d/).build();
+      const s = FilterSettingsBuilder.plain().filterKeepByRegexHost('hj.d').build();
 
       // Act
       const r = filterHostsByRegex(FHost.map(m), s);
@@ -35,7 +35,7 @@ describe('Filter regex', () => {
     it('Should remove host', () => {
       // Arrage
       const m = ['hjp1', 'hkp1', 'hji1', 'hjp2'].map(name => new Monitor.Host(name));
-      const s = FilterSettingsBuilder.plain().filterRemoveByRegexHost(/h.p1/).build();
+      const s = FilterSettingsBuilder.plain().filterRemoveByRegexHost('h.p1').build();
 
       // Act
       const r = filterHostsByRegex(FHost.map(m), s);
@@ -62,8 +62,8 @@ describe('Filter regex', () => {
       // Arrage
       const filterSettings = FilterSettingsBuilder
         .plain()
-        .filterKeepByRegexHost(/^keep/)
-        .filterKeepByRegexService(/^keepservice/)
+        .filterKeepByRegexHost('^keep')
+        .filterKeepByRegexService('^keepservice')
         .build();
       const m = <Monitor.Host[]>[];
       m.push(new HostBuilder().Host("keep1").Down().Service("keepservice1", () => { }).Done());
@@ -84,8 +84,8 @@ describe('Filter regex', () => {
       // Arrage
       const filterSettings = FilterSettingsBuilder
         .plain()
-        .filterRemoveByRegexHost(/^drop/)
-        .filterRemoveByRegexService(/^dropservice/)
+        .filterRemoveByRegexHost('^drop')
+        .filterRemoveByRegexService('^dropservice')
         .build();
       const m = <Monitor.Host[]>[];
       m.push(new HostBuilder().Host("keep1").Down().Service("keepservice1", () => { }).Done());

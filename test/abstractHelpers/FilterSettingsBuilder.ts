@@ -75,7 +75,7 @@ export class FilterSettingsBuilder {
     return this;
   }
 
-  public filterRemoveByRegexHost(re: RegExp) {
+  public filterRemoveByRegexHost(re: string) {
     this.filtersettings.filterHosts = {
       state: 'remove',
       re,
@@ -83,7 +83,7 @@ export class FilterSettingsBuilder {
     return this;
   }
 
-  public filterKeepByRegexHost(re: RegExp) {
+  public filterKeepByRegexHost(re: string) {
     this.filtersettings.filterHosts = {
       state: 'keep',
       re,
@@ -91,7 +91,7 @@ export class FilterSettingsBuilder {
     return this;
   }
 
-  public filterRemoveByRegexService(re: RegExp) {
+  public filterRemoveByRegexService(re: string) {
     this.filtersettings.filterServices = {
       state: 'remove',
       re,
@@ -99,7 +99,7 @@ export class FilterSettingsBuilder {
     return this;
   }
 
-  public filterKeepByRegexService(re: RegExp) {
+  public filterKeepByRegexService(re: string) {
     this.filtersettings.filterServices = {
       state: 'keep',
       re,

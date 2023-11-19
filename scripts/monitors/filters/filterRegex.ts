@@ -3,10 +3,11 @@ import { FilterSettings } from "../../Settings";
 
 export function filterResponseByRegex(hosts = <FHost[]>[], filtersettings?: FilterSettings) {
   const fss = filtersettings?.filterServices;
-  if (fss && fss.state != "" && fss.re != null) {
+  if (fss && fss.state != "" && (fss.re ?? '').length > 0) {
     const result = fss.state === "keep";
+    const re = new RegExp(fss.re);
     hosts.forEach((host) => {
-      host.filterServices((service) => result === fss.re.test(service.name));
+      host.filterServices((service) => result === re.test(service.name));
     });
   }
 
@@ -17,9 +18,10 @@ export function filterResponseByRegex(hosts = <FHost[]>[], filtersettings?: Filt
 
 export function filterHostsByRegex(hosts = <FHost[]>[], filtersettings?: FilterSettings) {
   const s = filtersettings?.filterHosts;
-  if (hosts.length > 0 && s && s.state != "" && s.re != null) {
+  if (hosts.length > 0 && s && s.state != "" && (s.re ?? '').length > 0) {
     const result = s.state === "keep";
-    return hosts.filter((host) => result === s.re.test(host.getHost().name))
+    const re = new RegExp(s.re);
+    return hosts.filter((host) => result === re.test(host.getHost().name))
   } else {
     return hosts;
   }

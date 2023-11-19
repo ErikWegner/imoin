@@ -1,9 +1,7 @@
 import { Port, WebExtensionBrowser } from './definitions/common-webextension';
-import browser from './definitions/firefox-webextension';
 import { AbstractEnvironment } from './AbstractEnvironment';
 import { Settings } from './Settings';
 import { Monitor } from './monitors';
-import Status = Monitor.Status;
 import { IBadgeIcon } from './IconAndBadgetext';
 
 /**
@@ -139,9 +137,9 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     protected openOptionsPage(): void {
         if (this.host.runtime.openOptionsPage) {
             this.host.runtime.openOptionsPage();
-          } else {
+        } else {
             window.open(this.host.runtime.getURL('html/options.html'));
-          }
+        }
     }
 
     protected setIcon(icon: IBadgeIcon) {
