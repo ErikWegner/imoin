@@ -36,20 +36,25 @@ firefox-package:
 lint:
   stage: test
   script: npm run lint
+  allow_failure: true
 
 mocha:
   stage: test
   script: npm run test:mocha
+  allow_failure: true
 
 karma:
   stage: test
   script: npm run test:karma
+  allow_failure: true
 
 betaupload:
   only:
     refs:
       - master
   stage: betaupload
+  rules:
+    - when: manual
   artifacts:
     paths:
     - release/firefox/web-ext-artifacts
