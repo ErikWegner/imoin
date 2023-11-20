@@ -27,6 +27,7 @@ firefox-package:
   only:
     refs:
       - master
+      - merge_requests
   stage: package
   script: npm run sign:firefox
   artifacts:
