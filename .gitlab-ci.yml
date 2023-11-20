@@ -18,33 +18,32 @@ stages:
 before_script:
   - node -v
   - npm -v
-  - npm install -g yarn
 
 install:
   stage: prepare
-  script: yarn install
+  script: npm install
 
 firefox-package:
   only:
     refs:
       - master
   stage: package
-  script: yarn run sign:firefox
+  script: npm run sign:firefox
   artifacts:
     paths:
     - release/firefox/web-ext-artifacts
 
 lint:
   stage: test
-  script: yarn run lint
+  script: npm run lint
 
 mocha:
   stage: test
-  script: yarn run test:mocha
+  script: npm run test:mocha
 
 karma:
   stage: test
-  script: yarn run test:karma
+  script: npm run test:karma
 
 betaupload:
   only:
