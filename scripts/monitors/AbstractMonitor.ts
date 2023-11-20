@@ -14,6 +14,7 @@ import {
     filterServicesOnAcknowledgedHosts,
     filterDowntime,
 } from './filters';
+import { filterHostsByRegex, filterResponseByRegex } from './filters/filterRegex';
 
 export abstract class AbstractMonitor implements IMonitor {
 
@@ -52,8 +53,8 @@ export abstract class AbstractMonitor implements IMonitor {
         // filterOutAllUnknown: boolean;
         // filterOutAllWarning: boolean;
         // filterOutAllCritical: boolean;
-        // filterHosts: RegExMatchSettings;
-        // filterServices: RegExMatchSettings;
+        /* filter hosts and services by regular expression */
+        result = filterResponseByRegex(result, filtersettings);
         // filterInformation: RegExMatchSettings;
         /* filterOutUP again */
         result = filterUp(result);

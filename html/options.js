@@ -190,7 +190,7 @@ function updateDOMforFilters() {
     const f = filtersettings[name];
     if (f) {
       document.querySelector('#' + name + 'ReB').value = f.state ?? '';
-      document.querySelector('#' + name + 'Re').value = f.re?.source ?? "";
+      document.querySelector('#' + name + 'Re').value = f.re ?? "";
     }
   });
 }
@@ -232,9 +232,7 @@ function collectFilterSettings() {
   filterSettingsNamesRe.forEach((name) => {
     r[name] = {
       state: document.querySelector('#' + name + 'ReB').value,
-      re: {
-        source: document.querySelector('#' + name + 'Re').value
-      }
+      re: document.querySelector('#' + name + 'Re').value
     };
   });
 
