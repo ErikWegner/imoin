@@ -53,8 +53,7 @@ betaupload:
     refs:
       - master
   stage: betaupload
-  rules:
-    - when: manual
+  when: manual
   artifacts:
     paths:
     - release/firefox/web-ext-artifacts
