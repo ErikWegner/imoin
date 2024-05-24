@@ -1,5 +1,9 @@
+import { AbstractAudioPlayer } from './AbstractAudioPlayer.js';
 import { AbstractEnvironment } from './AbstractEnvironment.js';
-import { Port, WebExtensionBrowser } from './definitions/common-webextension/index.js';
+import {
+  Port,
+  WebExtensionBrowser,
+} from './definitions/common-webextension/index.js';
 import { IBadgeIcon } from './IconAndBadgetext.js';
 import { Status } from './monitors/index.js';
 import { ImoinMonitorInstance, Settings, Sound } from './Settings.js';
@@ -18,13 +22,13 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
   }
 
   public static processStoredSettings(
-    storedSettings: Record<string, unknown>
+    storedSettings: Record<string, unknown>,
   ): Settings {
     const settings = new Settings();
     if (storedSettings && typeof storedSettings === 'object') {
       if (typeof storedSettings.instances === 'string') {
         settings.instances = JSON.parse(
-          storedSettings.instances
+          storedSettings.instances,
         ) as ImoinMonitorInstance[];
       }
       if (
@@ -61,19 +65,19 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
   protected settings: Settings = new Settings();
 
   private alarmListenerRegistered = false;
-  private audioPlayer: HTMLAudioElement = new Audio(); // TODO: https://developer.chrome.com/docs/extensions/mv3/migrating_to_service_workers/#audio_vidio
+  private audioPlayer = new AbstractAudioPlayer();
   private audioPlayerSoundid = '';
 
   public async load(
     url: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<string> {
     const headers = new Headers();
     if (username) {
       headers.append(
         'Authorization',
-        'Basic ' + btoa(username + ':' + password)
+        'Basic ' + btoa(username + ':' + password),
       );
     }
     const res = await fetch(url, {
@@ -90,7 +94,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     url: string,
     data: object,
     username: string,
-    password: string
+    password: string,
   ): Promise<string> {
     const headers = new Headers({
       Accept: 'application/json',
@@ -99,7 +103,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     if (username) {
       headers.append(
         'Authorization',
-        'Basic ' + btoa(username + ':' + password)
+        'Basic ' + btoa(username + ':' + password),
       );
     }
     const res = await fetch(url, {
@@ -125,7 +129,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     // Build the key
     const soundid = AbstractWebExtensionsEnvironment.buildSoundId(
       status,
-      isNew
+      isNew,
     );
 
     // Is it still playing?
@@ -146,8 +150,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
       // Start player
       if (this.settings.sounds[soundid].data) {
-        this.audioPlayer.src = this.settings.sounds[soundid].data;
-        void this.audioPlayer.play();
+        this.audioPlayer.play(this.settings.sounds[soundid].data);
       }
     }
   }

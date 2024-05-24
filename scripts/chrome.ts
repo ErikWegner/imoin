@@ -9,7 +9,7 @@ import { Settings } from './Settings.js';
 export class Chrome extends AbstractWebExtensionsEnvironment {
   protected host = chrome;
 
-  protected console = chrome.runtime.getBackgroundPage().console;
+  protected console = console;
 
   constructor() {
     super();
@@ -24,16 +24,18 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
           this.settings =
             AbstractWebExtensionsEnvironment.processStoredSettings(data);
           resolve(this.settings);
-        }
+        },
       );
     });
   }
 
   protected debug(_o: unknown) {
+    super.debug(_o);
     // no-op
   }
 
   protected log(_o: unknown) {
+    super.log(_o);
     // no-op
   }
 }
