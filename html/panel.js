@@ -16,8 +16,8 @@ if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
 
     // This script runs at the moment that the popup is displayed
     const myPort = host.runtime.connect();
-    myPort.onMessage.addListener(function (message) {
-        var command = message.command || '';
+    myPort.onMessage.addListener(function(message) {
+        var command = message.command || "";
         var data = message.data || {};
 
         if (command === 'ProcessStatusUpdate') {
@@ -30,18 +30,18 @@ if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
 
     });
 
-    postPanelMessage = function (data) {
+    postPanelMessage = function(data) {
         myPort.postMessage(data);
     }
 } else if (typeof self === 'object' && typeof self.addEventListener === 'function') {
     // Electron
     const { ipcRenderer } = require('electron');
 
-    ipcRenderer.on('topanel', function (event) {
+    ipcRenderer.on('topanel', function(event) {
         log(event);
     });
 
-    postPanelMessage = function (data) {
+    postPanelMessage = function(data) {
         ipcRenderer.send('frompanel', data);
     }
 }
@@ -209,15 +209,15 @@ function listswitch(e) {
 
 function registerEventHanderForClass(handler, classname) {
     var elements = document.getElementsByClassName(classname);
-    Array.prototype.forEach.call(elements, function (element) {
-        element.addEventListener('click', handler);
+    Array.prototype.forEach.call(elements, function(element) {
+        element.addEventListener("click", handler);
     });
 }
 
 function registerEventHanderBySelector(handler, selector) {
     var elements = document.querySelectorAll(selector);
-    Array.prototype.forEach.call(elements, function (element) {
-        element.addEventListener('click', handler);
+    Array.prototype.forEach.call(elements, function(element) {
+        element.addEventListener("click", handler);
     });
 }
 
@@ -422,11 +422,11 @@ function renderMainTemplate(statusdata) {
     td.appendChild(document.createTextNode(statusdata.updatetime));
 
     // buttons to switch between lists
-    r.appendChild(div1 = document.createElement('div'));
-    AddInput(div1, 'filter0', 'r1', 'Errors/Warnings').setAttribute('checked', 'checked');
-    AddInput(div1, 'filter1', 'r2', 'All Hosts');
-    AddInput(div1, 'filter2', 'r3', 'All Services');
-    
+    r.appendChild(div1 = document.createElement("div"));
+    AddInput(div1, "filter0", "r1", "Errors/Warnings").setAttribute("checked", "checked");
+    AddInput(div1, "filter1", "r2", "All Hosts");
+    AddInput(div1, "filter2", "r3", "All Services");
+
     if (statusdata.instances && Object.keys(statusdata.instances).length > 1) {
         AddInput(div1, 'instances', 'i', 'Instances');
     }

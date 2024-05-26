@@ -227,9 +227,13 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
     this.registerAlarmCallback(alarmName, callback);
 
-    this.debug('Triggering immediate update');
-    this.handleAlarm({ name: alarmName });
-  }
+    protected openOptionsPage(): void {
+        if (this.host.runtime.openOptionsPage) {
+            this.host.runtime.openOptionsPage();
+        } else {
+            window.open(this.host.runtime.getURL('html/options.html'));
+        }
+    }
 
   protected removeAlarm(index: number) {
     const alarmName = AbstractEnvironment.alarmName(index);

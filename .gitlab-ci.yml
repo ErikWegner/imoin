@@ -1,6 +1,7 @@
 # Official framework image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/node/tags/
-image: erikwegner/alpine-node-chromium:18-alpine
+#image: node:8-alpine
+image: erikwegner/alpine-node-chromium:20-alpine
 
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
@@ -26,6 +27,7 @@ firefox-package:
   only:
     refs:
       - master
+      - merge_requests
   stage: package
   script: npm run sign:firefox
   artifacts:
@@ -48,7 +50,9 @@ betaupload:
   only:
     refs:
       - master
+      - merge_requests
   stage: betaupload
+  when: manual
   artifacts:
     paths:
     - release/firefox/web-ext-artifacts
@@ -57,8 +61,8 @@ betaupload:
     - which ssh-agent || ( apk --update add openssh-client )
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    - echo "$STAGING_PRIVATE_KEY" | ssh-add -
+    - cat "$STAGING_PRIVATE_KEY" | ssh-add -
     - scp release/firefox/web-ext-artifacts/*.xpi $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
     - ssh-add -D
-    - echo "$MANIFEST_PRIVATE_KEY" | ssh-add -
+    - cat "$MANIFEST_PRIVATE_KEY" | ssh-add -
     - ssh -l $DEPLOY_USER $DEPLOY_HOST $DEPLOY_PATH/create-manifest.py

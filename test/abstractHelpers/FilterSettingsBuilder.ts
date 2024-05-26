@@ -75,6 +75,38 @@ export class FilterSettingsBuilder {
     return this;
   }
 
+  public filterRemoveByRegexHost(re: string) {
+    this.filtersettings.filterHosts = {
+      state: 'remove',
+      re,
+    }
+    return this;
+  }
+
+  public filterKeepByRegexHost(re: string) {
+    this.filtersettings.filterHosts = {
+      state: 'keep',
+      re,
+    }
+    return this;
+  }
+
+  public filterRemoveByRegexService(re: string) {
+    this.filtersettings.filterServices = {
+      state: 'remove',
+      re,
+    }
+    return this;
+  }
+
+  public filterKeepByRegexService(re: string) {
+    this.filtersettings.filterServices = {
+      state: 'keep',
+      re,
+    }
+    return this;
+  }
+
   public build() {
     return this.filtersettings;
   }

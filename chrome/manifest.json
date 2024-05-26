@@ -2,7 +2,7 @@
 
   "manifest_version": 3,
   "name": "imoin",
-  "version": "25.0.0",
+  "version": "25.0.2",
 
   "description": "Monitor your icinga or nagios instance.",
 
@@ -43,4 +43,3 @@
     "http://*/"
   ]
 
-}
