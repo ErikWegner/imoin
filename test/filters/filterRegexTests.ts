@@ -1,15 +1,15 @@
-import { expect } from "chai";
-import { Monitor } from "../../scripts/monitors";
-import { FHost } from "../../scripts/monitors/filters";
-import { filterHostsByRegex, filterResponseByRegex } from "../../scripts/monitors/filters/filterRegex";
-import { FilterSettingsBuilder } from "../abstractHelpers/FilterSettingsBuilder";
-import { HostBuilder } from "../abstractHelpers/HostBuilder";
+import { expect } from 'chai';
+import { FHost } from '../../scripts/monitors/filters';
+import { filterHostsByRegex, filterResponseByRegex } from '../../scripts/monitors/filters/filterRegex';
+import { FilterSettingsBuilder } from '../abstractHelpers/FilterSettingsBuilder';
+import { HostBuilder } from '../abstractHelpers/HostBuilder';
+import { Host } from '../monitors';
 
 describe('Filter regex', () => {
   describe('Hosts', () => {
     it('Should accept empty list', () => {
       // Arrage
-      const m: Monitor.Host[] = [];
+      const m: Host[] = [];
 
       // Act
       const r = filterHostsByRegex(FHost.map(m));
@@ -20,7 +20,7 @@ describe('Filter regex', () => {
 
     it('Should keep host', () => {
       // Arrage
-      const m = ['hjp1', 'hkp1', 'hji1', 'hjp2'].map(name => new Monitor.Host(name));
+      const m = ['hjp1', 'hkp1', 'hji1', 'hjp2'].map(name => new Host(name));
       const s = FilterSettingsBuilder.plain().filterKeepByRegexHost('hj.d').build();
 
       // Act
@@ -34,7 +34,7 @@ describe('Filter regex', () => {
 
     it('Should remove host', () => {
       // Arrage
-      const m = ['hjp1', 'hkp1', 'hji1', 'hjp2'].map(name => new Monitor.Host(name));
+      const m = ['hjp1', 'hkp1', 'hji1', 'hjp2'].map(name => new Host(name));
       const s = FilterSettingsBuilder.plain().filterRemoveByRegexHost('h.p1').build();
 
       // Act
@@ -49,7 +49,7 @@ describe('Filter regex', () => {
   describe('Reponse', () => {
     it('should accept empty response', () => {
       // Arrage
-      const m = <Monitor.Host[]>[];
+      const m = <Host[]>[];
 
       // Act
       const r = filterResponseByRegex(FHost.map(m));
@@ -65,11 +65,11 @@ describe('Filter regex', () => {
         .filterKeepByRegexHost('^keep')
         .filterKeepByRegexService('^keepservice')
         .build();
-      const m = <Monitor.Host[]>[];
-      m.push(new HostBuilder().Host("keep1").Down().Service("keepservice1", () => { }).Done());
-      m.push(new HostBuilder().Host("drop1").Down().Service("keepservice2", () => { }).Done());
-      m.push(new HostBuilder().Host("keep2").Down().Service("keepservice3", () => { }).Service("keepservice4", () => { }).Service("dropservice5", () => { }).Done());
-      m.push(new HostBuilder().Host("keep3").Down().Service("dropservice5", () => { }).Done());
+      const m = <Host[]>[];
+      m.push(new HostBuilder().Host('keep1').Down().Service('keepservice1', () => { /* no-op */ }).Done());
+      m.push(new HostBuilder().Host('drop1').Down().Service('keepservice2', () => { /* no-op */ }).Done());
+      m.push(new HostBuilder().Host('keep2').Down().Service('keepservice3', () => { /* no-op */ }).Service('keepservice4', () => { /* no-op */ }).Service('dropservice5', () => { /* no-op */ }).Done());
+      m.push(new HostBuilder().Host('keep3').Down().Service('dropservice5', () => { /* no-op */ }).Done());
 
       // Act
       const r = filterResponseByRegex(FHost.map(m), filterSettings);
@@ -87,11 +87,11 @@ describe('Filter regex', () => {
         .filterRemoveByRegexHost('^drop')
         .filterRemoveByRegexService('^dropservice')
         .build();
-      const m = <Monitor.Host[]>[];
-      m.push(new HostBuilder().Host("keep1").Down().Service("keepservice1", () => { }).Done());
-      m.push(new HostBuilder().Host("drop1").Down().Service("keepservice2", () => { }).Done());
-      m.push(new HostBuilder().Host("keep2").Down().Service("keepservice3", () => { }).Service("keepservice4", () => { }).Service("dropservice5", () => { }).Done());
-      m.push(new HostBuilder().Host("keep3").Down().Service("dropservice5", () => { }).Done());
+      const m = <Host[]>[];
+      m.push(new HostBuilder().Host('keep1').Down().Service('keepservice1', () => { /* no-op */ }).Done());
+      m.push(new HostBuilder().Host('drop1').Down().Service('keepservice2', () => { /* no-op */ }).Done());
+      m.push(new HostBuilder().Host('keep2').Down().Service('keepservice3', () => { /* no-op */ }).Service('keepservice4', () => { /* no-op */ }).Service('dropservice5', () => { /* no-op */ }).Done());
+      m.push(new HostBuilder().Host('keep3').Down().Service('dropservice5', () => { /* no-op */ }).Done());
 
       // Act
       const r = filterResponseByRegex(FHost.map(m), filterSettings);

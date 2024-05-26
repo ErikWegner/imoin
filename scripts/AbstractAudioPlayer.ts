@@ -1,5 +1,3 @@
-import chrome from './definitions/chrome-webextension/index.js';
-
 export class AbstractAudioPlayer {
   private readonly audioPlayer: HTMLAudioElement | null;
 
@@ -10,7 +8,7 @@ export class AbstractAudioPlayer {
   public play(v: string) {
     if (this.audioPlayer) {
       this.audioPlayer.src = v;
-      this.audioPlayer.play();
+      this.audioPlayer.play().then(() => { /* no-op */ }, () => { /* no-op */ });
     }
   }
 

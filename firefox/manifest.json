@@ -2,7 +2,7 @@
 
   "manifest_version": 3,
   "name": "imoin-beta",
-  "version": "25.0.2",
+  "version": "26.0.0",
 
   "description": "Monitor your icinga or nagios instance.",
 

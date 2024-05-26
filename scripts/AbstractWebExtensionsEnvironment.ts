@@ -226,14 +226,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     this.createHostAlarm(alarmName, delay);
 
     this.registerAlarmCallback(alarmName, callback);
-
-    protected openOptionsPage(): void {
-        if (this.host.runtime.openOptionsPage) {
-            this.host.runtime.openOptionsPage();
-        } else {
-            window.open(this.host.runtime.getURL('html/options.html'));
-        }
-    }
+  }
 
   protected removeAlarm(index: number) {
     const alarmName = AbstractEnvironment.alarmName(index);

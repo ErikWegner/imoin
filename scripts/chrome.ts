@@ -30,12 +30,10 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
   }
 
   protected debug(_o: unknown) {
-    super.debug(_o);
     // no-op
   }
 
   protected log(_o: unknown) {
-    super.log(_o);
     // no-op
   }
 }
