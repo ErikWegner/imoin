@@ -66,7 +66,6 @@
     "express": "^4.18.2",
     "gulp": "^4.0.2",
     "gulp-bump": "^3.2.0",
-    "gulp-clean": "^0.4.0",
     "gulp-cli": "^2.3.0",
     "gulp-esbuild": "^0.11.2",
     "jasmine-core": "^5.1.1",

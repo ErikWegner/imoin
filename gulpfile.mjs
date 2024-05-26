@@ -5,7 +5,6 @@ import { deleteAsync } from 'del';
 import bump from 'gulp-bump';
 import fs from 'fs';
 import semver from 'semver';
-import path from 'path';
 
 const tsProject = ts.createProject('tsconfig.json');
 let targetpaths = { otherfiles: [] };
@@ -16,7 +15,9 @@ function compileTS() {
 }
 
 function copyTS() {
-  return gulp.src(['dist/scripts/**/*.js']).pipe(gulp.dest(targetpaths.target + '/'));
+  return gulp
+    .src(['dist/scripts/**/*.js'])
+    .pipe(gulp.dest(targetpaths.target + '/'));
 }
 
 // firefox-setpaths
@@ -25,7 +26,7 @@ function prepareFirefox(cb) {
   targetpaths.icons = targetpaths.target + '/icons';
   targetpaths.html = targetpaths.target + '/html';
   targetpaths.manifest = 'firefox/manifest.json';
-  targetpaths.otherfiles = ['firefox/background-page.html']
+  targetpaths.otherfiles = ['firefox/background-page.html'];
   cb();
 }
 
@@ -49,17 +50,19 @@ function copyHtml() {
 }
 
 function copyManifest() {
-  return gulp.src([targetpaths.manifest, ...targetpaths.otherfiles]).pipe(gulp.dest(targetpaths.target));
+  return gulp
+    .src([targetpaths.manifest, ...targetpaths.otherfiles])
+    .pipe(gulp.dest(targetpaths.target));
 }
 
 export const firefox = gulp.series(
   prepareFirefox,
-  gulp.series(copyIcons, copyHtml, compileTS, copyTS, copyManifest)
+  gulp.series(copyIcons, copyHtml, compileTS, copyTS, copyManifest),
 );
 
 export const chrome = gulp.series(
   prepareChrome,
-  gulp.series(copyIcons, copyHtml, compileTS, copyTS, copyManifest)
+  gulp.series(copyIcons, copyHtml, compileTS, copyTS, copyManifest),
 );
 
 function watchTS() {
@@ -68,10 +71,20 @@ function watchTS() {
 }
 
 // firefox-watch
-export const firefoxWatch = gulp.series(prepareFirefox, compileTS, copyTS, watchTS);
+export const firefoxWatch = gulp.series(
+  prepareFirefox,
+  compileTS,
+  copyTS,
+  watchTS,
+);
 
 // chrome-watch
-export const chromeWatch = gulp.series(prepareChrome, compileTS, copyTS, watchTS);
+export const chromeWatch = gulp.series(
+  prepareChrome,
+  compileTS,
+  copyTS,
+  watchTS,
+);
 
 // bump versions on package/manifest
 export const bumpPatch = function () {
@@ -82,17 +95,13 @@ export const bumpPatch = function () {
 
   return gulp
     .src(
-      [
-        './chrome/manifest.json',
-        './firefox/manifest.json',
-        './package.json',
-      ],
-      { base: './' }
+      ['./chrome/manifest.json', './firefox/manifest.json', './package.json'],
+      { base: './' },
     )
     .pipe(
       bump({
         version: newVer,
-      })
+      }),
     )
     .pipe(gulp.dest('./'));
 };
@@ -106,26 +115,19 @@ export const bumpMinor = function () {
 
   return gulp
     .src(
-      [
-        './chrome/manifest.json',
-        './firefox/manifest.json',
-        './package.json',
-      ],
-      { base: './' }
+      ['./chrome/manifest.json', './firefox/manifest.json', './package.json'],
+      { base: './' },
     )
     .pipe(
       bump({
         version: newVer,
-      })
+      }),
     )
     .pipe(gulp.dest('./'));
 };
 
 function cleanTarget() {
-  return deleteAsync([
-    'dist',
-    targetpaths.target,
-  ]);
+  return deleteAsync(['dist', targetpaths.target]);
 }
 
 // clean-firefox
