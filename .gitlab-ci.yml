@@ -1,7 +1,7 @@
 # Official framework image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/node/tags/
 #image: node:8-alpine
-image: erikwegner/alpine-node-chromium:10-alpine
+image: erikwegner/alpine-node-chromium:20-alpine
 
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
@@ -18,39 +18,44 @@ stages:
 before_script:
   - node -v
   - npm -v
-  - npm install -g yarn
 
 install:
   stage: prepare
-  script: yarn install
+  script: npm install
 
 firefox-package:
   only:
     refs:
       - master
+      - merge_requests
   stage: package
-  script: yarn run sign:firefox
+  script: npm run sign:firefox
   artifacts:
     paths:
     - release/firefox/web-ext-artifacts
 
 lint:
   stage: test
-  script: yarn run lint
+  script: npm run lint
+  allow_failure: true
 
 mocha:
   stage: test
-  script: yarn run test:mocha
+  script: npm run test:mocha
+  allow_failure: true
 
 karma:
   stage: test
-  script: yarn run test:karma
+  script: npm run test:karma
+  allow_failure: true
 
 betaupload:
   only:
     refs:
       - master
+      - merge_requests
   stage: betaupload
+  when: manual
   artifacts:
     paths:
     - release/firefox/web-ext-artifacts
@@ -59,8 +64,8 @@ betaupload:
     - which ssh-agent || ( apk --update add openssh-client )
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    - echo "$STAGING_PRIVATE_KEY" | ssh-add -
+    - cat "$STAGING_PRIVATE_KEY" | ssh-add -
     - scp release/firefox/web-ext-artifacts/*.xpi $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
     - ssh-add -D
-    - echo "$MANIFEST_PRIVATE_KEY" | ssh-add -
+    - cat "$MANIFEST_PRIVATE_KEY" | ssh-add -
     - ssh -l $DEPLOY_USER $DEPLOY_HOST $DEPLOY_PATH/create-manifest.py

@@ -2,8 +2,5 @@
   "compilerOptions": {
       "noImplicitAny": true,
       "removeComments": true
-  },
-  "awesomeTypescriptLoaderOptions": {
-      /* ... */
   }
 }
