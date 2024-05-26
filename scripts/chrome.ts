@@ -28,14 +28,6 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
       );
     });
   }
-
-  protected debug(_o: unknown) {
-    // no-op
-  }
-
-  protected log(_o: unknown) {
-    // no-op
-  }
 }
 
 init(new Chrome());

@@ -1,17 +1,30 @@
 'use strict';
 import gulp from 'gulp';
-import ts from 'gulp-typescript';
 import { deleteAsync } from 'del';
 import bump from 'gulp-bump';
 import fs from 'fs';
 import semver from 'semver';
+import gulpEsbuild from 'gulp-esbuild';
 
-const tsProject = ts.createProject('tsconfig.json');
+const { src, dest } = gulp;
+
+let entryTSFile = '';
+let outputFile = '';
 let targetpaths = { otherfiles: [] };
 
 // ts-script
 function compileTS() {
-  return tsProject.src().pipe(tsProject()).js.pipe(gulp.dest('dist'));
+  return src(entryTSFile)
+    .pipe(
+      gulpEsbuild({
+        outfile: outputFile,
+        bundle: true,
+        loader: {
+          '.tsx': 'tsx',
+        },
+      }),
+    )
+    .pipe(dest('dist'));
 }
 
 function copyTS() {
@@ -22,6 +35,8 @@ function copyTS() {
 
 // firefox-setpaths
 function prepareFirefox(cb) {
+  entryTSFile = 'scripts/firefox.ts';
+  outputFile = 'firefox.js';
   targetpaths.target = 'release/firefox';
   targetpaths.icons = targetpaths.target + '/icons';
   targetpaths.html = targetpaths.target + '/html';
@@ -32,6 +47,8 @@ function prepareFirefox(cb) {
 
 // chrome-setpaths
 function prepareChrome(cb) {
+  entryTSFile = 'scripts/chrome.ts';
+  outputFile = 'chrome.js';
   targetpaths.target = 'release/chrome';
   targetpaths.icons = targetpaths.target + '/icons';
   targetpaths.html = targetpaths.target + '/html';
