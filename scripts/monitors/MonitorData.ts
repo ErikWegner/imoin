@@ -64,18 +64,6 @@ export class Host {
   public addService(service: Service) {
     this.services.push(service);
   }
-
-  // TODO: remove
-  public filterClone(copyServices: boolean): Host {
-    const r = new Host(this.name);
-    r.status = this.status;
-    r.hasBeenAcknowledged = this.hasBeenAcknowledged;
-    r.appearsInShortlist = this.appearsInShortlist;
-    if (copyServices) {
-      this.services.forEach((s) => r.addService(s), r);
-    }
-    return r;
-  }
 }
 
 /* This class must be serializable */
@@ -90,9 +78,9 @@ export class MonitorData {
     };
 
     return `${indate.getFullYear()}-${s00(indate.getMonth() + 1)}-${s00(
-      indate.getDate()
+      indate.getDate(),
     )} ${s00(indate.getHours())}:${s00(indate.getMinutes())}:${s00(
-      indate.getSeconds()
+      indate.getSeconds(),
     )}`;
   }
 
@@ -198,7 +186,7 @@ export class MonitorData {
     this.serviceok = this.hosts
       .map(
         (host) =>
-          host.services.filter((service) => service.getState() === 'OK').length
+          host.services.filter((service) => service.getState() === 'OK').length,
       )
       .reduce((acc, val) => (acc += val), 0);
 
@@ -206,7 +194,7 @@ export class MonitorData {
       .map(
         (host) =>
           host.services.filter((service) => service.getState() === 'WARNING')
-            .length
+            .length,
       )
       .reduce((acc, val) => (acc += val), 0);
     this.serviceerrors =
@@ -250,7 +238,7 @@ export class MonitorData {
       this.filteredServicewarnings;
 
     this.filteredHosterrors = filteredHosts.filter(
-      (fhost) => fhost.getHost().getState() !== 'UP'
+      (fhost) => fhost.getHost().getState() !== 'UP',
     ).length;
     this.filteredHostup = this.totalhosts - this.filteredHosterrors;
   }

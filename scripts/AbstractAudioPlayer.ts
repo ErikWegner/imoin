@@ -19,7 +19,7 @@ export class AbstractAudioPlayer {
   }
 
   constructor() {
-    if (!chrome) {
+    if (typeof Audio !== 'undefined') {
       this.audioPlayer = new Audio();
     } else {
       this.audioPlayer = null;
