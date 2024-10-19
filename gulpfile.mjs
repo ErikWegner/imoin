@@ -72,6 +72,10 @@ function copyManifest() {
     .pipe(gulp.dest(targetpaths.target));
 }
 
+function copyChromeJs() {
+  return gulp.src('dist/chrome.js').pipe(gulp.dest(targetpaths.target));
+}
+
 export const firefox = gulp.series(
   prepareFirefox,
   gulp.series(copyIcons, copyHtml, compileTS, copyTS, copyManifest),
@@ -79,7 +83,14 @@ export const firefox = gulp.series(
 
 export const chrome = gulp.series(
   prepareChrome,
-  gulp.series(copyIcons, copyHtml, compileTS, copyTS, copyManifest),
+  gulp.series(
+    copyIcons,
+    copyHtml,
+    compileTS,
+    copyTS,
+    copyManifest,
+    copyChromeJs,
+  ),
 );
 
 function watchTS() {
