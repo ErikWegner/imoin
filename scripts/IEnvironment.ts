@@ -13,22 +13,22 @@ export interface IEnvironment {
    */
   initTimer(index: number, delay: number, callback: () => void): void;
 
-  /* Disable the timer */
+  /** Disable the timer */
   stopTimer(index: number): void;
 
-  /* Execute the callback when the settings have changed */
+  /** Execute the callback when the settings have changed */
   onSettingsChanged(callback: () => void): void;
 
-  /* Get the settigs from the storage */
+  /** Get the settigs from the storage */
   loadSettings(): Promise<Settings>;
 
-  /* Update the UI to reflect the updated status data */
+  /** Update the UI to reflect the updated status data */
   displayStatus(index: number, data: MonitorData): void;
 
-  /* Load a resource */
+  /** Load a resource */
   load(url: string, username: string, password: string): Promise<string>;
 
-  /* Send a post request */
+  /** Send a post request */
   post(
     url: string,
     data: unknown,
@@ -36,11 +36,15 @@ export interface IEnvironment {
     password: string,
   ): Promise<string>;
 
-  /* UICommand for the monitor instance */
+  /** UICommand for the monitor instance */
   onUICommand(index: number, callback: (param: UICommand) => void): void;
 
-  /* Register a monitor instance */
+  /** Register a monitor instance */
   registerMonitorInstance(index: number, monitor: IPanelMonitorData): void;
 
+  /** Called once after install or browser restarts */
   onStartup(handler: () => void): void;
+
+  /** Called after reactivating the environment from inactivity */
+  registerAlarmHandler(): void;
 }

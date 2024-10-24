@@ -144,6 +144,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
     callback: () => void,
   ): void;
   public abstract stopTimer(index: number): void;
+  public abstract registerAlarmHandler(): void;
 
   public registerMonitorInstance(index: number, monitor: IPanelMonitorData) {
     this.panelMonitorData[index] = monitor;

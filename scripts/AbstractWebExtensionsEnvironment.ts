@@ -132,6 +132,13 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     this.removeAlarm(index);
   }
 
+  public registerAlarmHandler() {
+    this.log('Registering alarm handler');
+    this.host.alarms.onAlarm.addListener((alarm) => {
+      this.log('Alarm received:', alarm.name);
+    });
+  }
+
   public audioNotification(status: Status, isNew: boolean): void {
     // Build the key
     const soundid = AbstractWebExtensionsEnvironment.buildSoundId(

@@ -45,6 +45,9 @@ export function init(environment: IEnvironment) {
   const log = (message: string) => {
     void environment.post('http://localhost:3000/log', { message }, '', '');
   };
+  log('init');
+  environment.registerAlarmHandler();
+
   function start() {
     log('start');
     let monitor: IMonitor | undefined;
