@@ -2,7 +2,7 @@
 import gulp from 'gulp';
 import { deleteAsync } from 'del';
 import bump from 'gulp-bump';
-import fs from 'fs';
+import fs from 'node:fs';
 import semver from 'semver';
 import gulpEsbuild from 'gulp-esbuild';
 

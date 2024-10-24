@@ -20,7 +20,7 @@ import { ImoinMonitorInstance } from './Settings.js';
 export function resolveMonitor(
   environment: IEnvironment,
   instance: ImoinMonitorInstance,
-  index: number
+  index: number,
 ): IMonitor | undefined {
   if (instance.icingaversion === 'api1') {
     return new IcingaApi(environment, instance, index);
@@ -42,12 +42,17 @@ export function resolveMonitor(
 const monitors: IMonitor[] = [];
 
 export function init(environment: IEnvironment) {
+  const log = (message: string) => {
+    void environment.post('http://localhost:3000/log', { message }, '', '');
+  };
   function start() {
     let monitor: IMonitor | undefined;
     while ((monitor = monitors.pop())) {
+      log('shutdown monitor');
       monitor.shutdown();
     }
 
+    log('loading settings');
     void environment.loadSettings().then((settings) => {
       settings.instances.forEach((instance, index) => {
         environment.registerMonitorInstance(index, {
@@ -55,6 +60,7 @@ export function init(environment: IEnvironment) {
         });
         monitor = resolveMonitor(environment, instance, index);
         if (monitor != null) {
+          log('start monitor');
           monitor.startTimer();
           monitors.push(monitor);
         }
@@ -62,6 +68,8 @@ export function init(environment: IEnvironment) {
     });
   }
 
+  log('start');
   start();
+  log('start done');
   environment.onSettingsChanged(start);
 }

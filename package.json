@@ -80,7 +80,7 @@
     "semver": "^7.5.4",
     "sinon": "^17.0.1",
     "ts-mocha": "^10.0.0",
-    "typescript": "^5.2.2",
+    "typescript": "^5.6.3",
     "web-ext": "^7.8.0"
   }
 }

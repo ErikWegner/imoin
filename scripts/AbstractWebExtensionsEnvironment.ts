@@ -61,7 +61,11 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
   protected portFromPanel: Port | null = null;
   protected abstract host: WebExtensionBrowser;
-  protected abstract console: Console;
+  protected abstract console: {
+    log: (...args: unknown[]) => void;
+    error: (...args: unknown[]) => void;
+    debug: (...args: unknown[]) => void;
+  };
   protected settings: Settings = new Settings();
 
   private alarmListenerRegistered = false;
@@ -233,16 +237,16 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
     this.removeHostAlarm(alarmName);
   }
 
-  protected debug(o: unknown) {
-    this.console.debug(o);
+  protected debug(...o: unknown[]) {
+    this.console.debug(...o);
   }
 
-  protected log(o: unknown) {
-    this.console.log(o);
+  protected log(...o: unknown[]) {
+    this.console.log(...o);
   }
 
-  protected error(o: unknown) {
-    this.console.error(o);
+  protected error(...o: unknown[]) {
+    this.console.error(...o);
   }
 
   protected openWebPage(url: string) {
