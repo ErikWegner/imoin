@@ -6,11 +6,13 @@ import { Settings } from './Settings.js';
 import { UICommand } from './UICommand.js';
 
 export abstract class AbstractEnvironment implements IEnvironment {
+  abstract onStartup(handler: () => void): void;
+
   public static mergeResultsFromAllInstances(buffers: {
     [index: number]: MonitorData;
   }): PanelMonitorData {
     const sources = Object.keys(buffers).map(
-      (key) => buffers[parseInt(key, 10)]
+      (key) => buffers[parseInt(key, 10)],
     );
 
     if (sources.length === 0) {
@@ -37,7 +39,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
   }
 
   protected static prepareIconAndBadgetext(
-    data: MonitorData
+    data: MonitorData,
   ): IconAndBadgetext {
     let path = '';
     let badgeText = '';
@@ -55,11 +57,10 @@ export abstract class AbstractEnvironment implements IEnvironment {
         break;
       case Status.RED:
         path = 'err';
-        badgeText = `${
-          data.filteredHosterrors +
+        badgeText = `${data.filteredHosterrors +
           data.filteredServicewarnings +
           data.filteredServiceerrors
-        }`;
+          }`;
         badgeColor = '#b25425';
         break;
     }
@@ -83,7 +84,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
       | 'serviceerrors'
       | 'servicewarnings'
       | 'serviceok'
-      | 'hostup'
+      | 'hostup',
   ): number {
     return sources
       .map((monitorData) => monitorData[field])
@@ -101,16 +102,16 @@ export abstract class AbstractEnvironment implements IEnvironment {
   }
 
   private static mergeMessagesFromAllInstances(
-    sources: MonitorData[]
+    sources: MonitorData[],
   ): string[] {
     return sources
       .filter(
         (monitorData) =>
-          typeof monitorData.message === 'string' && monitorData.message !== ''
+          typeof monitorData.message === 'string' && monitorData.message !== '',
       )
       .map(
         (monitorData) =>
-          `(${monitorData.instanceLabel ?? '∞'}) ${monitorData.getMessage()}`
+          `(${monitorData.instanceLabel ?? '∞'}) ${monitorData.getMessage()}`,
       );
   }
 
@@ -128,19 +129,19 @@ export abstract class AbstractEnvironment implements IEnvironment {
   public abstract load(
     url: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<string>;
   public abstract post(
     url: string,
     data: unknown,
     username: string,
-    password: string
+    password: string,
   ): Promise<string>;
   public abstract loadSettings(): Promise<Settings>;
   public abstract initTimer(
     index: number,
     delay: number,
-    callback: () => void
+    callback: () => void,
   ): void;
   public abstract stopTimer(index: number): void;
 
@@ -154,7 +155,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
   public onUICommand(
     index: number,
-    callback: (param: UICommand) => void
+    callback: (param: UICommand) => void,
   ): void {
     this.onUICommandCallbacks[index] = callback;
   }
@@ -164,7 +165,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
     this.dataBuffers[index] = data;
     this.panelMonitorData[index].updatetime = data.updatetime;
     this.dataBuffer = AbstractEnvironment.mergeResultsFromAllInstances(
-      this.dataBuffers
+      this.dataBuffers,
     );
     this.dataBuffer.instances = this.panelMonitorData;
     this.updateIconAndBadgetext();
@@ -228,7 +229,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
   protected handleMessage(
     request?: UICommand,
     _sender?: unknown,
-    _sendResponse?: (message: unknown) => void
+    _sendResponse?: (message: unknown) => void,
   ) {
     const command = request?.command || '';
 

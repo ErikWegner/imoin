@@ -48,11 +48,14 @@ interface Runtime {
   onConnect: RuntimeEvent<Port>;
   connect(
     extensionId?: string,
-    connectInfo?: { name?: string; includeTlsChannelId?: boolean }
+    connectInfo?: { name?: string; includeTlsChannelId?: boolean },
   ): Port;
   openOptionsPage(): void;
   getURL(url: string): string;
   getBackgroundPage(): Window;
+  onStartup: {
+    addListener(callback: () => void): void;
+  };
 }
 
 interface InstalledEventDetails {
@@ -71,8 +74,8 @@ interface RuntimeEvent<T> {
     callback: (
       message: T,
       sender?: unknown,
-      sendResponse?: (response: unknown) => void
-    ) => void
+      sendResponse?: (response: unknown) => void,
+    ) => void,
   ): void;
   removeListener(callback: () => void): void;
 }
@@ -91,7 +94,7 @@ interface StorageArea {
   get(keys: string | string[]): Promise<Record<string, unknown>>;
   get(
     keys: string | string[],
-    callback: (items: Record<string, unknown>) => void
+    callback: (items: Record<string, unknown>) => void,
   ): void;
   set(data: object): Promise<void>;
 }

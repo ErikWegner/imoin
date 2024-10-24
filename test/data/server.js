@@ -11,7 +11,6 @@ app.post('/log', express.json(), (req, res) => {
   console.log('Received log entry:', logEntry);
   fs.appendFile('logs.txt', logEntry, (err) => {
     if (err) throw err;
-    console.log('Log entry saved!');
   });
   res.json({ status: 'success' }).end();
 });

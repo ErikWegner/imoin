@@ -33,7 +33,7 @@ export interface IEnvironment {
     url: string,
     data: unknown,
     username: string,
-    password: string
+    password: string,
   ): Promise<string>;
 
   /* UICommand for the monitor instance */
@@ -41,4 +41,6 @@ export interface IEnvironment {
 
   /* Register a monitor instance */
   registerMonitorInstance(index: number, monitor: IPanelMonitorData): void;
+
+  onStartup(handler: () => void): void;
 }

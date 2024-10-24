@@ -46,6 +46,7 @@ export function init(environment: IEnvironment) {
     void environment.post('http://localhost:3000/log', { message }, '', '');
   };
   function start() {
+    log('start');
     let monitor: IMonitor | undefined;
     while ((monitor = monitors.pop())) {
       log('shutdown monitor');
@@ -66,10 +67,9 @@ export function init(environment: IEnvironment) {
         }
       });
     });
+    log('start done');
   }
 
-  log('start');
-  start();
-  log('start done');
+  environment.onStartup(() => start());
   environment.onSettingsChanged(start);
 }

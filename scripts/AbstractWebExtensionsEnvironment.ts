@@ -12,6 +12,9 @@ import { ImoinMonitorInstance, Settings, Sound } from './Settings.js';
  * A common implementation
  */
 export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironment {
+  public onStartup(handler: () => void): void {
+    this.host.runtime.onStartup.addListener(() => handler());
+  }
   /**
    * Build the id to lookup the sound settings
    * @param status The overall status
