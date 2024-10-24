@@ -10,6 +10,18 @@ export enum Status {
   RED,
 }
 
+export interface SerializedService {
+  n: string;
+  r: string | undefined;
+  vl: string | undefined;
+  ack: boolean;
+  nd: boolean;
+  cd: boolean;
+  soft: boolean;
+  dt: boolean;
+  sl: boolean;
+}
+
 export class Service {
   public host?: string;
   public checkresult?: string;
@@ -33,6 +45,35 @@ export class Service {
   public getState() {
     return this.status;
   }
+
+  public toObj(): SerializedService {
+    return {
+      n: this.name,
+      r: this.checkresult,
+      vl: this.servicelink,
+      ack: this.hasBeenAcknowledged,
+      nd: this.notificationsDisabled,
+      cd: this.checksDisabled,
+      soft: this.isInSoftState,
+      dt: this.isInDowntime,
+      sl: this.appearsInShortlist,
+    };
+  }
+}
+
+export interface SerializedHost<T extends Partial<SerializedService>> {
+  n: string;
+  s: string;
+  hl: string | undefined;
+  ack: boolean;
+  nd: boolean;
+  cd: boolean;
+  soft: boolean;
+  dt: boolean;
+  r: string | undefined;
+  ii: number | undefined;
+  sl: boolean;
+  srv: T[];
 }
 
 export class Host {
@@ -51,6 +92,23 @@ export class Host {
   private filteredStatus: HostState = 'DOWN';
 
   constructor(readonly name: string) {}
+
+  public toObj(): SerializedHost<SerializedService> {
+    return {
+      n: this.name,
+      s: this.getState(),
+      hl: this.hostlink,
+      ack: this.hasBeenAcknowledged,
+      nd: this.notificationsDisabled,
+      cd: this.checksDisabled,
+      soft: this.isInSoftState,
+      dt: this.isInDowntime,
+      r: this.checkresult,
+      ii: this.instanceindex,
+      sl: this.appearsInShortlist,
+      srv: this.services.map((service) => service.toObj()),
+    };
+  }
 
   public setState(state: HostState) {
     this.status = state;
@@ -104,6 +162,10 @@ export class MonitorData {
   public filteredServiceok = 0;
   public filteredServicewarnings = 0;
   public filteredServiceerrors = 0;
+
+  public serialize(): SerializedHost<SerializedService>[] {
+    return this.hosts.map((host) => host.toObj());
+  }
 
   public setState(state: Status) {
     this.state = state;

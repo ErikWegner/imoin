@@ -91,7 +91,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
       .reduce((acc, val) => acc + val);
   }
 
-  private static createUpdatePendingResult(): PanelMonitorData {
+  protected static createUpdatePendingResult(): PanelMonitorData {
     const r = new PanelMonitorData();
     r.setState(Status.RED);
     r.setMessage('Update pending');
@@ -169,6 +169,12 @@ export abstract class AbstractEnvironment implements IEnvironment {
       this.dataBuffers,
     );
     this.dataBuffer.instances = this.panelMonitorData;
+    void this.saveData();
+    this.handleNewData();
+  }
+
+  protected handleNewData() {
+    this.debug('handleNewData');
     this.updateIconAndBadgetext();
     this.trySendDataToPopup();
     this.detectStateTransition(this.dataBuffer.getFilteredState());
@@ -182,6 +188,8 @@ export abstract class AbstractEnvironment implements IEnvironment {
   protected abstract debug(o: unknown): void;
   protected abstract log(o: unknown): void;
   protected abstract error(o: unknown): void;
+  protected abstract saveData(): Promise<void>;
+  protected abstract readData(): Promise<void>;
 
   /**
    * Play a notification sound
