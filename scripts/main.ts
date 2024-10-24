@@ -46,17 +46,22 @@ export function init(environment: IEnvironment) {
     void environment.post('http://localhost:3000/log', { message }, '', '');
   };
   log('init');
-  environment.registerAlarmHandler();
 
-  function start() {
-    log('start');
+  function restart() {
+    log('restart');
     let monitor: IMonitor | undefined;
     while ((monitor = monitors.pop())) {
       log('shutdown monitor');
       monitor.shutdown();
     }
 
+    start();
+  }
+
+  function start() {
+    log('start');
     log('loading settings');
+    let monitor: IMonitor | undefined;
     void environment.loadSettings().then((settings) => {
       settings.instances.forEach((instance, index) => {
         environment.registerMonitorInstance(index, {
@@ -73,6 +78,7 @@ export function init(environment: IEnvironment) {
     log('start done');
   }
 
-  environment.onStartup(() => start());
-  environment.onSettingsChanged(start);
+  start();
+  environment.registerAlarmHandler();
+  environment.onSettingsChanged(restart);
 }
