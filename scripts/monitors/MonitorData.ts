@@ -12,6 +12,7 @@ export enum Status {
 
 export interface SerializedService {
   n: string;
+  s: string;
   r: string | undefined;
   vl: string | undefined;
   ack: boolean;
@@ -35,7 +36,7 @@ export class Service {
   private status: ServiceState = 'CRITICAL';
   private filteredStatus: ServiceState = 'CRITICAL';
 
-  constructor(readonly name: string) {}
+  constructor(readonly name: string) { }
 
   public setState(value: ServiceState) {
     this.status = value;
@@ -49,6 +50,7 @@ export class Service {
   public toObj(): SerializedService {
     return {
       n: this.name,
+      s: this.getState(),
       r: this.checkresult,
       vl: this.servicelink,
       ack: this.hasBeenAcknowledged,
@@ -91,7 +93,7 @@ export class Host {
   private status: HostState = 'DOWN';
   private filteredStatus: HostState = 'DOWN';
 
-  constructor(readonly name: string) {}
+  constructor(readonly name: string) { }
 
   public toObj(): SerializedHost<SerializedService> {
     return {

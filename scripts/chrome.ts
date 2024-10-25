@@ -39,6 +39,7 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
       return;
     }
 
+    const tmp = AbstractWebExtensionsEnvironment.createUpdatePendingResult();
     savedData.forEach((hostdata) => {
       const h = new Host(hostdata.n ?? '<empty>');
       h.setState(hostdata.s === 'UP' ? 'UP' : 'DOWN');
@@ -54,6 +55,13 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
       (hostdata.srv ?? []).forEach((serviceData) => {
         const s = new Service(serviceData.n ?? '<empty>');
+        s.setState(
+          serviceData.s === 'OK'
+            ? 'OK'
+            : serviceData.s === 'WARNING'
+              ? 'WARNING'
+              : 'CRITICAL',
+        );
         s.host = h.name;
         s.checkresult = serviceData.r;
         s.servicelink = serviceData.vl;
@@ -66,12 +74,14 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
         h.services.push(s);
       });
-
-      this.dataBuffer.addHost(h);
+      tmp.updateCounters();
+      tmp.addHost(h);
     });
+    this.dataBuffer.addCountersAndMergeState(tmp);
   }
 
   private remoteLog = (level: string, ...args: unknown[]) => {
+    return;
     void this.post(
       'http://localhost:3000/log',
       {

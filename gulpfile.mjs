@@ -28,9 +28,7 @@ function compileTS() {
 }
 
 function copyTS() {
-  return gulp
-    .src(['dist/scripts/**/*.js'])
-    .pipe(gulp.dest(targetpaths.target + '/'));
+  return gulp.src(['dist/**/*.js']).pipe(gulp.dest(targetpaths.target + '/'));
 }
 
 // firefox-setpaths
