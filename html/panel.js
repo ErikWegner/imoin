@@ -31,7 +31,9 @@ if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
     });
 
     postPanelMessage = function(data) {
-        myPort.postMessage(data);
+        if (myPort) {
+            myPort.postMessage(data);
+        }
     }
 } else if (typeof self === 'object' && typeof self.addEventListener === 'function') {
     // Electron
@@ -232,6 +234,7 @@ function registerMainEventHandlers() {
 
     registerEventHanderForClass(triggerRefresh, 'refresh');
     registerEventHanderForClass(triggerShowOptions, 'options');
+    registerEventHanderForClass(triggerShowOptions, 'supporter');
     registerDetailsEventHandlers();
 }
 
@@ -361,6 +364,11 @@ function renderMainTemplate(statusdata) {
     img.setAttribute('style', 'width: auto; height: 14px;');
     img.setAttribute('src', './gear.svg');
     img.setAttribute('title', 'Options');
+
+    p.appendChild(a = document.createElement('span'));
+    a.setAttribute('class', 'supporter');
+    a.appendChild(document.createTextNode("Become a supporter"));
+
     if (statusdata.hostgroupinfo !== null && statusdata.hostgroupinfo !== '') p.appendChild(document.createTextNode(' ' + statusdata.hostgroupinfo));
 
     r.appendChild(div1 = document.createElement('div'));
