@@ -21,6 +21,7 @@ interface Alarms {
   onAlarm: RuntimeEvent<AlarmEvent>;
   create(name: string, alarmInfo: AlarmInfo): void;
   clear(name: string): void;
+  get(name: string): Promise<unknown>;
 }
 
 interface AlarmInfo {

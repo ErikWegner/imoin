@@ -110,6 +110,7 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
   constructor() {
     super();
+    this.debug('Initializing Chrome extension');
     chrome.runtime.onConnect.addListener(this.connected.bind(this));
     void (async () => {
       await this.readData();
@@ -128,6 +129,22 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
         },
       );
     });
+  }
+
+  protected override createHostAlarm(alarmName: string, delay: number) {
+    void (async () => {
+      const alarm = await this.host.alarms.get(alarmName);
+      if (!alarm) {
+        this.debug('Adding alarm ' + alarmName);
+        this.host.alarms.create(alarmName, {
+          periodInMinutes: delay,
+        });
+      } else {
+        this.debug('Alarm already exists ' + alarmName);
+      }
+    })();
+
+    this.registerAlarmHandler();
   }
 }
 

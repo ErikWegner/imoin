@@ -134,9 +134,14 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
 
   public registerAlarmHandler() {
     this.log('Registering alarm handler');
-    this.host.alarms.onAlarm.addListener((alarm) => {
-      this.log('Alarm received:', alarm.name);
-    });
+    if (!this.alarmListenerRegistered) {
+      this.debug('Adding alarm listener');
+      this.alarmListenerRegistered = true;
+      this.host.alarms.onAlarm.addListener((alarm) => {
+        this.log('Alarm received:', alarm.name);
+        this.handleAlarm(alarm);
+      });
+    }
   }
 
   public audioNotification(status: Status, isNew: boolean): void {
@@ -222,11 +227,7 @@ export abstract class AbstractWebExtensionsEnvironment extends AbstractEnvironme
       periodInMinutes: delay,
     });
 
-    this.debug('Adding alarm listener');
-    if (!this.alarmListenerRegistered) {
-      this.alarmListenerRegistered = true;
-      this.host.alarms.onAlarm.addListener(this.handleAlarm.bind(this));
-    }
+    this.registerAlarmHandler();
   }
 
   protected removeHostAlarm(alarmName: string) {
