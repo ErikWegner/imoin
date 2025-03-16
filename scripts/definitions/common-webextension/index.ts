@@ -13,7 +13,7 @@ interface WindowsCreateOptions {
   url?: string;
 }
 
-interface AlarmEvent {
+export interface AlarmEvent {
   name: string;
 }
 
