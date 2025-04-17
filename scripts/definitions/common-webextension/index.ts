@@ -19,7 +19,7 @@ export interface AlarmEvent {
 
 interface Alarms {
   onAlarm: RuntimeEvent<AlarmEvent>;
-  create(name: string, alarmInfo: AlarmInfo): void;
+  create(name: string, alarmInfo: AlarmInfo): Promise<void>;
   clear(name: string): void;
   get(name: string): Promise<unknown>;
 }

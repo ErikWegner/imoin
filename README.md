@@ -1,5 +1,4 @@
-Imoin
-=====
+# Imoin
 
 This is a browser add-on that monitors your Nagios or Icinga instance.
 
@@ -9,19 +8,17 @@ Homepage is at https://imoin.qwirl.eu
 
 Use one of these browsers:
 
-* Firefox 48 or greater
-* Chrome (current stable)
+- Firefox 48 or greater
+- Chrome (current stable)
 
-Supported versions:
--------------------
+## Supported versions:
 
-* Icinga 2
-* Nagios Core 4.0.7+
-* Icinga 1 (deprecated)
-* Nagios 3+ (deprecated)
+- Icinga 2
+- Nagios Core 4.0.7+
+- Icinga 1 (deprecated)
+- Nagios 3+ (deprecated)
 
-Done
-====
+# Done
 
 ☑ Basic add-on for Firefox/Chrome  
 ☑ Regularly check the status  
@@ -33,12 +30,16 @@ Done
 ☑ Reschedule next host check  
 ☑ Support for Nagios Core 4.0.7 and later  
 ☑ Support multiple instances  
-☑ Play configurable sounds on events  
+☑ Play configurable sounds on events
 
-To do
-=====
+# To do
 
 ☐ Provide links to the monitoring instance (e.g. clicking on a service name opens that service on the icinga instance)  
 ☐ Filter by a hostgroup  
 ☐ Filter by hostgroup, contact, (...?), on the fly  
-☐ Localization  
+☐ Localization
+
+# API reference
+
+- https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions
+- https://developer.chrome.com/docs/extensions/reference/api

@@ -1,4 +1,5 @@
 import chrome from './definitions/chrome-webextension';
+import { V3Environment } from './IEnvironment';
 import { Imoin } from './imoin';
 import { Logger } from './logger';
 
@@ -29,7 +30,20 @@ class RemoteLog implements Logger {
   }
 }
 
-const imoin = new Imoin(new RemoteLog());
+class V3Host implements V3Environment {
+  constructor(/** The logger */ private l: Logger) { }
+
+  createAlarm(alarmName: string, periodMinutes: number): Promise<void> {
+    this.l.debug('Create alarm', alarmName, periodMinutes);
+    return chrome.alarms.create(alarmName, {
+      periodInMinutes: periodMinutes,
+    });
+  }
+}
+
+const logging = new RemoteLog();
+const hostEnvironment = new V3Host(logging);
+const imoin = new Imoin(logging, hostEnvironment);
 
 chrome.runtime.onInstalled.addListener(() => {
   imoin.installedEvent();
