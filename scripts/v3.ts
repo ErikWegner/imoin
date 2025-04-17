@@ -45,10 +45,17 @@ const logging = new RemoteLog();
 const hostEnvironment = new V3Host(logging);
 const imoin = new Imoin(logging, hostEnvironment);
 
-chrome.runtime.onInstalled.addListener(() => {
-  imoin.installedEvent();
+chrome.runtime.onInstalled.addListener((details) => {
+  imoin.installedEvent(details);
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   imoin.alarmEvent(alarm);
 });
+
+async function restartCheck() {
+  const hasAlarms = (await chrome.alarms.getAll()).length > 0;
+  imoin.activatedEvent(hasAlarms);
+}
+
+void restartCheck();

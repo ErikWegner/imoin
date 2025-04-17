@@ -22,6 +22,7 @@ interface Alarms {
   create(name: string, alarmInfo: AlarmInfo): Promise<void>;
   clear(name: string): void;
   get(name: string): Promise<unknown>;
+  getAll(): Promise<AlarmInfo[]>;
 }
 
 interface AlarmInfo {
@@ -59,10 +60,17 @@ interface Runtime {
   };
 }
 
-interface InstalledEventDetails {
+export type OnInstalledReason =
+  | 'install'
+  | 'update'
+  | 'chrome_update'
+  | 'browser_update'
+  | 'shared_module_update';
+
+export interface InstalledEventDetails {
   id?: string;
   previousVersion?: string;
-  reason: string;
+  reason: OnInstalledReason;
   temporary: boolean;
 }
 
@@ -88,6 +96,7 @@ export interface Port {
 }
 
 interface BrowserStorage {
+  session: StorageArea;
   local: StorageArea;
 }
 
