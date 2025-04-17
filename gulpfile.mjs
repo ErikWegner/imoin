@@ -45,7 +45,7 @@ function prepareFirefox(cb) {
 
 // chrome-setpaths
 function prepareChrome(cb) {
-  entryTSFile = 'scripts/chrome.ts';
+  entryTSFile = 'scripts/v3.ts';
   outputFile = 'chrome.js';
   targetpaths.target = 'release/chrome';
   targetpaths.icons = targetpaths.target + '/icons';

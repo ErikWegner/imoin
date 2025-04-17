@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "imoin",
-  "version": "27.0.0",
+  "version": "28.0.0",
   "description": "Monitor your icinga or nagios instance.",
   "author": "Erik Wegner",
   "homepage_url": "https://imoin.qwirl.eu/",
@@ -25,12 +25,6 @@
     "page": "html/options.html",
     "open_in_tab": true
   },
-  "permissions": [
-    "alarms",
-    "storage"
-  ],
-  "host_permissions": [
-    "https://*/",
-    "http://*/"
-  ]
+  "permissions": ["alarms", "storage"],
+  "host_permissions": ["https://*/", "http://*/"]
 }
