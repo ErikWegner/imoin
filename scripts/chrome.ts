@@ -9,6 +9,20 @@ import {
 } from './monitors/MonitorData.js';
 import { Settings } from './Settings.js';
 
+const remoteLog = (level: string, ...args: unknown[]) => {
+  void fetch('http://localhost:3000/log', {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: JSON.stringify({
+      message: args.join(' '),
+      level,
+    }),
+  });
+};
+
+
 /**
  * Implementation for Chrome
  */
@@ -29,7 +43,6 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
     };
     this.dataBuffer =
       AbstractWebExtensionsEnvironment.createUpdatePendingResult();
-    // const savedData = new Array(...(data?.imoin ?? []));
     const savedData = data?.imoin;
     if (
       !savedData ||
@@ -38,6 +51,8 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
     ) {
       return;
     }
+
+    this.debug('Restoring saved data');
 
     savedData.forEach((hostdata) => {
       const h = new Host(hostdata.n ?? '<empty>');
@@ -71,38 +86,29 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
     });
   }
 
-  private remoteLog = (level: string, ...args: unknown[]) => {
-    void this.post(
-      'http://localhost:3000/log',
-      {
-        message: args.join(' '),
-        level,
-      },
-      '',
-      '',
-    );
-  };
-
   protected console = {
     log: (...args: unknown[]) => {
       console.log(...args);
-      this.remoteLog('info', ...args);
+      remoteLog('info', ...args);
     },
     error: (...args: unknown[]) => {
       console.error(...args);
-      this.remoteLog('error', ...args);
+      remoteLog('error', ...args);
     },
     debug: (...args: unknown[]) => {
       console.debug(...args);
-      this.remoteLog('debug', ...args);
+      remoteLog('debug', ...args);
     },
   };
 
   constructor() {
     super();
-    chrome.runtime.onConnect.addListener(this.connected.bind(this));
+      remoteLog('debug', 'Initializing Chrome environment');
+    chrome.runtime.onConnect.addListener((port) => this.connected(port));
     void (async () => {
+      remoteLog('debug', 'Read data (constructor)');
       await this.readData();
+      remoteLog('debug', 'Handle new data (constructor)');
       this.handleNewData();
     })();
   }

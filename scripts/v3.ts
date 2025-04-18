@@ -26,6 +26,12 @@ class ChromeEnvironment extends V3Environment {
     this.host.alarms.onAlarm.addListener((alarm) => {
       this.handleAlarm(alarm);
     });
+    this.host.runtime.onConnect.addListener((port) => {
+      remoteLog('debug', 'Received connection:', port);
+      port.onMessage.addListener((message) => {
+        remoteLog('debug', 'Received message:', message);
+      });
+    });
   }
 
   handleAlarm(_alarm: AlarmEvent) {
@@ -36,6 +42,8 @@ class ChromeEnvironment extends V3Environment {
     chrome.runtime.openOptionsPage();
   }
 }
+
+// RemoteLog from popup message handler
 
 remoteLog('debug', 'Initializing Chrome environment...');
 const chromeEnvironment = new ChromeEnvironment();

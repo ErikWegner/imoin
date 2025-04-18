@@ -46,6 +46,7 @@ interface Tabs {
 interface Runtime {
   onInstalled: InstalledEvent;
   onConnect: RuntimeEvent<Port>;
+  onMessage: RuntimeEvent<never>;
   connect(
     extensionId?: string,
     connectInfo?: { name?: string; includeTlsChannelId?: boolean },
