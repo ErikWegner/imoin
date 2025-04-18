@@ -54,6 +54,7 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
     this.debug('Restoring saved data');
 
+    const tmp = AbstractWebExtensionsEnvironment.createUpdatePendingResult();
     savedData.forEach((hostdata) => {
       const h = new Host(hostdata.n ?? '<empty>');
       h.setState(hostdata.s === 'UP' ? 'UP' : 'DOWN');
@@ -69,6 +70,13 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
       (hostdata.srv ?? []).forEach((serviceData) => {
         const s = new Service(serviceData.n ?? '<empty>');
+        s.setState(
+          serviceData.s === 'OK'
+            ? 'OK'
+            : serviceData.s === 'WARNING'
+              ? 'WARNING'
+              : 'CRITICAL',
+        );
         s.host = h.name;
         s.checkresult = serviceData.r;
         s.servicelink = serviceData.vl;
@@ -81,10 +89,24 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
         h.services.push(s);
       });
-
-      this.dataBuffer.addHost(h);
+      tmp.updateCounters();
+      tmp.addHost(h);
     });
+    this.dataBuffer.addCountersAndMergeState(tmp);
   }
+
+  private remoteLog = (level: string, ...args: unknown[]) => {
+    return;
+    void this.post(
+      'http://localhost:3000/log',
+      {
+        message: args.join(' '),
+        level,
+      },
+      '',
+      '',
+    );
+  };
 
   protected console = {
     log: (...args: unknown[]) => {
@@ -103,8 +125,8 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
 
   constructor() {
     super();
-      remoteLog('debug', 'Initializing Chrome environment');
-    chrome.runtime.onConnect.addListener((port) => this.connected(port));
+    this.debug('Initializing Chrome extension');
+    chrome.runtime.onConnect.addListener(this.connected.bind(this));
     void (async () => {
       remoteLog('debug', 'Read data (constructor)');
       await this.readData();
@@ -124,6 +146,22 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
         },
       );
     });
+  }
+
+  protected override createHostAlarm(alarmName: string, delay: number) {
+    void (async () => {
+      const alarm = await this.host.alarms.get(alarmName);
+      if (!alarm) {
+        this.debug('Adding alarm ' + alarmName);
+        this.host.alarms.create(alarmName, {
+          periodInMinutes: delay,
+        });
+      } else {
+        this.debug('Alarm already exists ' + alarmName);
+      }
+    })();
+
+    this.registerAlarmHandler();
   }
 }
 

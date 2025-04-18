@@ -23,8 +23,26 @@ if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
       showAndUpdatePanelContent(data);
     }
 
-    if (command === 'uisettings') {
-      setupUISettings(data);
+    // This script runs at the moment that the popup is displayed
+    const myPort = host.runtime.connect();
+    myPort.onMessage.addListener(function(message) {
+        var command = message.command || "";
+        var data = message.data || {};
+
+        if (command === 'ProcessStatusUpdate') {
+            showAndUpdatePanelContent(data);
+        }
+
+        if (command === 'uisettings') {
+            setupUISettings(data);
+        }
+
+    });
+
+    postPanelMessage = function(data) {
+        if (myPort) {
+            myPort.postMessage(data);
+        }
     }
   });
 
@@ -237,9 +255,10 @@ function registerMainEventHandlers() {
     }
   }
 
-  registerEventHanderForClass(triggerRefresh, 'refresh');
-  registerEventHanderForClass(triggerShowOptions, 'options');
-  registerDetailsEventHandlers();
+    registerEventHanderForClass(triggerRefresh, 'refresh');
+    registerEventHanderForClass(triggerShowOptions, 'options');
+    registerEventHanderForClass(triggerShowOptions, 'supporter');
+    registerDetailsEventHandlers();
 }
 
 function registerDetailsEventHandlers() {

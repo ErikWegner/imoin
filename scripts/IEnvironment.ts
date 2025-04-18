@@ -3,6 +3,13 @@ import { MonitorData } from './monitors/index.js';
 import { Settings } from './Settings.js';
 import { UICommand } from './UICommand.js';
 
+/** Interface for environment abstraction */
+export interface V3Environment {
+  /** Add another period alarm trigger */
+  createAlarm(alarmName: string, periodMinutes: number): Promise<void>;
+}
+
+/** @deprecated */
 export interface IEnvironment {
   /**
    * Execute the callback at every delay minutes

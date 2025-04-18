@@ -43,6 +43,7 @@ const monitors: IMonitor[] = [];
 
 export function init(environment: IEnvironment) {
   const log = (message: string) => {
+    return;
     void environment.post('http://localhost:3000/log', { message }, '', '');
   };
   log('init');

@@ -26,7 +26,7 @@ export abstract class AbstractMonitor implements IMonitor {
    */
   public static applyFilters(
     status: MonitorData,
-    filtersettings?: FilterSettings
+    filtersettings?: FilterSettings,
   ) {
     let result: FHost[] | null = status
       .getHosts()
@@ -72,7 +72,7 @@ export abstract class AbstractMonitor implements IMonitor {
   constructor(
     protected environment: IEnvironment,
     protected settings: ImoinMonitorInstance,
-    protected index: number
+    protected index: number,
   ) {
     this.environment.onUICommand(index, this.handleUICommand.bind(this));
   }
@@ -80,9 +80,10 @@ export abstract class AbstractMonitor implements IMonitor {
   public startTimer() {
     this.environment.initTimer(this.index, this.settings.timerPeriod, () => {
       void this.fetchStatus().then((status: MonitorData) => {
+        // Here: save
         const filteredHosts = AbstractMonitor.applyFilters(
           status,
-          this.settings.filtersettings
+          this.settings.filtersettings,
         );
         status.updateCounters(filteredHosts);
         status.instanceLabel = this.settings.instancelabel;

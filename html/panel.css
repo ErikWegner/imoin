@@ -206,7 +206,8 @@ tr.service td.OK {
 
 /* https://bugzilla.mozilla.org/show_bug.cgi?id=893113 */
 .options,
-.refresh {
+.refresh,
+.supporter {
     cursor: pointer;
 }
 
@@ -219,6 +220,14 @@ tr.service td.OK {
 .options {
     display: block;
     float: right;
+}
+
+.header .supporter {
+    color: #0d15ff;
+    text-decoration: underline;
+    display: block;
+    float: right;
+    margin-right: 1em;
 }
 
 .recheck {
