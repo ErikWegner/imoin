@@ -1,5 +1,8 @@
 import chrome from './definitions/chrome-webextension/index';
 import { AlarmEvent } from './definitions/common-webextension/index';
+import { V3Environment } from './IEnvironment';
+import { Imoin } from './imoin';
+import { RemoteLog } from './remotelogger';
 
 const remoteLog = (level: string, ...args: unknown[]) => {
   void fetch('http://localhost:3000/log', {
@@ -14,15 +17,10 @@ const remoteLog = (level: string, ...args: unknown[]) => {
   });
 };
 
-abstract class V3Environment {
-  protected abstract openSettingspage(): void;
-}
-
-class ChromeEnvironment extends V3Environment {
+class ChromeEnvironment implements V3Environment {
   protected host = chrome;
 
   constructor() {
-    super();
     this.host.alarms.onAlarm.addListener((alarm) => {
       this.handleAlarm(alarm);
     });
@@ -31,6 +29,12 @@ class ChromeEnvironment extends V3Environment {
       port.onMessage.addListener((message) => {
         remoteLog('debug', 'Received message:', message);
       });
+    });
+  }
+
+  createAlarm(alarmName: string, periodInMinutes: number): Promise<void> {
+    return this.host.alarms.create(alarmName, {
+      periodInMinutes,
     });
   }
 
@@ -46,9 +50,18 @@ class ChromeEnvironment extends V3Environment {
 // RemoteLog from popup message handler
 
 remoteLog('debug', 'Initializing Chrome environment...');
+const logging = new RemoteLog();
 const chromeEnvironment = new ChromeEnvironment();
+const imoin = new Imoin(logging, chromeEnvironment);
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   remoteLog('debug', 'Extension installed2.');
-  chromeEnvironment.openSettingspage();
+  imoin.installedEvent(details);
 });
+
+async function restartCheck() {
+  const hasAlarms = (await chrome.alarms.getAll()).length > 0;
+  imoin.activatedEvent(hasAlarms);
+}
+
+void restartCheck();

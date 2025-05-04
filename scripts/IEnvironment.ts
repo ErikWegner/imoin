@@ -6,7 +6,9 @@ import { UICommand } from './UICommand.js';
 /** Interface for environment abstraction */
 export interface V3Environment {
   /** Add another period alarm trigger */
-  createAlarm(alarmName: string, periodMinutes: number): Promise<void>;
+  createAlarm(alarmName: string, periodInMinutes: number): Promise<void>;
+  /** Open the settings page */
+  openSettingspage(): void;
 }
 
 /** @deprecated */
