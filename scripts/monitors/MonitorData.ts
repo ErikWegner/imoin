@@ -36,7 +36,7 @@ export class Service {
   private status: ServiceState = 'CRITICAL';
   private filteredStatus: ServiceState = 'CRITICAL';
 
-  constructor(readonly name: string) { }
+  constructor(readonly name: string) {}
 
   public setState(value: ServiceState) {
     this.status = value;
@@ -93,7 +93,7 @@ export class Host {
   private status: HostState = 'DOWN';
   private filteredStatus: HostState = 'DOWN';
 
-  constructor(readonly name: string) { }
+  constructor(readonly name: string) {}
 
   public toObj(): SerializedHost<SerializedService> {
     return {
@@ -345,4 +345,9 @@ export function ErrorMonitorData(message: string, url?: string): MonitorData {
 
 export class PanelMonitorData extends MonitorData {
   public instances: { [index: number]: IPanelMonitorData } = {};
+}
+
+/** This will replace PanelMonitorData */
+export interface PanelDataV3 {
+  state: Status;
 }
