@@ -347,7 +347,19 @@ export class PanelMonitorData extends MonitorData {
   public instances: { [index: number]: IPanelMonitorData } = {};
 }
 
+export interface ServiceV3 {
+  name: string;
+  status: ServiceState;
+}
+
+export interface HostV3 {
+  name: string;
+  status: HostState;
+}
+
 /** This will replace PanelMonitorData */
 export interface PanelDataV3 {
   state: Status;
+  updatetime?: string;
+  hosts: HostV3[];
 }
