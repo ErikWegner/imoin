@@ -28,6 +28,9 @@ class ChromeEnvironment implements V3Environment {
       remoteLog('debug', 'Received connection:', port);
       port.onMessage.addListener((message) => {
         remoteLog('debug', 'Received message:', message);
+        if (message.command === 'open_configuration') {
+          this.openSettingspage();
+        }
       });
     });
   }
