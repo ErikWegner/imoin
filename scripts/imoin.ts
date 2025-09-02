@@ -27,10 +27,13 @@ export class Imoin {
   }
 
   /** This function is called when the extension has been (re-)activated */
-  activatedEvent(hasAlarms: boolean) {
+  async activatedEvent(hasAlarms: boolean) {
     this.l.debug('Activated', hasAlarms);
     if (hasAlarms === false) {
-      void this.h.createAlarm('i1', 1);
+      await this.h.createAlarm('i1', 1);
     }
+    this.h.registerAlarmHandler((alarm) => {
+      this.alarmEvent(alarm);
+    });
   }
 }

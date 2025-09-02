@@ -13,6 +13,8 @@ export class RemoteLog implements Logger {
         message: args.join(' '),
         level,
       }),
+    }).catch(() => {
+      /* drop */
     });
   };
 
@@ -26,3 +28,20 @@ export class RemoteLog implements Logger {
     this.remoteLog('debug', ...args);
   }
 }
+
+const logger = new RemoteLog();
+export const remoteLog = (
+  level: 'debug' | 'info' | 'error',
+  ...args: unknown[]
+) => {
+  switch (level) {
+    case 'debug':
+      logger.debug(...args);
+      break;
+    case 'error':
+      logger.error(...args);
+      break;
+    default:
+      logger.log(...args);
+  }
+};

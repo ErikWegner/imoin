@@ -7,21 +7,8 @@ import {
   SerializedService,
   Service,
 } from './monitors/MonitorData.js';
+import { remoteLog } from './remotelogger.js';
 import { Settings } from './Settings.js';
-
-const remoteLog = (level: string, ...args: unknown[]) => {
-  void fetch('http://localhost:3000/log', {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: JSON.stringify({
-      message: args.join(' '),
-      level,
-    }),
-  });
-};
-
 
 /**
  * Implementation for Chrome

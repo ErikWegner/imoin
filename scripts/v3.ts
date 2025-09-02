@@ -2,23 +2,11 @@ import chrome from './definitions/chrome-webextension/index';
 import { AlarmEvent } from './definitions/common-webextension/index';
 import { V3Environment } from './IEnvironment';
 import { Imoin } from './imoin';
-import { RemoteLog } from './remotelogger';
-
-const remoteLog = (level: string, ...args: unknown[]) => {
-  void fetch('http://localhost:3000/log', {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: JSON.stringify({
-      message: args.join(' '),
-      level,
-    }),
-  });
-};
+import { remoteLog, RemoteLog } from './remotelogger';
 
 class ChromeEnvironment implements V3Environment {
   protected host = chrome;
+  private alarmHandler: ((alarm: AlarmEvent) => void) | null = null;
 
   constructor() {
     this.host.alarms.onAlarm.addListener((alarm) => {
@@ -35,14 +23,23 @@ class ChromeEnvironment implements V3Environment {
     });
   }
 
+  registerAlarmHandler(handler: (alarm: AlarmEvent) => void): void {
+    remoteLog('debug', 'Registering alarm handler');
+    this.alarmHandler = handler;
+  }
+
   createAlarm(alarmName: string, periodInMinutes: number): Promise<void> {
     return this.host.alarms.create(alarmName, {
       periodInMinutes,
     });
   }
 
-  handleAlarm(_alarm: AlarmEvent) {
-    throw new Error('Method not implemented.');
+  handleAlarm(alarm: AlarmEvent) {
+    if (this.alarmHandler) {
+      this.alarmHandler(alarm);
+    } else {
+      remoteLog('error', 'No alarm handler registered for alarm');
+    }
   }
 
   public openSettingspage() {
@@ -64,7 +61,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 async function restartCheck() {
   const hasAlarms = (await chrome.alarms.getAll()).length > 0;
-  imoin.activatedEvent(hasAlarms);
+  await imoin.activatedEvent(hasAlarms);
 }
 
 void restartCheck();

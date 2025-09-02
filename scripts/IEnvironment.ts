@@ -1,3 +1,4 @@
+import { AlarmEvent } from './definitions/common-webextension/index.js';
 import { IPanelMonitorData } from './IPanelMonitorData.js';
 import { MonitorData } from './monitors/index.js';
 import { Settings } from './Settings.js';
@@ -9,6 +10,8 @@ export interface V3Environment {
   createAlarm(alarmName: string, periodInMinutes: number): Promise<void>;
   /** Open the settings page */
   openSettingspage(): void;
+  /** Register alarm handler */
+  registerAlarmHandler(handler: (alarm: AlarmEvent) => void): void;
 }
 
 /** @deprecated */
