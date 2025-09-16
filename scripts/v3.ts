@@ -1,8 +1,11 @@
 import chrome from './definitions/chrome-webextension/index';
 import { AlarmEvent } from './definitions/common-webextension/index';
-import { V3Environment } from './IEnvironment';
+import { V3Environment, V3Settings } from './IEnvironment';
 import { Imoin } from './imoin';
 import { remoteLog, RemoteLog } from './remotelogger';
+import { ImoinMonitorInstance, Sound } from './Settings';
+
+const optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
 
 class ChromeEnvironment implements V3Environment {
   protected host = chrome;
@@ -21,6 +24,37 @@ class ChromeEnvironment implements V3Environment {
         }
       });
     });
+  }
+
+  async getSettings(): Promise<V3Settings> {
+    const data = (await this.host.storage.local.get(optionKeys)) as {
+      instances?: unknown;
+      fontsize?: unknown;
+      inlineresults?: unknown;
+      sounds?: unknown;
+    };
+    const settings: V3Settings = {
+      instances: [],
+      fontsize: 100,
+      inlineresults: false,
+      sounds: {},
+    };
+    if (data) {
+      if (typeof data.instances === 'string') {
+        settings.instances = JSON.parse(
+          data.instances,
+        ) as ImoinMonitorInstance[];
+      }
+      if (typeof data.fontsize === 'number' && data.fontsize > 0) {
+        settings.fontsize = data.fontsize;
+      }
+      settings.inlineresults = data.inlineresults === 1;
+      if (typeof data.sounds === 'string') {
+        settings.sounds = JSON.parse(data.sounds) as { [id: string]: Sound };
+      }
+    }
+
+    return settings;
   }
 
   registerAlarmHandler(handler: (alarm: AlarmEvent) => void): void {

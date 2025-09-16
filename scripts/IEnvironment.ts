@@ -1,13 +1,31 @@
 import { AlarmEvent } from './definitions/common-webextension/index.js';
 import { IPanelMonitorData } from './IPanelMonitorData.js';
 import { MonitorData } from './monitors/index.js';
-import { Settings } from './Settings.js';
+import { IcingaOptionsVersion, Settings, Sound } from './Settings.js';
 import { UICommand } from './UICommand.js';
+
+export interface V3Instance {
+  instancelabel: string;
+  timerPeriod: number;
+  icingaversion: IcingaOptionsVersion;
+  url: string;
+  username: string;
+  password: string;
+}
+
+export interface V3Settings {
+  instances: V3Instance[];
+  fontsize: number;
+  inlineresults: boolean;
+  sounds: Record<string, Sound>;
+}
 
 /** Interface for environment abstraction */
 export interface V3Environment {
   /** Add another period alarm trigger */
   createAlarm(alarmName: string, periodInMinutes: number): Promise<void>;
+  /** Load settings */
+  getSettings(): Promise<V3Settings>;
   /** Open the settings page */
   openSettingspage(): void;
   /** Register alarm handler */

@@ -4,6 +4,7 @@ import {
 } from './definitions/common-webextension';
 import { V3Environment } from './IEnvironment';
 import { Logger } from './logger';
+import { IMonitor } from './monitors';
 
 export class Imoin {
   constructor(
@@ -35,5 +36,11 @@ export class Imoin {
     this.h.registerAlarmHandler((alarm) => {
       this.alarmEvent(alarm);
     });
+  }
+
+  private async getMonitorInstanceByName(name: string): IMonitor | null {
+    const settings = await this.h.getSettings();
+    const index = Number(name.split('-')[1]);
+    return settings.instances[index];
   }
 }
