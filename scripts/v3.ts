@@ -82,9 +82,10 @@ class ChromeEnvironment implements V3Environment {
 }
 
 // RemoteLog from popup message handler
-
 remoteLog('debug', 'Initializing Chrome environment...');
 const logging = new RemoteLog();
+
+// Keep the following code as small as possible
 const chromeEnvironment = new ChromeEnvironment();
 const imoin = new Imoin(logging, chromeEnvironment);
 
