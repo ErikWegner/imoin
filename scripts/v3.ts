@@ -90,7 +90,7 @@ const chromeEnvironment = new ChromeEnvironment();
 const imoin = new Imoin(logging, chromeEnvironment);
 
 chrome.runtime.onInstalled.addListener((details) => {
-  remoteLog('debug', 'Extension installed2.');
+  remoteLog('debug', 'Extension installed.');
   imoin.installedEvent(details);
 });
 

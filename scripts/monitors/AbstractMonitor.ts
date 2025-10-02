@@ -13,7 +13,11 @@ import {
   filterUp,
 } from './filters/index.js';
 import { IMonitor } from './IMonitor.js';
-import { MonitorData } from './MonitorData.js';
+import { MonitorData, MonitorDataV3 } from './MonitorData.js';
+
+export interface MonitorV3 {
+  fetchStatusV3(): Promise<MonitorDataV3>;
+}
 
 export abstract class AbstractMonitor implements IMonitor {
   /**
@@ -70,15 +74,15 @@ export abstract class AbstractMonitor implements IMonitor {
   }
 
   constructor(
-    protected environment: IEnvironment,
+    protected environment: IEnvironment | null,
     protected settings: ImoinMonitorInstance,
     protected index: number,
   ) {
-    this.environment.onUICommand(index, this.handleUICommand.bind(this));
+    this.environment?.onUICommand(index, this.handleUICommand.bind(this));
   }
 
   public startTimer() {
-    this.environment.initTimer(this.index, this.settings.timerPeriod, () => {
+    this.environment?.initTimer(this.index, this.settings.timerPeriod, () => {
       void this.fetchStatus().then((status: MonitorData) => {
         // Here: save
         const filteredHosts = AbstractMonitor.applyFilters(
@@ -87,13 +91,13 @@ export abstract class AbstractMonitor implements IMonitor {
         );
         status.updateCounters(filteredHosts);
         status.instanceLabel = this.settings.instancelabel;
-        this.environment.displayStatus(this.index, status);
+        this.environment?.displayStatus(this.index, status);
       });
     });
   }
 
   public shutdown() {
-    this.environment.stopTimer(this.index);
+    this.environment?.stopTimer(this.index);
   }
 
   public abstract fetchStatus(): Promise<MonitorData>;

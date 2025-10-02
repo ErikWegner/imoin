@@ -36,7 +36,7 @@ export class Service {
   private status: ServiceState = 'CRITICAL';
   private filteredStatus: ServiceState = 'CRITICAL';
 
-  constructor(readonly name: string) {}
+  constructor(readonly name: string) { }
 
   public setState(value: ServiceState) {
     this.status = value;
@@ -93,7 +93,7 @@ export class Host {
   private status: HostState = 'DOWN';
   private filteredStatus: HostState = 'DOWN';
 
-  constructor(readonly name: string) {}
+  constructor(readonly name: string) { }
 
   public toObj(): SerializedHost<SerializedService> {
     return {
@@ -124,6 +124,11 @@ export class Host {
   public addService(service: Service) {
     this.services.push(service);
   }
+}
+
+/* This data must be serializable */
+export interface MonitorDataV3 {
+  instanceLabel: string
 }
 
 /* This class must be serializable */

@@ -1,7 +1,7 @@
 import { FilterSettings } from '../Settings.js';
 import { UICommand } from '../UICommand.js';
-import { AbstractMonitor } from './AbstractMonitor.js';
-import { ErrorMonitorData, Host, MonitorData, Service } from './MonitorData.js';
+import { AbstractMonitor, MonitorV3 } from './AbstractMonitor.js';
+import { ErrorMonitorData, Host, MonitorData, MonitorDataV3, Service } from './MonitorData.js';
 
 export enum IcingaStateType {
   SOFT = 0,
@@ -45,7 +45,7 @@ export interface IIcinga2ServiceJsonData {
   }>;
 }
 
-export class IcingaApi extends AbstractMonitor {
+export class IcingaApi extends AbstractMonitor implements MonitorV3 {
   public static processData(
     hostdata: IIcinga2HostJsonData,
     servicedata: IIcinga2ServiceJsonData,
@@ -129,19 +129,32 @@ export class IcingaApi extends AbstractMonitor {
     return m;
   }
 
+  async fetchStatusV3(): Promise<MonitorDataV3> {
+    const d = await this.fetchStatus();
+    return ({
+      instanceLabel: d.instanceLabel ?? '<no label>',
+    });
+  }
+
   public fetchStatus(): Promise<MonitorData> {
+    const e = this.environment;
+    if (!e) {
+      return Promise.resolve(ErrorMonitorData('No environment set'));
+    }
+
     return new Promise<MonitorData>((resolve) => {
       const hosturl =
         this.settings.url + '/v1/objects/hosts?' + this.hostAttrs();
       const servicesurl =
         this.settings.url + '/v1/objects/services?' + this.serviceAttrs();
 
-      const hostsrequest = this.environment.load(
+
+      const hostsrequest = e.load(
         hosturl,
         this.settings.username,
         this.settings.password
       );
-      const servicesrequest = this.environment.load(
+      const servicesrequest = e.load(
         servicesurl,
         this.settings.username,
         this.settings.password
@@ -172,13 +185,13 @@ export class IcingaApi extends AbstractMonitor {
       const f = this.settings.filtersettings;
 
       const queryParamToFilterSetting: { [key: string]: keyof FilterSettings } =
-        {
-          acknowledgement: 'filterOutAcknowledged',
-          state_type: 'filterOutSoftStates',
-          enable_notifications: 'filterOutDisabledNotifications',
-          enable_active_checks: 'filterOutDisabledChecks',
-          downtime_depth: 'filterOutDowntime',
-        };
+      {
+        acknowledgement: 'filterOutAcknowledged',
+        state_type: 'filterOutSoftStates',
+        enable_notifications: 'filterOutDisabledNotifications',
+        enable_active_checks: 'filterOutDisabledChecks',
+        downtime_depth: 'filterOutDowntime',
+      };
 
       Object.keys(queryParamToFilterSetting).forEach((queryparam) => {
         const filterSettingsKey = queryParamToFilterSetting[queryparam];
@@ -208,7 +221,7 @@ export class IcingaApi extends AbstractMonitor {
         data.filter = 'service.name=="' + param.servicename + '"';
       }
 
-      void this.environment.post(
+      void this.environment?.post(
         url,
         data,
         this.settings.username,
