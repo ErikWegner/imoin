@@ -1,4 +1,5 @@
 import { FilterSettings } from '../../Settings.js';
+import { HostV3 } from '../MonitorData.js';
 import { FHost } from './FHost.js';
 
 function removeAllOKServices(host: FHost) {
@@ -16,7 +17,10 @@ function removeUPHostsWithoutServices(host: FHost): boolean {
  * @param hosts The list of hosts
  * @param filtersettings The filter settings
  */
-export function filterUp(hosts: FHost[] | null, _filtersettings?: FilterSettings) {
+export function filterUp(
+  hosts: FHost[] | null,
+  _filtersettings?: FilterSettings,
+) {
   if (hosts === null) {
     return null;
   }
@@ -24,3 +28,19 @@ export function filterUp(hosts: FHost[] | null, _filtersettings?: FilterSettings
   hosts.forEach(removeAllOKServices);
   return hosts.filter(removeUPHostsWithoutServices);
 }
+
+/**
+ * Remove all hosts that are UP and have no service problems.
+ * @param hosts The list of hosts
+ * @param filtersettings The filter settings
+ */
+export const filterUpV3 = (
+  hosts: HostV3[] | null,
+  _filtersettings: FilterSettings | null,
+) => {
+  return (hosts || []).filter(
+    (host) =>
+      host.services.some((service) => service.status !== 'OK') ||
+      host.status !== 'UP',
+  );
+};

@@ -1,6 +1,6 @@
 import { AlarmEvent } from './definitions/common-webextension/index.js';
 import { IPanelMonitorData } from './IPanelMonitorData.js';
-import { MonitorData } from './monitors/index.js';
+import { MonitorData, MonitorDataV3 } from './monitors/index.js';
 import { IcingaOptionsVersion, Settings, Sound } from './Settings.js';
 import { UICommand } from './UICommand.js';
 
@@ -30,6 +30,8 @@ export interface V3Environment {
   openSettingspage(): void;
   /** Register alarm handler */
   registerAlarmHandler(handler: (alarm: AlarmEvent) => void): void;
+  saveInstancesData(instancesData: MonitorDataV3[]): Promise<void>;
+  getInstancesData(): Promise<MonitorDataV3[]>;
 }
 
 /** @deprecated */

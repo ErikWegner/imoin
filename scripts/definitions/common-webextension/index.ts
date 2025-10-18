@@ -103,6 +103,7 @@ interface BrowserStorage {
 
 interface StorageArea {
   get(keys: string | string[]): Promise<Record<string, unknown>>;
+  get<T extends object>(defaultValue?: T): Promise<T>;
   get(
     keys: string | string[],
     callback: (items: Record<string, unknown>) => void,

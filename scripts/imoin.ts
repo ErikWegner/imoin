@@ -4,10 +4,14 @@ import {
 } from './definitions/common-webextension';
 import { V3Environment, V3Instance, V3Settings } from './IEnvironment';
 import { Logger } from './logger';
-import { IcingaApi, MonitorV3 } from './monitors';
+import { IcingaApi, MonitorDataV3, MonitorV3 } from './monitors';
+import { filterUpV3 } from './monitors/filters/filterUP';
+import { FilterSettings } from './Settings';
 
 export class Imoin {
   private settings: V3Settings | null = null;
+  private instancesData: MonitorDataV3[] = [];
+  private filterSettings: FilterSettings | null = null;
 
   constructor(
     /** The logger */
@@ -20,32 +24,39 @@ export class Imoin {
 
   async alarmEvent(alarm: AlarmEvent) {
     this.l.debug('Alarm', JSON.stringify(alarm));
-    const [_, instanceNumberStr] = alarm.name.match(/i(\d+)/) || [];
+    const [, instanceNumberStr] = alarm.name.match(/i(\d+)/) || [];
     if (instanceNumberStr) {
       const instanceNumber = parseInt(instanceNumberStr, 10);
-      if (instanceNumber > 0 && instanceNumber <= (this.settings?.instances.length ?? 0)) {
-        const instance = this.settings?.instances[instanceNumber - 1];
+      if (
+        instanceNumber > 0 &&
+        instanceNumber <= (this.settings?.instances.length ?? 0)
+      ) {
+        const instanceIndex = instanceNumber - 1;
+        const instance = this.settings?.instances[instanceIndex];
         if (instance) {
           this.l.log(`Handling alarm for instance ${instanceNumber}`);
           const monitor = await this.getMonitor(instance);
           if (monitor) {
-            this.poll(monitor);
+            const monitorData = await this.poll(monitor);
+            this.instancesData[instanceIndex] = monitorData;
+            await this.h.saveInstancesData(this.instancesData);
+            this.calculateOverallStatus();
           }
         }
       }
     }
   }
 
-  async poll(monitor: MonitorV3): Promise<void> {
-    const status = await monitor.fetchStatusV3();
+  async poll(monitor: MonitorV3): Promise<MonitorDataV3> {
+    return monitor.fetchStatusV3();
   }
 
-  async getMonitor(instance: V3Instance): Promise<MonitorV3 | null> {
+  getMonitor(instance: V3Instance): Promise<MonitorV3 | null> {
     if (instance.icingaversion === 'nagioscore') {
-      return new IcingaApi(null, instance, 0);
+      return Promise.resolve(new IcingaApi(null, instance, 0));
     }
     this.l.error(`Unsupported Icinga version: ${instance.icingaversion}`);
-    return null;
+    return Promise.resolve(null);
   }
 
   installedEvent(details: InstalledEventDetails): void {
@@ -64,11 +75,22 @@ export class Imoin {
     if (hasAlarms === false) {
       this.settings?.instances.forEach((instance, index) => {
         this.l.log(`Creating alarm for instance ${index + 1}`);
-        this.h.createAlarm(`i${index + 1}`, instance.timerPeriod);
+        void this.h.createAlarm(`i${index + 1}`, instance.timerPeriod);
       });
     }
     this.h.registerAlarmHandler((alarm) => {
-      this.alarmEvent(alarm);
+      void this.alarmEvent(alarm);
     });
+    await this.loadInstancesData();
+  }
+
+  async loadInstancesData() {
+    this.instancesData = await this.h.getInstancesData();
+  }
+
+  private calculateOverallStatus() {
+    (this.instancesData ?? []).forEach((instance) =>
+      filterUpV3(instance.hosts, this.filterSettings),
+    );
   }
 }

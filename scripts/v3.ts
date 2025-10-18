@@ -2,6 +2,7 @@ import chrome from './definitions/chrome-webextension/index';
 import { AlarmEvent } from './definitions/common-webextension/index';
 import { V3Environment, V3Settings } from './IEnvironment';
 import { Imoin } from './imoin';
+import { MonitorDataV3 } from './monitors';
 import { remoteLog, RemoteLog } from './remotelogger';
 import { ImoinMonitorInstance, Sound } from './Settings';
 
@@ -78,6 +79,20 @@ class ChromeEnvironment implements V3Environment {
 
   public openSettingspage() {
     chrome.runtime.openOptionsPage();
+  }
+
+  public saveInstancesData(instancesData: MonitorDataV3[]): Promise<void> {
+    return this.host.storage.local.set({
+      instancesData,
+    });
+  }
+
+  public async getInstancesData(): Promise<MonitorDataV3[]> {
+    const defaultValue: MonitorDataV3[] = [];
+    const data = await this.host.storage.local.get({
+      instancesData: defaultValue,
+    });
+    return data.instancesData;
   }
 }
 
