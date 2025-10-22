@@ -22,6 +22,8 @@ export interface V3Settings {
 
 /** Interface for environment abstraction */
 export interface V3Environment {
+  /** Send a message to the panel */
+  sendPanelMessage(msg: UICommand): void;
   /** Add another period alarm trigger */
   createAlarm(alarmName: string, periodInMinutes: number): Promise<void>;
   /** Load settings */

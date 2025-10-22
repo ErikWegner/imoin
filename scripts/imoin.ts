@@ -41,8 +41,11 @@ export class Imoin {
             this.instancesData[instanceIndex] = monitorData;
             await this.h.saveInstancesData(this.instancesData);
             this.calculateOverallStatus();
+            this.h.sendPanelMessage({ command: 'UpdatePanelData' });
           }
         }
+      } else {
+        this.l.error(`Invalid instance number: ${instanceNumber}`);
       }
     }
   }
@@ -52,7 +55,7 @@ export class Imoin {
   }
 
   getMonitor(instance: V3Instance): Promise<MonitorV3 | null> {
-    if (instance.icingaversion === 'nagioscore') {
+    if (instance.icingaversion === 'api1') {
       return Promise.resolve(new IcingaApi(null, instance, 0));
     }
     this.l.error(`Unsupported Icinga version: ${instance.icingaversion}`);

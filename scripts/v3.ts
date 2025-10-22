@@ -1,16 +1,18 @@
 import chrome from './definitions/chrome-webextension/index';
-import { AlarmEvent } from './definitions/common-webextension/index';
+import { AlarmEvent, Port } from './definitions/common-webextension/index';
 import { V3Environment, V3Settings } from './IEnvironment';
 import { Imoin } from './imoin';
 import { MonitorDataV3 } from './monitors';
 import { remoteLog, RemoteLog } from './remotelogger';
 import { ImoinMonitorInstance, Sound } from './Settings';
+import { UICommand } from './UICommand';
 
 const optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
 
 class ChromeEnvironment implements V3Environment {
   protected host = chrome;
   private alarmHandler: ((alarm: AlarmEvent) => void) | null = null;
+  private panelPort: Port | null = null;
 
   constructor() {
     this.host.alarms.onAlarm.addListener((alarm) => {
@@ -25,6 +27,14 @@ class ChromeEnvironment implements V3Environment {
         }
       });
     });
+  }
+
+  sendPanelMessage(msg: UICommand): void {
+    if (this.panelPort) {
+      this.panelPort.postMessage(msg);
+    } else {
+      remoteLog('debug', 'Panel port not found, dropping message:', msg);
+    }
   }
 
   async getSettings(): Promise<V3Settings> {

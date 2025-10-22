@@ -3,19 +3,28 @@ const log = (...args) => {
   console.log(...args);
 };
 
-let postPanelMessage = function () {};
+let postPanelMessagePort = null;
+const postPanelMessage = (data) => {
+  if (postPanelMessagePort) {
+    postPanelMessagePort.postMessage(data);
+  }
+};
+
 const initEnvironment = () => {
   // Web extension in Chrome or Firefox
   const host = chrome || browser;
   // Edge browser
-  if (typeof browser !== 'undefined' && browser.runtime !== null) {
-    return browser;
-  }
+  // if (typeof browser !== 'undefined' && browser.runtime !== null) {
+  //   return browser;
+  // }
 
-  const myPort = host.runtime.connect();
-  postPanelMessage = function (data) {
-    myPort.postMessage(data);
-  };
+  postPanelMessagePort = host.runtime.connect();
+  postPanelMessagePort.onMessage.addListener((message) => {
+    log('Received message from background script:', message);
+    if (message.command === 'UpdatePanelData') {
+      fullUpdatePanelContent();
+    }
+  })
   return host;
 };
 
@@ -27,7 +36,6 @@ const outputTemplate = (template) => {
 };
 
 const renderUnconfiguredInstances = () => {
-  // TODO: Show link to configuration page
   const template = document.querySelector('#unconfigured-template');
   const renderedTemplate = template.content.cloneNode(true);
   outputTemplate(renderedTemplate);
@@ -44,8 +52,9 @@ const fullUpdatePanelContent = () => {
       return;
     }
 
-    chrome.storage.local.get({ nagiosData: {} }, (localData) => {
+    chrome.storage.local.get({ instancesData: {} }, (localData) => {
       // TODO: Implement logic to update panel content based on retrieved data from Nagios instances
+      log('Updating panel content with data:', localData);
     });
   });
 };
