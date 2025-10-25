@@ -1,5 +1,12 @@
-var hosttype = (typeof (chrome) !== "undefined" && chrome) ? 'chrome' : (typeof (browser) !== "undefined" && browser) ? 'browser' : 'na';
-var host = (typeof (chrome) !== "undefined" && chrome) || (typeof (browser) !== "undefined" && browser);
+var hosttype =
+  typeof chrome !== 'undefined' && chrome
+    ? 'chrome'
+    : typeof browser !== 'undefined' && browser
+      ? 'browser'
+      : 'na';
+var host =
+  (typeof chrome !== 'undefined' && chrome) ||
+  (typeof browser !== 'undefined' && browser);
 // Edge browser
 if (typeof browser !== 'undefined' && browser.runtime !== null) {
   host = browser;
@@ -21,9 +28,7 @@ const filterSettingsNames = [
   'filterOutServicesOnAcknowledgedHosts',
   'filterOutDowntime',
 ];
-const filterSettingsNamesRe = [
-  'filterServices', 'filterHosts'
-];
+const filterSettingsNamesRe = ['filterServices', 'filterHosts'];
 
 /*    ---- Custom elements   ---- */
 
@@ -79,7 +84,7 @@ function createInstance(title) {
     url: '',
     username: '',
     password: '',
-  }
+  };
 }
 
 function restoreOptions() {
@@ -114,7 +119,10 @@ function addInstance() {
 
 function updateInstance() {
   const i = instances[selectedInstance];
-  i.instancelabel = getFormTextValue('#instancelabel', 'Instance' + (selectedInstance + 1));
+  i.instancelabel = getFormTextValue(
+    '#instancelabel',
+    'Instance' + (selectedInstance + 1),
+  );
   i.timerPeriod = parseInt(getFormTextValue('#timerPeriod', '5'));
   i.icingaversion = getFormTextValue('#icingaversion', 'cgi');
   i.url = getFormTextValue('#url', '');
@@ -161,9 +169,12 @@ function updateDOMforInstances() {
     instanceData = createInstance('Default');
   }
 
-  document.querySelector('#instancelabel').value = instanceData.instancelabel || 'Default';
-  document.querySelector('#timerPeriod').value = instanceData.timerPeriod || '5';
-  document.querySelector('#icingaversion').value = instanceData.icingaversion || 'cgi';
+  document.querySelector('#instancelabel').value =
+    instanceData.instancelabel || 'Default';
+  document.querySelector('#timerPeriod').value =
+    instanceData.timerPeriod || '5';
+  document.querySelector('#icingaversion').value =
+    instanceData.icingaversion || 'cgi';
   document.querySelector('#url').value = instanceData.url || '';
   document.querySelector('#username').value = instanceData.username || '';
   document.querySelector('#password').value = instanceData.password || '';
@@ -190,7 +201,7 @@ function updateDOMforFilters() {
     const f = filtersettings[name];
     if (f) {
       document.querySelector('#' + name + 'ReB').value = f.state ?? '';
-      document.querySelector('#' + name + 'Re').value = f.re ?? "";
+      document.querySelector('#' + name + 'Re').value = f.re ?? '';
     }
   });
 }
@@ -198,7 +209,7 @@ function updateDOMforFilters() {
 function addClickHandler(selector, handler) {
   element = document.querySelector(selector);
   if (!element || !element.addEventListener) {
-    return
+    return;
   }
 
   element.addEventListener('click', handler);
@@ -232,7 +243,7 @@ function collectFilterSettings() {
   filterSettingsNamesRe.forEach((name) => {
     r[name] = {
       state: document.querySelector('#' + name + 'ReB').value,
-      re: document.querySelector('#' + name + 'Re').value
+      re: document.querySelector('#' + name + 'Re').value,
     };
   });
 
@@ -241,13 +252,13 @@ function collectFilterSettings() {
 
 function saveOptions() {
   const filtersettings = collectFilterSettings();
-  instances.forEach((instance) => instance.filtersettings = filtersettings);
+  instances.forEach((instance) => (instance.filtersettings = filtersettings));
   // storage does not save objects as values
-  host.storage.local.set({
+  host.storage.sync.set({
     instances: JSON.stringify(instances),
     fontsize: parseInt(document.getElementById('fontsize').value),
     inlineresults: getCheckboxValue('#inlineresults', 0),
-    sounds: JSON.stringify(SoundFileSelectors.getFiles())
+    sounds: JSON.stringify(SoundFileSelectors.getFiles()),
   });
   var myPort = host.runtime.connect({ name: 'port-from-options' });
   myPort.postMessage({ command: 'SettingsChanged' });
@@ -267,13 +278,14 @@ function loadOptions() {
     } else if (hosttype == 'chrome') {
       host.storage.local.get(optionKeys, resolve);
     }
-  }
-  );
+  });
 }
 
 function addDropdownEventHandler(callback) {
   const ddl = document.querySelector('#instanceid');
-  if (!ddl) { return; }
+  if (!ddl) {
+    return;
+  }
 
   ddl.addEventListener('change', callback);
 }
