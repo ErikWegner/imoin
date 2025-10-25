@@ -274,7 +274,7 @@ function loadOptions() {
     }
     /* Change the array of keys to match the firefox.ts */
     if (hosttype == 'browser') {
-      return host.storage.local.get(optionKeys);
+      return host.storage.sync.get(optionKeys);
     } else if (hosttype == 'chrome') {
       host.storage.local.get(optionKeys, resolve);
     }
