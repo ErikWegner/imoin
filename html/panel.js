@@ -6,6 +6,7 @@ const log = (...args) => {
 let postPanelMessagePort = null;
 const postPanelMessage = (data) => {
   if (postPanelMessagePort) {
+    log('postPanelMessage', data);
     postPanelMessagePort.postMessage(data);
   }
 };
@@ -24,7 +25,7 @@ const initEnvironment = () => {
     if (message.command === 'UpdatePanelData') {
       fullUpdatePanelContent();
     }
-  })
+  });
   return host;
 };
 

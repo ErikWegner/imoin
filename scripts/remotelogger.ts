@@ -10,7 +10,7 @@ export class RemoteLog implements Logger {
       headers,
       method: 'POST',
       body: JSON.stringify({
-        message: args.join(' '),
+        message: args,
         level,
       }),
     }).catch(() => {
