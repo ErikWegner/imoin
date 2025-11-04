@@ -140,7 +140,7 @@ export class Chrome extends AbstractWebExtensionsEnvironment {
       const alarm = await this.host.alarms.get(alarmName);
       if (!alarm) {
         this.debug('Adding alarm ' + alarmName);
-        this.host.alarms.create(alarmName, {
+        void this.host.alarms.create(alarmName, {
           periodInMinutes: delay,
         });
       } else {

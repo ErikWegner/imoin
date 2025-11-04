@@ -11,64 +11,88 @@ const postPanelMessage = (data) => {
   }
 };
 
-const initEnvironment = () => {
+if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
   // Web extension in Chrome or Firefox
-  const host = chrome || browser;
+  let host = chrome || browser;
   // Edge browser
-  // if (typeof browser !== 'undefined' && browser.runtime !== null) {
-  //   return browser;
-  // }
+  if (typeof browser !== 'undefined' && browser.runtime !== null) {
+    host = browser;
+  }
 
+  // This script runs at the moment that the popup is displayed
   postPanelMessagePort = host.runtime.connect();
-  postPanelMessagePort.onMessage.addListener((message) => {
-    log('Received message from background script:', message);
-    if (message.command === 'UpdatePanelData') {
-      fullUpdatePanelContent();
+  postPanelMessagePort.onMessage.addListener(function (message) {
+    var command = message.command || '';
+    var data = message.data || {};
+
+    if (command === 'ProcessStatusUpdate') {
+      showAndUpdatePanelContent(data);
     }
+
+    // This script runs at the moment that the popup is displayed
+    const myPort = host.runtime.connect();
+    myPort.onMessage.addListener(function (message) {
+      var command = message.command || '';
+      var data = message.data || {};
+
+      if (command === 'UpdatePanelData') {
+        showAndUpdatePanelContent(data);
+      }
+
+      if (command === 'uisettings') {
+        setupUISettings(data);
+      }
+    });
+
+    postPanelMessage = function (data) {
+      if (myPort) {
+        myPort.postMessage(data);
+      }
+    };
   });
-  return host;
-};
+} else if (
+  typeof self === 'object' &&
+  typeof self.addEventListener === 'function'
+) {
+  // Electron
+  const { ipcRenderer } = require('electron');
 
-const outputParent = document.querySelector('#panel');
-const outputTemplate = (template) => {
-  // remove existing content
-  outputParent.innerHTML = '';
-  outputParent.appendChild(template);
-};
+  ipcRenderer.on('topanel', function (event) {
+    log(event);
+  });
 
-/* render utility functions */
-const AddCellToTr = (tr, text, tdclass) => {
-  var td = document.createElement('td');
-  td.appendChild(document.createTextNode(text));
-  if (tdclass !== null && tdclass !== '') td.className = tdclass;
-  tr.appendChild(td);
-  return tr;
-};
-
-function AddInput(parent, value, id, labeltext) {
-  var input = document.createElement('input');
-  parent.appendChild(input);
-  input.setAttribute('type', 'radio');
-  input.setAttribute('class', 'cb');
-  input.setAttribute('value', value);
-  input.setAttribute('name', 'filter');
-  input.setAttribute('id', id);
-
-  var label = document.createElement('label');
-  parent.appendChild(label);
-  label.setAttribute('for', id);
-  label.appendChild(document.createTextNode(labeltext));
-  return input;
+  postPanelMessage = function (data) {
+    ipcRenderer.send('frompanel', data);
+  };
 }
 
-const registerMainEventHandlers = () => {
-  // TODO: copy implementation
-};
+// store a rendered template for later display
+var rendered_template = document.createTextNode('');
 
-const showAndUpdatePanelContent = (data) => {
+var filtered_lists_templates = {};
+
+function setupUISettings(data) {
+  let s = document.getElementById('uistyles');
+  if (s) {
+    s.remove();
+  }
+  s = document.createElement('style');
+  s.setAttribute('id', 'uistyles');
+  let t = document.createTextNode('body {font-size:' + data.fontsize + '%}');
+  s.appendChild(t);
+  if (data.inlineresults) {
+    t = document.createTextNode(
+      '.hostcheckinfo, .service .info { display: inline; }',
+    );
+    s.appendChild(t);
+  }
+  document.head.appendChild(s);
+}
+
+function showAndUpdatePanelContent(data) {
   const message = data.message;
   log('Rendering main template');
-  let rendered_template = renderMainTemplate(data);
+  rendered_template = renderMainTemplate(data);
   if (message) {
     log('Message ' + message);
     rendered_template.unshift(renderTemplateError(message));
@@ -92,23 +116,262 @@ const showAndUpdatePanelContent = (data) => {
   log('Done');
 
   registerMainEventHandlers();
-};
+}
 
-/* render login */
-const renderUnconfiguredInstances = () => {
-  const template = document.querySelector('#unconfigured-template');
-  const renderedTemplate = template.content.cloneNode(true);
-  outputTemplate(renderedTemplate);
-  outputParent
-    .querySelector('button')
-    .addEventListener('click', openConfiguration);
-};
+function renderTemplateError(message) {
+  var r = document.createElement('div');
+  r.setAttribute('style', 'text-align:center');
+  var img = document.createElement('img');
+  img.setAttribute('src', '../icons/logo-66x32.png');
+  img.setAttribute('alt', 'Icinga logo');
+  r.appendChild(img);
+  r.appendChild(document.createElement('br'));
+  var p = document.createElement('p');
+  p.setAttribute('class', 'errormessage');
+  r.appendChild(p);
+  p.appendChild(document.createTextNode(message));
 
-const renderMainTemplate = (statusdata) => {
+  return r;
+}
+
+function renderHostTemplate(hostdata) {
+  var div2, span;
+  var r = document.createElement('div');
+  r.setAttribute('class', 'host');
+
+  r.appendChild((div2 = document.createElement('div')));
+  div2.appendChild((span = document.createElement('span')));
+  span.setAttribute('class', 'hostname');
+  if (hostdata.hostlink) {
+    span.setAttribute('data-url', hostdata.hostlink);
+  }
+  span.appendChild(document.createTextNode(hostdata.name));
+
+  div2.appendChild((span = document.createElement('span')));
+  span.setAttribute('class', 'status ' + hostdata.status);
+  span.appendChild(document.createTextNode(hostdata.status));
+
+  div2.appendChild((span = document.createElement('span')));
+  span.setAttribute('class', 'actions');
+  span.setAttribute('data-hostname', hostdata.name);
+  span.setAttribute('data-instanceindex', hostdata.instanceindex);
+  //span.appendChild(ackimg.cloneNode(true));
+  span.appendChild(document.createTextNode(' '));
+  span.appendChild(chkimg.cloneNode(true));
+
+  div2.appendChild((span = document.createElement('span')));
+  span.setAttribute('class', 'hostcheckinfo');
+  span.appendChild(document.createTextNode(hostdata.checkresult));
+
+  r.appendChild((div2 = document.createElement('div')));
+  div2.setAttribute('class', 'services');
+
+  for (var i in hostdata.servicesdata) {
+    div2.appendChild(hostdata.servicesdata[i]);
+  }
+
+  return r;
+}
+
+function renderServiceTemplate(servicedata) {
+  var r = document.createElement('div');
+  r.setAttribute('class', 'service');
+  var span;
+
+  span = document.createElement('span');
+  span.setAttribute('class', 'servicename');
+  if (servicedata.servicelink) {
+    span.setAttribute('data-url', servicedata.servicelink);
+  }
+  span.appendChild(document.createTextNode(servicedata.name));
+  r.appendChild(span);
+
+  span = document.createElement('span');
+  span.setAttribute('class', 'status ' + servicedata.status);
+  span.appendChild(document.createTextNode(servicedata.status));
+  r.appendChild(span);
+
+  span = document.createElement('span');
+  span.setAttribute('class', 'actions');
+  span.setAttribute('data-hostname', servicedata.host.name);
+  span.setAttribute('data-instanceindex', servicedata.host.instanceindex);
+  span.setAttribute('data-servicename', servicedata.name);
+  //span.appendChild(ackimg.cloneNode(true));
+  span.appendChild(document.createTextNode(' '));
+  span.appendChild(chkimg.cloneNode(true));
+  r.appendChild(span);
+
+  var divc = document.createElement('div');
+  divc.setAttribute('class', 'info');
+  divc.appendChild(document.createTextNode(servicedata.checkresult));
+  r.appendChild(divc);
+
+  return r;
+}
+
+var chkimg = document.createElement('span');
+chkimg.setAttribute('title', 'Recheck');
+chkimg.setAttribute('class', 'recheck');
+chkimg.setAttribute('data-command', 'recheck');
+
+var ackimg = document.createElement('span');
+ackimg.setAttribute('title', 'Acknowledge');
+ackimg.setAttribute('class', 'ack');
+ackimg.setAttribute('data-command', 'ack');
+
+// switch between the filtered details lists
+function listswitch(e) {
+  if (e == null || e.target == null) return;
+  var filtervalue = e.target.getAttribute('value');
+  var details_el = document.getElementById('details');
+  if (details_el && filtervalue in filtered_lists_templates) {
+    details_el.replaceChild(
+      filtered_lists_templates[filtervalue],
+      details_el.childNodes[0],
+    );
+    registerDetailsEventHandlers();
+  }
+}
+
+function registerEventHanderForClass(handler, classname) {
+  var elements = document.getElementsByClassName(classname);
+  Array.prototype.forEach.call(elements, function (element) {
+    element.addEventListener('click', handler);
+  });
+}
+
+function registerEventHanderBySelector(handler, selector) {
+  var elements = document.querySelectorAll(selector);
+  Array.prototype.forEach.call(elements, function (element) {
+    element.addEventListener('click', handler);
+  });
+}
+
+function registerMainEventHandlers() {
+  var cbnames = ['r1', 'r2', 'r3', 'i'];
+  for (var cbname_index in cbnames) {
+    var el = document.getElementById(cbnames[cbname_index]);
+    if (el) {
+      el.addEventListener('click', listswitch);
+    }
+  }
+
+  registerEventHanderForClass(triggerRefresh, 'refresh');
+  registerEventHanderForClass(triggerShowOptions, 'options');
+  registerEventHanderForClass(triggerShowOptions, 'supporter');
+  registerDetailsEventHandlers();
+}
+
+function registerDetailsEventHandlers() {
+  registerEventHanderForClass(triggerOpenPage, 'hostname');
+  registerEventHanderForClass(triggerOpenPage, 'servicename');
+  registerEventHanderForClass(triggerCmdExec, 'recheck');
+  registerEventHanderForClass(triggerCmdExec, 'ack');
+  registerEventHanderBySelector(triggerRefresh, '.instance .refresh');
+}
+
+function renderInstancesList(statusdata) {
+  var r = document.createElement('div');
+  if (statusdata.instances) {
+    var table = document.createElement('div');
+    r.appendChild(table);
+    Object.keys(statusdata.instances).forEach((key) => {
+      var instance = statusdata.instances[key];
+      var tr = document.createElement('div');
+      tr.setAttribute('class', 'instance');
+      var td, a;
+
+      // Instance label
+      tr.appendChild((td = document.createElement('span')));
+      td.setAttribute('class', 'instancename');
+      td.appendChild(document.createTextNode(instance.instancelabel));
+
+      // Instance update time
+      tr.appendChild((td = document.createElement('span')));
+      td.setAttribute('class', 'instanceupdatetime');
+      td.appendChild(document.createTextNode(instance.updatetime));
+
+      // Instance actions
+      tr.appendChild((td = document.createElement('span')));
+      td.setAttribute('class', 'actions');
+      td.setAttribute('data-instanceindex', key);
+      td.appendChild((a = document.createElement('span')));
+      a.setAttribute('class', 'refresh');
+      a.appendChild(document.createTextNode('↺'));
+
+      table.appendChild(tr);
+    });
+  }
+
+  return r;
+}
+
+function renderMainTemplate(statusdata) {
   // render three lists
   // list 1: show a host, if any of its services is not ok, show service if it is not ok
   // list 2: show all hosts, show service if it is not ok
   // list 3: show all hosts, show all services
+
+  var html1 = document.createElement('div'),
+    html2 = document.createElement('div'),
+    html3 = document.createElement('div');
+  var hostdetail;
+  var hosts = statusdata.hosts;
+
+  for (var hostindex in hosts) {
+    hostdetail = hosts[hostindex];
+    log('Processing host ' + hostdetail.name);
+
+    // Show in list 1?
+    var show_host_in_list1 = hostdetail.appearsInShortlist;
+    var all_serviceshtml = [];
+    var not_ok_serviceshtml = [];
+    var renderbuffer;
+
+    // output the details for a host
+    hostdetail.acknowledged =
+      hostdetail.has_been_acknowledged === true ? 'A' : '';
+
+    for (var serviceindex in hostdetail.services) {
+      var servicedetail = hostdetail.services[serviceindex];
+      servicedetail.host = hostdetail;
+      servicedetail.acknowledged =
+        servicedetail.has_been_acknowledged === true ? 'A' : '';
+
+      renderbuffer = renderServiceTemplate(servicedetail);
+
+      all_serviceshtml.push(renderbuffer.cloneNode(true));
+
+      // Show in list 2?
+      if (servicedetail.appearsInShortlist) {
+        not_ok_serviceshtml.push(renderbuffer.cloneNode(true));
+      }
+    }
+
+    hostdetail.servicesdata = not_ok_serviceshtml;
+    renderbuffer = renderHostTemplate(hostdetail);
+
+    // list 1
+    if (show_host_in_list1) {
+      html1.appendChild(renderbuffer.cloneNode(true));
+    }
+
+    // list 2
+    html2.appendChild(renderbuffer);
+
+    // list 3
+    hostdetail.servicesdata = all_serviceshtml;
+    html3.appendChild(renderHostTemplate(hostdetail));
+  }
+
+  var html4 = renderInstancesList(statusdata);
+
+  filtered_lists_templates = {
+    filter0: html1,
+    filter1: html2,
+    filter2: html3,
+    instances: html4,
+  };
 
   // top table and hosts list
   var r = document.createElement('div');
@@ -227,31 +490,94 @@ const renderMainTemplate = (statusdata) => {
   div1 = document.createElement('div');
   div1.setAttribute('class', 'content');
   div1.id = 'details';
-  // div1.appendChild(html1); // TODO: reactivate when available
+  div1.appendChild(html1);
 
   return [r, div1];
-};
+}
 
-const fullUpdatePanelContent = () => {
-  host.storage.sync.get({ instances: [] }, (syncData) => {
-    const instances = syncData.instances;
-    if (instances.length === 0) {
-      renderUnconfiguredInstances();
-      return;
+function AddInput(parent, value, id, labeltext) {
+  var input = document.createElement('input');
+  parent.appendChild(input);
+  input.setAttribute('type', 'radio');
+  input.setAttribute('class', 'cb');
+  input.setAttribute('value', value);
+  input.setAttribute('name', 'filter');
+  input.setAttribute('id', id);
+
+  var label = document.createElement('label');
+  parent.appendChild(label);
+  label.setAttribute('for', id);
+  label.appendChild(document.createTextNode(labeltext));
+  return input;
+}
+
+function AddCellToTr(tr, text, tdclass) {
+  var td = document.createElement('td');
+  td.appendChild(document.createTextNode(text));
+  if (tdclass !== null && tdclass !== '') td.className = tdclass;
+  tr.appendChild(td);
+  return tr;
+}
+
+function triggerRefresh(e) {
+  const el = e.target;
+  const message = { command: 'triggerRefresh' };
+  if (el) {
+    const parentElement = el.parentElement;
+    if (parentElement) {
+      const instanceindex = parentElement.getAttribute('data-instanceindex');
+      if (instanceindex != null) {
+        message['instanceindex'] = parseInt(instanceindex);
+      }
     }
+  }
 
-    chrome.storage.local.get({ instancesData: {} }, (localData) => {
-      // TODO: Implement logic to update panel content based on retrieved data from Nagios instances
-      log('Updating panel content with data:', localData);
-      showAndUpdatePanelContent(localData);
-    });
+  postPanelMessage(message);
+}
+
+function triggerCmdExec(e) {
+  const el = e.target;
+  if (el === null) return;
+
+  const command = el.getAttribute('data-command');
+
+  const parentElement = el.parentElement;
+  if (parentElement === null) return;
+
+  const hostname = parentElement.getAttribute('data-hostname');
+  const servicename = parentElement.getAttribute('data-servicename') || '';
+  const instanceindex = parentElement.getAttribute('data-instanceindex');
+
+  postPanelMessage({
+    command: 'triggerCmdExec',
+    hostname: hostname,
+    servicename: servicename,
+    remoteCommand: command,
+    instanceindex: instanceindex,
   });
-};
+}
 
-const openConfiguration = () => {
-  log('opening configuration');
+function triggerOpenPage(e) {
+  const url = e.target.getAttribute('data-url');
+  if (url) {
+    postPanelMessage({ command: 'triggerOpenPage', url: url });
+  }
+}
+
+function triggerShowOptions() {
   postPanelMessage({ command: 'open_configuration' });
-};
+}
 
-const host = initEnvironment();
-fullUpdatePanelContent();
+(async () => {
+  let startdata = {};
+  log('loading start data');
+  if (chrome && chrome.storage && chrome.storage.local) {
+    log('loading from storage');
+    startdata =
+      (await chrome.storage.local.get({ instancesData: {} }))['imoin'] || {};
+    log('loaded start data:', startdata);
+  }
+  log('start data loaded');
+  // Your logging logic here, for example, sending logs to a server
+  showAndUpdatePanelContent(startdata);
+})();

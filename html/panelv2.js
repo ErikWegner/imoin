@@ -3,7 +3,13 @@ function log(...args) {
   console.log(...args);
 }
 
-function postPanelMessage(data) {}
+let postPanelMessagePort = null;
+const postPanelMessage = (data) => {
+  if (postPanelMessagePort) {
+    log('postPanelMessage', data);
+    postPanelMessagePort.postMessage(data);
+  }
+};
 
 if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
   // Web extension in Chrome or Firefox
@@ -29,7 +35,7 @@ if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
       var command = message.command || '';
       var data = message.data || {};
 
-      if (command === 'ProcessStatusUpdate') {
+      if (command === 'UpdatePanelData') {
         showAndUpdatePanelContent(data);
       }
 
@@ -563,7 +569,7 @@ function triggerOpenPage(e) {
 }
 
 function triggerShowOptions() {
-  postPanelMessage({ command: 'triggerShowOptions' });
+  postPanelMessage({ command: 'open_configuration' });
 }
 
 (async () => {
@@ -571,7 +577,8 @@ function triggerShowOptions() {
   log('loading start data');
   if (chrome && chrome.storage && chrome.storage.local) {
     log('loading from storage');
-    startdata = (await chrome.storage.local.get(['imoin']))['imoin'] || {};
+    startdata =
+      (await chrome.storage.local.get({ instancesData: {} }))['imoin'] || {};
     log('loaded start data:', startdata);
   }
   log('start data loaded');

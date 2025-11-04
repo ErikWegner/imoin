@@ -13,6 +13,7 @@ class ChromeEnvironment implements V3Environment {
   protected host = chrome;
   private alarmHandler: ((alarm: AlarmEvent) => void) | null = null;
   private panelPort: Port | null = null;
+  private pendingAlarms: Map<string, AlarmEvent> = new Map();
 
   constructor() {
     this.host.alarms.onAlarm.addListener((alarm) => {
@@ -71,6 +72,15 @@ class ChromeEnvironment implements V3Environment {
   registerAlarmHandler(handler: (alarm: AlarmEvent) => void): void {
     remoteLog('debug', 'Registering alarm handler');
     this.alarmHandler = handler;
+
+    // Trigger pending alarms
+    const pendingAlarms = Array.from(this.pendingAlarms.entries());
+    this.pendingAlarms.clear();
+    while (pendingAlarms.length > 0) {
+      const [alarmName, alarmEvent] = pendingAlarms.shift()!;
+      remoteLog('debug', 'Handling pending alarm:', alarmName);
+      this.handleAlarm(alarmEvent);
+    }
   }
 
   createAlarm(alarmName: string, periodInMinutes: number): Promise<void> {
@@ -83,7 +93,8 @@ class ChromeEnvironment implements V3Environment {
     if (this.alarmHandler) {
       this.alarmHandler(alarm);
     } else {
-      remoteLog('error', 'No alarm handler registered for alarm');
+      remoteLog('info', 'Postponed alarm:', alarm.name);
+      this.pendingAlarms.set(alarm.name, alarm);
     }
   }
 
