@@ -19,14 +19,23 @@ export interface AlarmEvent {
 
 interface Alarms {
   onAlarm: RuntimeEvent<AlarmEvent>;
-  create(name: string, alarmInfo: AlarmInfo): Promise<void>;
+  create(name: string, alarmInfo: AlarmCreateInfo): Promise<void>;
   clear(name: string): void;
+  clearAll(): Promise<boolean>;
   get(name: string): Promise<unknown>;
-  getAll(): Promise<AlarmInfo[]>;
+  getAll(): Promise<Alarm[]>;
 }
 
-interface AlarmInfo {
-  when?: number;
+interface Alarm {
+  /** Name of this alarm. */
+  name: string;
+  /** Time at which this alarm was scheduled to fire, in milliseconds past the epoch (e.g. Date.now() + n). */
+  scheduledTime: number;
+  /** If not null, the alarm is a repeating alarm and will fire again in periodInMinutes minutes. */
+  periodInMinutes: number | null;
+}
+
+interface AlarmCreateInfo {
   delayInMinutes?: number;
   periodInMinutes?: number;
 }
@@ -99,6 +108,7 @@ export interface Port {
 interface BrowserStorage {
   session: StorageArea;
   local: StorageArea;
+  sync: StorageArea;
 }
 
 interface StorageArea {

@@ -1,6 +1,10 @@
 import chrome from './definitions/chrome-webextension/index';
 import { AlarmEvent, Port } from './definitions/common-webextension/index';
-import { V3Environment, V3Settings } from './IEnvironment';
+import {
+  AlarmSetupInformation,
+  V3Environment,
+  V3Settings,
+} from './IEnvironment';
 import { Imoin } from './imoin';
 import { MonitorDataV3 } from './monitors';
 import { remoteLog, RemoteLog } from './remotelogger';
@@ -9,25 +13,72 @@ import { UICommand } from './UICommand';
 
 const optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
 
+let imoinSingleton: Imoin | null = null;
+function runWithImoin(callback: (i: Imoin) => void) {
+  if (!imoinSingleton) {
+    const logging = new RemoteLog();
+    const chromeEnvironment = new ChromeEnvironment();
+    const imoin = new Imoin(logging, chromeEnvironment);
+    imoinSingleton = imoin;
+  }
+  try {
+    callback(imoinSingleton);
+  } catch (error) {
+    remoteLog('error', 'Error in runWithImoin:', error);
+  }
+}
+
+class ChromeHostEventSource {
+  private host = chrome;
+  private logger = new RemoteLog();
+
+  constructor() {
+    this.logger.debug('ChromeHostEventSource constructor');
+    this.host.runtime.onConnect.addListener((port) => {
+      remoteLog('debug', 'Received connection:', port);
+      port.onMessage.addListener((message) => {
+        remoteLog('debug', 'Received message:', message);
+        switch (message.command) {
+          case 'OpenConfiguration':
+            runWithImoin((imoin) => imoin.openSettingspage());
+            break;
+          case 'SettingsChanged':
+            runWithImoin((imoin) => {
+              void imoin.notifySettingsChanged();
+            });
+            break;
+        }
+      });
+    });
+  }
+}
+
 class ChromeEnvironment implements V3Environment {
   protected host = chrome;
   private alarmHandler: ((alarm: AlarmEvent) => void) | null = null;
   private panelPort: Port | null = null;
   private pendingAlarms: Map<string, AlarmEvent> = new Map();
+  private logger = new RemoteLog();
 
-  constructor() {
-    this.host.alarms.onAlarm.addListener((alarm) => {
-      this.handleAlarm(alarm);
-    });
-    this.host.runtime.onConnect.addListener((port) => {
-      remoteLog('debug', 'Received connection:', port);
-      port.onMessage.addListener((message) => {
-        remoteLog('debug', 'Received message:', message);
-        if (message.command === 'open_configuration') {
-          this.openSettingspage();
-        }
-      });
-    });
+  async ensureAlarms(
+    alarms: AlarmSetupInformation[],
+    options: { clearExistingAlarms: boolean },
+  ): Promise<void> {
+    this.logger.debug('Ensuring alarms:', alarms);
+    if (options.clearExistingAlarms) {
+      this.logger.debug('Clearing existing alarms');
+      await this.host.alarms.clearAll();
+    }
+    const existingAlarms = await this.host.alarms.getAll();
+    const existingAlarmsNames = existingAlarms.map((alarm) => alarm.name);
+    for (const alarm of alarms) {
+      if (!existingAlarmsNames.includes(alarm.alarmName)) {
+        this.logger.debug('Adding alarm ' + alarm.alarmName);
+        await this.createAlarm(alarm.alarmName, alarm.timerPeriod);
+      } else {
+        this.logger.debug('Alarm already exists ' + alarm.alarmName);
+      }
+    }
   }
 
   sendPanelMessage(msg: UICommand): void {
@@ -39,7 +90,7 @@ class ChromeEnvironment implements V3Environment {
   }
 
   async getSettings(): Promise<V3Settings> {
-    const data = (await this.host.storage.local.get(optionKeys)) as {
+    const data = (await this.host.storage.sync.get(optionKeys)) as {
       instances?: unknown;
       fontsize?: unknown;
       inlineresults?: unknown;
@@ -67,20 +118,6 @@ class ChromeEnvironment implements V3Environment {
     }
 
     return settings;
-  }
-
-  registerAlarmHandler(handler: (alarm: AlarmEvent) => void): void {
-    remoteLog('debug', 'Registering alarm handler');
-    this.alarmHandler = handler;
-
-    // Trigger pending alarms
-    const pendingAlarms = Array.from(this.pendingAlarms.entries());
-    this.pendingAlarms.clear();
-    while (pendingAlarms.length > 0) {
-      const [alarmName, alarmEvent] = pendingAlarms.shift()!;
-      remoteLog('debug', 'Handling pending alarm:', alarmName);
-      this.handleAlarm(alarmEvent);
-    }
   }
 
   createAlarm(alarmName: string, periodInMinutes: number): Promise<void> {
@@ -119,20 +156,33 @@ class ChromeEnvironment implements V3Environment {
 
 // RemoteLog from popup message handler
 remoteLog('debug', 'Initializing Chrome environment...');
-const logging = new RemoteLog();
 
-// Keep the following code as small as possible
-const chromeEnvironment = new ChromeEnvironment();
-const imoin = new Imoin(logging, chromeEnvironment);
+function checkAndRestoreAlarms() {
+  remoteLog('debug', 'Checking and restoring alarms...');
+  runWithImoin((imoin) => {
+    imoin.setupAlarms();
+  });
+}
+
+let eventSourceSingleton: ChromeHostEventSource | null = null;
+if (!eventSourceSingleton) {
+  eventSourceSingleton = new ChromeHostEventSource();
+  checkAndRestoreAlarms();
+}
+
+chrome.runtime.onStartup.addListener(() => {
+  remoteLog('debug', 'Extension started.');
+  checkAndRestoreAlarms();
+});
 
 chrome.runtime.onInstalled.addListener((details) => {
   remoteLog('debug', 'Extension installed.');
-  imoin.installedEvent(details);
+  runWithImoin((imoin) => imoin.installedEvent(details));
 });
 
-async function restartCheck() {
-  const hasAlarms = (await chrome.alarms.getAll()).length > 0;
-  await imoin.activatedEvent(hasAlarms);
-}
-
-void restartCheck();
+chrome.alarms.onAlarm.addListener((alarm) => {
+  remoteLog('debug', 'Alarm received:', alarm.name);
+  runWithImoin((imoin) => {
+    void imoin.alarmEvent(alarm);
+  });
+});

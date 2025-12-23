@@ -565,7 +565,7 @@ function triggerOpenPage(e) {
 }
 
 function triggerShowOptions() {
-  postPanelMessage({ command: 'open_configuration' });
+  postPanelMessage({ command: 'OpenConfiguration' });
 }
 
 (async () => {

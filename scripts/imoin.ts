@@ -2,14 +2,13 @@ import {
   AlarmEvent,
   InstalledEventDetails,
 } from './definitions/common-webextension';
-import { V3Environment, V3Instance, V3Settings } from './IEnvironment';
+import { V3Environment, V3Instance } from './IEnvironment';
 import { Logger } from './logger';
 import { IcingaApi, MonitorDataV3, MonitorV3 } from './monitors';
 import { filterUpV3 } from './monitors/filters/filterUP';
 import { FilterSettings } from './Settings';
 
 export class Imoin {
-  private settings: V3Settings | null = null;
   private instancesData: MonitorDataV3[] = [];
   private filterSettings: FilterSettings | null = null;
 
@@ -22,17 +21,38 @@ export class Imoin {
     // No further setup required here. The activatedEvent gets things started.
   }
 
+  openSettingspage() {
+    this.h.openSettingspage();
+  }
+
+  async ensureAlarms(options: { clearExistingAlarms: boolean }) {
+    const settings = await this.h.getSettings();
+    const alarms = (settings?.instances ?? []).map((instance, index) => ({
+      alarmName: `i${index + 1}`,
+      timerPeriod: instance.timerPeriod,
+    }));
+    await this.h.ensureAlarms(alarms, options);
+  }
+
+  notifySettingsChanged() {
+    void this.ensureAlarms({ clearExistingAlarms: true });
+  }
+  setupAlarms() {
+    void this.ensureAlarms({ clearExistingAlarms: false });
+  }
+
   async alarmEvent(alarm: AlarmEvent) {
+    const settings = await this.h.getSettings();
     this.l.debug('Alarm', JSON.stringify(alarm));
     const [, instanceNumberStr] = alarm.name.match(/i(\d+)/) || [];
     if (instanceNumberStr) {
       const instanceNumber = parseInt(instanceNumberStr, 10);
       if (
         instanceNumber > 0 &&
-        instanceNumber <= (this.settings?.instances.length ?? 0)
+        instanceNumber <= (settings?.instances.length ?? 0)
       ) {
         const instanceIndex = instanceNumber - 1;
-        const instance = this.settings?.instances[instanceIndex];
+        const instance = settings?.instances[instanceIndex];
         if (instance) {
           this.l.log(`Handling alarm for instance ${instanceNumber}`);
           const monitor = await this.getMonitor(instance);
@@ -68,23 +88,6 @@ export class Imoin {
       this.l.log('Opening settings page');
       this.h.openSettingspage();
     }
-  }
-
-  /** This function is called when the extension has been (re-)activated */
-  async activatedEvent(hasAlarms: boolean) {
-    this.l.debug('Activated', hasAlarms);
-    this.settings = await this.h.getSettings();
-    this.l.debug('Settings loaded');
-    if (hasAlarms === false) {
-      this.settings?.instances.forEach((instance, index) => {
-        this.l.log(`Creating alarm for instance ${index + 1}`);
-        void this.h.createAlarm(`i${index + 1}`, instance.timerPeriod);
-      });
-    }
-    this.h.registerAlarmHandler((alarm) => {
-      void this.alarmEvent(alarm);
-    });
-    await this.loadInstancesData();
   }
 
   async loadInstancesData() {

@@ -267,7 +267,7 @@ function saveOptions() {
 
 function loadOptions() {
   const optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (!host.storage) {
       resolve(null);
       return;
@@ -276,7 +276,7 @@ function loadOptions() {
     if (hosttype == 'browser') {
       return host.storage.sync.get(optionKeys);
     } else if (hosttype == 'chrome') {
-      host.storage.local.get(optionKeys, resolve);
+      host.storage.sync.get(optionKeys, resolve);
     }
   });
 }

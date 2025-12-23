@@ -1,8 +1,12 @@
-import { AlarmEvent } from './definitions/common-webextension/index.js';
 import { IPanelMonitorData } from './IPanelMonitorData.js';
 import { MonitorData, MonitorDataV3 } from './monitors/index.js';
 import { IcingaOptionsVersion, Settings, Sound } from './Settings.js';
 import { UICommand } from './UICommand.js';
+
+export interface AlarmSetupInformation {
+  alarmName: string;
+  timerPeriod: number;
+}
 
 export interface V3Instance {
   instancelabel: string;
@@ -25,15 +29,17 @@ export interface V3Environment {
   /** Send a message to the panel */
   sendPanelMessage(msg: UICommand): void;
   /** Add another period alarm trigger */
-  createAlarm(alarmName: string, periodInMinutes: number): Promise<void>;
+  createAlarm(alarmName: string, periodInMinutes: number): Promise<void>; // TODO: remove if not needed
   /** Load settings */
   getSettings(): Promise<V3Settings>;
   /** Open the settings page */
   openSettingspage(): void;
-  /** Register alarm handler */
-  registerAlarmHandler(handler: (alarm: AlarmEvent) => void): void;
   saveInstancesData(instancesData: MonitorDataV3[]): Promise<void>;
   getInstancesData(): Promise<MonitorDataV3[]>;
+  ensureAlarms(
+    alarms: AlarmSetupInformation[],
+    options: { clearExistingAlarms: boolean },
+  ): Promise<void>;
 }
 
 /** @deprecated */
