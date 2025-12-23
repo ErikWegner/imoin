@@ -2,7 +2,7 @@ import {
   AlarmEvent,
   InstalledEventDetails,
 } from './definitions/common-webextension';
-import { V3Environment, V3Instance } from './IEnvironment';
+import { V3Environment, V3Instance, V3Loader } from './IEnvironment';
 import { Logger } from './logger';
 import { IcingaApi, MonitorDataV3, MonitorV3 } from './monitors';
 import { filterUpV3 } from './monitors/filters/filterUP';
@@ -16,7 +16,7 @@ export class Imoin {
     /** The logger */
     private l: Logger,
     /** Host environmet */
-    private h: V3Environment,
+    private h: V3Environment & V3Loader,
   ) {
     // No further setup required here. The activatedEvent gets things started.
   }
@@ -71,7 +71,7 @@ export class Imoin {
   }
 
   async poll(monitor: MonitorV3): Promise<MonitorDataV3> {
-    return monitor.fetchStatusV3();
+    return monitor.fetchStatusV3(this.h);
   }
 
   getMonitor(instance: V3Instance): Promise<MonitorV3 | null> {

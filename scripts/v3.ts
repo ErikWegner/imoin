@@ -3,12 +3,13 @@ import { AlarmEvent, Port } from './definitions/common-webextension/index';
 import {
   AlarmSetupInformation,
   V3Environment,
+  V3Loader,
   V3Settings,
 } from './IEnvironment';
 import { Imoin } from './imoin';
 import { MonitorDataV3 } from './monitors';
 import { remoteLog, RemoteLog } from './remotelogger';
-import { ImoinMonitorInstance, Sound } from './Settings';
+import { ImoinMonitorInstance, Settings, Sound } from './Settings';
 import { UICommand } from './UICommand';
 
 const optionKeys = ['instances', 'fontsize', 'sounds', 'inlineresults'];
@@ -53,14 +54,36 @@ class ChromeHostEventSource {
   }
 }
 
-class ChromeEnvironment implements V3Environment {
+class ChromeEnvironment implements V3Environment, V3Loader {
   protected host = chrome;
   private alarmHandler: ((alarm: AlarmEvent) => void) | null = null;
   private panelPort: Port | null = null;
   private pendingAlarms: Map<string, AlarmEvent> = new Map();
   private logger = new RemoteLog();
 
-  async ensureAlarms(
+  public async load(
+    url: string,
+    username: string,
+    password: string,
+  ): Promise<string> {
+    const headers = new Headers();
+    if (username) {
+      headers.append(
+        'Authorization',
+        'Basic ' + btoa(username + ':' + password),
+      );
+    }
+    const res = await fetch(url, {
+      headers,
+      method: 'GET',
+    });
+    if (res.status === 200) {
+      return res.text();
+    }
+    throw new Error(`Network failure: ${res.status} ${res.statusText}`);
+  }
+
+  public async ensureAlarms(
     alarms: AlarmSetupInformation[],
     options: { clearExistingAlarms: boolean },
   ): Promise<void> {
@@ -81,7 +104,7 @@ class ChromeEnvironment implements V3Environment {
     }
   }
 
-  sendPanelMessage(msg: UICommand): void {
+  public sendPanelMessage(msg: UICommand): void {
     if (this.panelPort) {
       this.panelPort.postMessage(msg);
     } else {
@@ -116,6 +139,9 @@ class ChromeEnvironment implements V3Environment {
         settings.sounds = JSON.parse(data.sounds) as { [id: string]: Sound };
       }
     }
+
+    // Remove trailing slash for all instances
+    settings.instances.forEach((i) => (i.url = Settings.urlNoTrailingSlash(i)));
 
     return settings;
   }

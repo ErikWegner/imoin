@@ -1,4 +1,4 @@
-import { IEnvironment } from '../IEnvironment.js';
+import { IEnvironment, V3Loader } from '../IEnvironment.js';
 import { FilterSettings, ImoinMonitorInstance } from '../Settings.js';
 import { UICommand } from '../UICommand.js';
 import {
@@ -16,7 +16,7 @@ import { IMonitor } from './IMonitor.js';
 import { MonitorData, MonitorDataV3 } from './MonitorData.js';
 
 export interface MonitorV3 {
-  fetchStatusV3(): Promise<MonitorDataV3>;
+  fetchStatusV3(loader: V3Loader): Promise<MonitorDataV3>;
 }
 
 export abstract class AbstractMonitor implements IMonitor {

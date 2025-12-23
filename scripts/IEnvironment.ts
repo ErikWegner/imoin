@@ -24,6 +24,11 @@ export interface V3Settings {
   sounds: Record<string, Sound>;
 }
 
+export interface V3Loader {
+  /** Load a resource */
+  load(url: string, username: string, password: string): Promise<string>;
+}
+
 /** Interface for environment abstraction */
 export interface V3Environment {
   /** Send a message to the panel */

@@ -1,7 +1,14 @@
+import { V3Loader } from '../IEnvironment.js';
 import { FilterSettings } from '../Settings.js';
 import { UICommand } from '../UICommand.js';
 import { AbstractMonitor, MonitorV3 } from './AbstractMonitor.js';
-import { ErrorMonitorData, Host, MonitorData, MonitorDataV3, Service } from './MonitorData.js';
+import {
+  ErrorMonitorData,
+  Host,
+  MonitorData,
+  MonitorDataV3,
+  Service,
+} from './MonitorData.js';
 
 export enum IcingaStateType {
   SOFT = 0,
@@ -49,7 +56,7 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
   public static processData(
     hostdata: IIcinga2HostJsonData,
     servicedata: IIcinga2ServiceJsonData,
-    index: number
+    index: number,
   ): MonitorData {
     if (
       hostdata == null ||
@@ -68,7 +75,7 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
       host.instanceindex = index;
       hostByName[host.name] = host;
       host.setState(
-        hostdatahost.attrs.last_check_result.state === 0 ? 'UP' : 'DOWN'
+        hostdatahost.attrs.last_check_result.state === 0 ? 'UP' : 'DOWN',
       );
       host.isInSoftState = hostdatahost.attrs.state_type === 0;
       host.checkresult = hostdatahost.attrs.last_check_result.output;
@@ -129,11 +136,11 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
     return m;
   }
 
-  async fetchStatusV3(): Promise<MonitorDataV3> {
-    const d = await this.fetchStatus();
-    return ({
+  async fetchStatusV3(loader: V3Loader): Promise<MonitorDataV3> {
+    const d = await this.fetchStatusInternal(loader);
+    return {
       instanceLabel: d.instanceLabel ?? '<no label>',
-    });
+    };
   }
 
   public fetchStatus(): Promise<MonitorData> {
@@ -142,22 +149,25 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
       return Promise.resolve(ErrorMonitorData('No environment set'));
     }
 
+    return this.fetchStatusInternal(e);
+  }
+
+  private fetchStatusInternal(e: V3Loader) {
     return new Promise<MonitorData>((resolve) => {
       const hosturl =
         this.settings.url + '/v1/objects/hosts?' + this.hostAttrs();
       const servicesurl =
         this.settings.url + '/v1/objects/services?' + this.serviceAttrs();
 
-
       const hostsrequest = e.load(
         hosturl,
         this.settings.username,
-        this.settings.password
+        this.settings.password,
       );
       const servicesrequest = e.load(
         servicesurl,
         this.settings.username,
-        this.settings.password
+        this.settings.password,
       );
 
       Promise.all([hostsrequest, servicesrequest])
@@ -185,13 +195,13 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
       const f = this.settings.filtersettings;
 
       const queryParamToFilterSetting: { [key: string]: keyof FilterSettings } =
-      {
-        acknowledgement: 'filterOutAcknowledged',
-        state_type: 'filterOutSoftStates',
-        enable_notifications: 'filterOutDisabledNotifications',
-        enable_active_checks: 'filterOutDisabledChecks',
-        downtime_depth: 'filterOutDowntime',
-      };
+        {
+          acknowledgement: 'filterOutAcknowledged',
+          state_type: 'filterOutSoftStates',
+          enable_notifications: 'filterOutDisabledNotifications',
+          enable_active_checks: 'filterOutDisabledChecks',
+          downtime_depth: 'filterOutDowntime',
+        };
 
       Object.keys(queryParamToFilterSetting).forEach((queryparam) => {
         const filterSettingsKey = queryParamToFilterSetting[queryparam];
@@ -225,7 +235,7 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
         url,
         data,
         this.settings.username,
-        this.settings.password
+        this.settings.password,
       );
     }
   }
