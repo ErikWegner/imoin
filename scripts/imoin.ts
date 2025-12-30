@@ -46,11 +46,11 @@ export class Imoin {
     let instanceIndex = 0;
     for (const instance of settings?.instances ?? []) {
       this.l.log(`Refreshing instance ${instanceIndex + 1}`);
-      instanceIndex++;
       const monitor = await this.getMonitor(instance);
       if (monitor) {
         await this.pollAndSaveAndStatusUpdate(instanceIndex, monitor);
       }
+      instanceIndex++;
     }
 
     if (instanceIndex === 0) {
@@ -88,6 +88,7 @@ export class Imoin {
    * Call the instance for data. Update the local state and send a message to the panel.
    */
   async pollAndSaveAndStatusUpdate(
+    /** Zero-based index of the instance */
     instanceIndex: number,
     monitor: MonitorV3,
   ): Promise<void> {
