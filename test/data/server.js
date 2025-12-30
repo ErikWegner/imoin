@@ -2,15 +2,30 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
+const logger = require('pino')({ level: 'debug' });
 
 app.get('/', (_, res) => res.send('Demo server for Icinga and Nagios!'));
 
 app.post('/log', express.json(), (req, res) => {
   const logEntry =
     JSON.stringify({ timestamp: new Date().toISOString(), ...req.body }) + '\n';
-  console.log('Received log entry:', logEntry);
+  const loglevel = req.body.level;
+  const message = req.body.message;
+  const additionalData = { ...req.body };
+  delete additionalData.level;
+  delete additionalData.message;
+  if (loglevel == 'debug') {
+    logger.debug(additionalData, message);
+  } else if (loglevel == 'error') {
+    logger.error(additionalData, message);
+  } else {
+    logger.info(additionalData, message);
+  }
   fs.appendFile('logs.txt', logEntry, (err) => {
-    if (err) throw err;
+    if (err) {
+      logger.error(err, 'Error writing log entry:');
+      throw err;
+    }
   });
   res.json({ status: 'success' }).end();
 });
@@ -39,13 +54,13 @@ fs.readFile('test/data/nagioscore/hostlist.json', (err, hostlist) => {
 });
 
 app.get('/icingaapi/v1/objects/hosts', (req, res) => {
-  console.log('Icinga hosts');
+  logger.debug('Serving Icinga hosts');
   res.sendFile(path.resolve('./test/data/icinga2/hosts.json'));
 });
 
 app.get('/icingaapi/v1/objects/services', (req, res) => {
-  console.log('Icinga services');
+  logger.debug('Serving Icinga services');
   res.sendFile(path.resolve('./test/data/icinga2/services.json'));
 });
 
-app.listen(3000, () => console.log('Demo server listening on port 3000!'));
+app.listen(3000, () => logger.info('Demo server listening on port 3000!'));
