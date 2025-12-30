@@ -574,7 +574,9 @@ function triggerShowOptions() {
   if (chrome && chrome.storage && chrome.storage.local) {
     log('loading from storage');
     startdata =
-      (await chrome.storage.local.get({ instancesData: {} }))['imoin'] || {};
+      (await chrome.storage.local.get({ instancesData: {} }))[
+        'instancesData'
+      ] || [];
     log('loaded start data:', startdata);
   }
   log('start data loaded');
