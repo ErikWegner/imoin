@@ -5,21 +5,18 @@ import {
 import { BadgeColor, IconAndBadgetext } from './IconAndBadgetext';
 import { V3Environment, V3Instance, V3Loader } from './IEnvironment';
 import { Logger } from './logger';
-import { IcingaApi, MonitorDataV3, MonitorV3, Status } from './monitors';
+import { IcingaApi, MonitorV3, Status } from './monitors';
 import { FilterSettings } from './Settings';
 
 export class Imoin {
-  private instancesData: MonitorDataV3[] = [];
   private filterSettings: FilterSettings | null = null;
 
   constructor(
     /** The logger */
-    private l: Logger,
+    private readonly l: Logger,
     /** Host environmet */
-    private h: V3Environment & V3Loader,
-  ) {
-    // No further setup required here. The activatedEvent gets things started.
-  }
+    private readonly h: V3Environment & V3Loader,
+  ) {}
 
   openSettingspage() {
     this.h.openSettingspage();
@@ -45,6 +42,7 @@ export class Imoin {
   async triggerRefresh() {
     this.l.log('Triggering refresh');
     const settings = await this.h.getSettings();
+
     let instanceIndex = 0;
     for (const instance of settings?.instances ?? []) {
       this.l.log(`Refreshing instance ${instanceIndex + 1}`);
@@ -53,6 +51,11 @@ export class Imoin {
       if (monitor) {
         await this.pollAndSaveAndStatusUpdate(instanceIndex, monitor);
       }
+    }
+
+    if (instanceIndex === 0) {
+      // No instances configured, nothing to refresh.
+      await this.calculateAndShowOverallStatus();
     }
   }
 
@@ -89,10 +92,10 @@ export class Imoin {
     monitor: MonitorV3,
   ): Promise<void> {
     const monitorData = await monitor.fetchStatusV3(this.h);
-    await this.loadInstancesData();
-    this.instancesData[instanceIndex] = monitorData;
-    await this.h.saveInstancesData(this.instancesData);
-    this.calculateAndShowOverallStatus();
+    const instancesData = await this.loadInstancesData();
+    instancesData[instanceIndex] = monitorData;
+    await this.h.saveInstancesData(instancesData);
+    await this.calculateAndShowOverallStatus();
     this.h.sendPanelMessage({ command: 'UpdatePanelData' });
   }
 
@@ -112,16 +115,16 @@ export class Imoin {
     }
   }
 
-  async loadInstancesData() {
-    this.instancesData = await this.h.getInstancesData();
+  loadInstancesData() {
+    return this.h.getInstancesData();
   }
 
-  private calculateAndShowOverallStatus(): void {
-    const iAndB = this.calculateOverallStatus();
+  private async calculateAndShowOverallStatus(): Promise<void> {
+    const iAndB = await this.calculateOverallStatus();
     this.h.setOverallStatus(iAndB);
   }
 
-  private calculateOverallStatus(): IconAndBadgetext {
+  private async calculateOverallStatus(): Promise<IconAndBadgetext> {
     const badgeIcon = (path: 'err' | 'warn' | 'ok') => ({
       16: 'icons/icon-16' + path + '.png',
       20: 'icons/icon-32' + path + '.png',
@@ -129,8 +132,9 @@ export class Imoin {
       32: 'icons/icon-32' + path + '.png',
       40: 'icons/icon-32' + path + '.png',
     });
+    const instancesData = await this.loadInstancesData();
     // If no instance is configured, set state to 'error'
-    if (this.instancesData.length === 0) {
+    if (instancesData.length === 0) {
       return {
         overallStatus: Status.RED,
         badgeColor: BadgeColor.RED,

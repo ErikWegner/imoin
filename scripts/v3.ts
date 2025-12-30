@@ -201,6 +201,7 @@ function checkAndRestoreAlarms() {
   remoteLog('debug', 'Checking and restoring alarms...');
   runWithImoin((imoin) => {
     imoin.setupAlarms();
+    void imoin.triggerRefresh();
   });
 }
 
