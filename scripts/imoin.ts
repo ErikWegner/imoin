@@ -2,10 +2,10 @@ import {
   AlarmEvent,
   InstalledEventDetails,
 } from './definitions/common-webextension';
+import { BadgeColor, IconAndBadgetext } from './IconAndBadgetext';
 import { V3Environment, V3Instance, V3Loader } from './IEnvironment';
 import { Logger } from './logger';
-import { IcingaApi, MonitorDataV3, MonitorV3 } from './monitors';
-import { filterUpV3 } from './monitors/filters/filterUP';
+import { IcingaApi, MonitorDataV3, MonitorV3, Status } from './monitors';
 import { FilterSettings } from './Settings';
 
 export class Imoin {
@@ -92,7 +92,7 @@ export class Imoin {
     await this.loadInstancesData();
     this.instancesData[instanceIndex] = monitorData;
     await this.h.saveInstancesData(this.instancesData);
-    this.calculateOverallStatus();
+    this.calculateAndShowOverallStatus();
     this.h.sendPanelMessage({ command: 'UpdatePanelData' });
   }
 
@@ -116,9 +116,56 @@ export class Imoin {
     this.instancesData = await this.h.getInstancesData();
   }
 
-  private calculateOverallStatus() {
-    (this.instancesData ?? []).forEach((instance) =>
-      filterUpV3(instance.hosts, this.filterSettings),
-    );
+  private calculateAndShowOverallStatus(): void {
+    const iAndB = this.calculateOverallStatus();
+    this.h.setOverallStatus(iAndB);
+  }
+
+  private calculateOverallStatus(): IconAndBadgetext {
+    const badgeIcon = (path: 'err' | 'warn' | 'ok') => ({
+      16: 'icons/icon-16' + path + '.png',
+      20: 'icons/icon-32' + path + '.png',
+      24: 'icons/icon-32' + path + '.png',
+      32: 'icons/icon-32' + path + '.png',
+      40: 'icons/icon-32' + path + '.png',
+    });
+    // If no instance is configured, set state to 'error'
+    if (this.instancesData.length === 0) {
+      return {
+        overallStatus: Status.RED,
+        badgeColor: BadgeColor.RED,
+        badgeText: 'X',
+        badgeTooltip: 'Open the settings page to configure instances',
+        badgeIcon: badgeIcon('err'),
+      };
+    }
+
+    const filteredState = Status.RED as Status; // TODO: loop over data
+    switch (filteredState) {
+      case Status.GREEN:
+        return {
+          overallStatus: filteredState,
+          badgeColor: BadgeColor.GREEN,
+          badgeText: '',
+          badgeTooltip: 'No issues reported',
+          badgeIcon: badgeIcon('ok'),
+        };
+      case Status.YELLOW:
+        return {
+          overallStatus: filteredState,
+          badgeColor: BadgeColor.YELLOW,
+          badgeText: '',
+          badgeTooltip: 'Warning reported',
+          badgeIcon: badgeIcon('warn'),
+        };
+      default:
+        return {
+          overallStatus: filteredState,
+          badgeColor: BadgeColor.RED,
+          badgeText: '',
+          badgeTooltip: 'Error reported',
+          badgeIcon: badgeIcon('err'),
+        };
+    }
   }
 }

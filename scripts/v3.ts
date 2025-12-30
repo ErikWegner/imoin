@@ -1,5 +1,6 @@
 import chrome from './definitions/chrome-webextension/index';
 import { AlarmEvent, Port } from './definitions/common-webextension/index';
+import { IconAndBadgetext } from './IconAndBadgetext';
 import {
   AlarmSetupInformation,
   V3Environment,
@@ -181,6 +182,15 @@ class ChromeEnvironment implements V3Environment, V3Loader {
       instancesData: defaultValue,
     });
     return data.instancesData;
+  }
+
+  setOverallStatus(overallStatus: IconAndBadgetext): void {
+    this.host.action.setBadgeBackgroundColor({
+      color: overallStatus.badgeColor,
+    });
+    this.host.action.setBadgeText({ text: overallStatus.badgeText });
+    this.host.action.setIcon({ path: overallStatus.badgeIcon });
+    this.host.action.setTitle({ title: overallStatus.badgeTooltip });
   }
 }
 

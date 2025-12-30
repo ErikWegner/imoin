@@ -127,4 +127,5 @@ interface BrowserAction {
   }): void;
   setBadgeText(badge: { text: string }): void;
   setBadgeBackgroundColor(details: { color: string }): void;
+  setTitle(options: { title: string }): void;
 }

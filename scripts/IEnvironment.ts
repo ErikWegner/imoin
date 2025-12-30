@@ -1,3 +1,4 @@
+import { IconAndBadgetext } from './IconAndBadgetext.js';
 import { IPanelMonitorData } from './IPanelMonitorData.js';
 import { MonitorData, MonitorDataV3 } from './monitors/index.js';
 import { IcingaOptionsVersion, Settings, Sound } from './Settings.js';
@@ -45,6 +46,7 @@ export interface V3Environment {
     alarms: AlarmSetupInformation[],
     options: { clearExistingAlarms: boolean },
   ): Promise<void>;
+  setOverallStatus(overallStatus: IconAndBadgetext): void;
 }
 
 /** @deprecated */

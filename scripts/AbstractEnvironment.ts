@@ -1,4 +1,4 @@
-import { IconAndBadgetext } from './IconAndBadgetext.js';
+import { IconAndBadgetextV2 } from './IconAndBadgetext.js';
 import { IEnvironment } from './IEnvironment.js';
 import { IPanelMonitorData } from './IPanelMonitorData.js';
 import { MonitorData, PanelMonitorData, Status } from './monitors/index.js';
@@ -40,7 +40,7 @@ export abstract class AbstractEnvironment implements IEnvironment {
 
   protected static prepareIconAndBadgetext(
     data: MonitorData,
-  ): IconAndBadgetext {
+  ): IconAndBadgetextV2 {
     let path = '';
     let badgeText = '';
     let badgeColor = '';
@@ -57,14 +57,15 @@ export abstract class AbstractEnvironment implements IEnvironment {
         break;
       case Status.RED:
         path = 'err';
-        badgeText = `${data.filteredHosterrors +
+        badgeText = `${
+          data.filteredHosterrors +
           data.filteredServicewarnings +
           data.filteredServiceerrors
-          }`;
+        }`;
         badgeColor = '#b25425';
         break;
     }
-    const iAndB = new IconAndBadgetext();
+    const iAndB = new IconAndBadgetextV2();
     iAndB.badgeText = badgeText;
     iAndB.badgeColor = badgeColor;
     iAndB.badgeIcon = {
