@@ -51,11 +51,7 @@ export class Imoin {
       instanceIndex++;
       const monitor = await this.getMonitor(instance);
       if (monitor) {
-        const monitorData = await this.poll(monitor);
-        this.instancesData[instanceIndex] = monitorData;
-        await this.h.saveInstancesData(this.instancesData);
-        this.calculateOverallStatus();
-        this.h.sendPanelMessage({ command: 'UpdatePanelData' });
+        await this.pollAndSaveAndStatusUpdate(instanceIndex, monitor);
       }
     }
   }
@@ -76,11 +72,7 @@ export class Imoin {
           this.l.log(`Handling alarm for instance ${instanceNumber}`);
           const monitor = await this.getMonitor(instance);
           if (monitor) {
-            const monitorData = await this.poll(monitor);
-            this.instancesData[instanceIndex] = monitorData;
-            await this.h.saveInstancesData(this.instancesData);
-            this.calculateOverallStatus();
-            this.h.sendPanelMessage({ command: 'UpdatePanelData' });
+            await this.pollAndSaveAndStatusUpdate(instanceIndex, monitor);
           }
         }
       } else {
@@ -89,8 +81,19 @@ export class Imoin {
     }
   }
 
-  async poll(monitor: MonitorV3): Promise<MonitorDataV3> {
-    return monitor.fetchStatusV3(this.h);
+  /**
+   * Call the instance for data. Update the local state and send a message to the panel.
+   */
+  async pollAndSaveAndStatusUpdate(
+    instanceIndex: number,
+    monitor: MonitorV3,
+  ): Promise<void> {
+    const monitorData = await monitor.fetchStatusV3(this.h);
+    await this.loadInstancesData();
+    this.instancesData[instanceIndex] = monitorData;
+    await this.h.saveInstancesData(this.instancesData);
+    this.calculateOverallStatus();
+    this.h.sendPanelMessage({ command: 'UpdatePanelData' });
   }
 
   getMonitor(instance: V3Instance): Promise<MonitorV3 | null> {
