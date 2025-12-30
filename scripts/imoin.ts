@@ -93,9 +93,10 @@ export class Imoin {
     monitor: MonitorV3,
   ): Promise<void> {
     const monitorData = await monitor.fetchStatusV3(this.h);
-    const instancesData = await this.loadInstancesData();
-    instancesData[instanceIndex] = monitorData;
-    await this.h.saveInstancesData(instancesData);
+    const panelData = await this.loadPanelData();
+    panelData.instances[instanceIndex] = monitorData;
+    panelData.updatetime = new Date().toISOString();
+    await this.h.savePanelData(panelData);
     await this.calculateAndShowOverallStatus();
     this.h.sendPanelMessage({ command: 'UpdatePanelData' });
   }
@@ -116,13 +117,14 @@ export class Imoin {
     }
   }
 
-  loadInstancesData() {
-    return this.h.getInstancesData();
+  loadPanelData() {
+    return this.h.getPanelData();
   }
 
-  private async calculateAndShowOverallStatus(): Promise<void> {
+  private async calculateAndShowOverallStatus(): Promise<IconAndBadgetext> {
     const iAndB = await this.calculateOverallStatus();
     this.h.setOverallStatus(iAndB);
+    return iAndB;
   }
 
   private async calculateOverallStatus(): Promise<IconAndBadgetext> {
@@ -133,9 +135,9 @@ export class Imoin {
       32: 'icons/icon-32' + path + '.png',
       40: 'icons/icon-32' + path + '.png',
     });
-    const instancesData = await this.loadInstancesData();
+    const panelData = await this.loadPanelData();
     // If no instance is configured, set state to 'error'
-    if (instancesData.length === 0) {
+    if (panelData.instances.length === 0) {
       return {
         overallStatus: Status.RED,
         badgeColor: BadgeColor.RED,

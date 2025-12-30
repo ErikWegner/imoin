@@ -1,6 +1,6 @@
 import { IconAndBadgetext } from './IconAndBadgetext.js';
 import { IPanelMonitorData } from './IPanelMonitorData.js';
-import { MonitorData, MonitorDataV3 } from './monitors/index.js';
+import { MonitorData, PanelDataV3 } from './monitors/index.js';
 import { IcingaOptionsVersion, Settings, Sound } from './Settings.js';
 import { UICommand } from './UICommand.js';
 
@@ -40,8 +40,8 @@ export interface V3Environment {
   getSettings(): Promise<V3Settings>;
   /** Open the settings page */
   openSettingspage(): void;
-  saveInstancesData(instancesData: MonitorDataV3[]): Promise<void>;
-  getInstancesData(): Promise<MonitorDataV3[]>;
+  savePanelData(instancesData: PanelDataV3): Promise<void>;
+  getPanelData(): Promise<PanelDataV3>;
   ensureAlarms(
     alarms: AlarmSetupInformation[],
     options: { clearExistingAlarms: boolean },

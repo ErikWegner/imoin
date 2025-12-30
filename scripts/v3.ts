@@ -170,13 +170,13 @@ class ChromeEnvironment implements V3Environment, V3Loader {
     chrome.runtime.openOptionsPage();
   }
 
-  public saveInstancesData(instancesData: MonitorDataV3[]): Promise<void> {
+  public savePanelData(instancesData: MonitorDataV3[]): Promise<void> {
     return this.host.storage.local.set({
       instancesData,
     });
   }
 
-  public async getInstancesData(): Promise<MonitorDataV3[]> {
+  public async getPanelData(): Promise<MonitorDataV3[]> {
     const defaultValue: MonitorDataV3[] = [];
     const data = await this.host.storage.local.get({
       instancesData: defaultValue,

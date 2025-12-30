@@ -348,25 +348,30 @@ export class PanelMonitorData extends MonitorData {
 }
 
 export interface ServiceV3 {
-  name: string;
-  status: ServiceState;
+  readonly name: string;
+  readonly status: ServiceState;
 }
 
 export interface HostV3 {
-  name: string;
-  status: HostState;
-  services: ServiceV3[];
+  readonly name: string;
+  readonly status: HostState;
+  readonly services: ServiceV3[];
 }
 
 /* This data must be serializable */
 export interface MonitorDataV3 {
-  instanceLabel: string;
-  hosts: HostV3[];
+  /** The user defined label for the instance */
+  readonly instanceLabel: string;
+  /** The latest time an update occured on this instance */
+  updatetime?: string;
+  /** The hosts are part of a parent instance, every host is a group of services */
+  readonly hosts: HostV3[];
 }
 
 /** This will replace PanelMonitorData */
 export interface PanelDataV3 {
-  state: Status;
+  /** The latest time an update occured */
   updatetime?: string;
-  hosts: HostV3[];
+  /** The instances are the top level grouping entity */
+  instances: MonitorDataV3[];
 }
