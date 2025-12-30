@@ -48,6 +48,10 @@ class ChromeHostEventSource {
               void imoin.notifySettingsChanged();
             });
             break;
+          case 'TriggerRefresh':
+            runWithImoin((imoin) => {
+              void imoin.triggerRefresh();
+            });
         }
       });
     });

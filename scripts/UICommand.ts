@@ -1,6 +1,7 @@
 export type UICommandAction =
   | 'OpenConfiguration'
   | 'SettingsChanged'
+  | 'TriggerRefresh'
   | 'UpdatePanelData';
 
 export interface UICommand {

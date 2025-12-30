@@ -37,8 +37,27 @@ export class Imoin {
   notifySettingsChanged() {
     void this.ensureAlarms({ clearExistingAlarms: true });
   }
+
   setupAlarms() {
     void this.ensureAlarms({ clearExistingAlarms: false });
+  }
+
+  async triggerRefresh() {
+    this.l.log('Triggering refresh');
+    const settings = await this.h.getSettings();
+    let instanceIndex = 0;
+    for (const instance of settings?.instances ?? []) {
+      this.l.log(`Refreshing instance ${instanceIndex + 1}`);
+      instanceIndex++;
+      const monitor = await this.getMonitor(instance);
+      if (monitor) {
+        const monitorData = await this.poll(monitor);
+        this.instancesData[instanceIndex] = monitorData;
+        await this.h.saveInstancesData(this.instancesData);
+        this.calculateOverallStatus();
+        this.h.sendPanelMessage({ command: 'UpdatePanelData' });
+      }
+    }
   }
 
   async alarmEvent(alarm: AlarmEvent) {

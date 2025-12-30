@@ -521,7 +521,7 @@ function AddCellToTr(tr, text, tdclass) {
 
 function triggerRefresh(e) {
   const el = e.target;
-  const message = { command: 'triggerRefresh' };
+  const message = { command: 'TriggerRefresh' };
   if (el) {
     const parentElement = el.parentElement;
     if (parentElement) {
