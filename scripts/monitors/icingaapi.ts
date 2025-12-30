@@ -5,9 +5,11 @@ import { AbstractMonitor, MonitorV3 } from './AbstractMonitor.js';
 import {
   ErrorMonitorData,
   Host,
+  HostV3,
   MonitorData,
   MonitorDataV3,
   Service,
+  ServiceV3,
 } from './MonitorData.js';
 
 export enum IcingaStateType {
@@ -139,7 +141,25 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
   async fetchStatusV3(loader: V3Loader): Promise<MonitorDataV3> {
     const d = await this.fetchStatusInternal(loader);
     return {
-      instanceLabel: d.instanceLabel ?? '<no label>',
+      instanceLabel: this.settings.instancelabel ?? '<no label>',
+      hosts: d.hosts.map((h) => {
+        // Convert services to V3
+        const servicesV3: Array<ServiceV3> = h.services.map((s) => {
+          const v3service: ServiceV3 = {
+            name: s.name,
+            status: s.getState(),
+          };
+          return v3service;
+        });
+
+        // Convert host to V3
+        const v3host: HostV3 = {
+          name: h.name,
+          status: h.getState(),
+          services: servicesV3,
+        };
+        return v3host;
+      }),
     };
   }
 
