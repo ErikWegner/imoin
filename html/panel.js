@@ -100,18 +100,19 @@ function showAndUpdatePanelContent(data) {
 
   log('Render prep done');
   log('Removing');
-  while (document.body.childNodes.length > 0) {
-    document.body.removeChild(
-      document.body.childNodes[document.body.childNodes.length - 1],
+  const parentNode = document.getElementById('panel');
+  while (parentNode.childNodes.length > 0) {
+    parentNode.removeChild(
+      parentNode.childNodes[parentNode.childNodes.length - 1],
     );
   }
   log('Adding');
   if (rendered_template.length > 0) {
     for (let i in rendered_template) {
-      document.body.appendChild(rendered_template[i]);
+      parentNode.appendChild(rendered_template[i]);
     }
   } else {
-    document.body.appendChild(rendered_template);
+    parentNode.appendChild(rendered_template);
   }
   log('Done');
 
@@ -575,7 +576,7 @@ function triggerShowOptions() {
     log('loading from storage');
     startdata =
       (await chrome.storage.local.get({ instancesData: {} }))[
-        'instancesData'
+      'instancesData'
       ] || [];
     log('loaded start data:', startdata);
   }

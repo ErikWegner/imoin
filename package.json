@@ -12,6 +12,7 @@
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
     "lint": "eslint scripts/*.ts scripts/**/*.ts test/*.ts test/**/*.ts",
     "demoserver": "node test/data/server.js | pino-pretty",
+    "panelhtml": "http-server html -o paneldebug.html",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bumpMinor",
     "build:firefox": "gulp firefox",
@@ -83,6 +84,7 @@
     "web-ext": "^7.8.0"
   },
   "devDependencies": {
+    "http-server": "^14.1.1",
     "mocha": "^11.1.0",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.3"
