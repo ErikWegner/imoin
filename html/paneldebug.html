@@ -30,27 +30,50 @@
         .received { color: green; }
         .error { color: red; }
         .command-buttons { margin-bottom: 20px; }
+        .flex {
+            display: flex;
+            flex-direction: row;
+            align-items: start;
+            justify-content: center;
+        }
+        .col-controls {
+            width: 30%;
+            border-right: 1px solid #ccc;
+            padding-right: 20px;
+        }
+        .col-panel {
+            width: 400px;
+        }
     </style>
 </head>
 <body>
-    <h1>Panel Debug Interface</h1>
-    
-    <div class="command-buttons">
-        <button onclick="sendProcessStatusUpdate()">Send ProcessStatusUpdate</button>
-        <button onclick="sendUpdatePanelData()">Send UpdatePanelData</button>
-        <button onclick="sendUisettings()">Send uisettings</button>
-        <button onclick="clearLog()">Clear Log</button>
-    </div>
-    
-    <div>
-        <input type="text" id="command-input" placeholder="Enter command JSON (e.g., {\"command\":\"TriggerRefresh\"})">
-        <button onclick="sendCustomCommand()">Send Custom Command</button>
-    </div>
-    
-    <h2>Message Log:</h2>
-    <div id="message-log"></div>
+    <div class="flex">
+        <div class="col-controls">
 
-    <div id="panel"></div>
+            <h1>Panel Debug Interface</h1>
+            
+            <div class="command-buttons">
+                <button onclick="sendProcessStatusUpdate()">Send ProcessStatusUpdate</button>
+                <button onclick="sendUpdatePanelData()">Send UpdatePanelData</button>
+                <button onclick="sendUisettings()">Send uisettings</button>
+                <button onclick="clearLog()">Clear Log</button>
+            </div>
+            
+            <div>
+                <input type="text" id="command-input" placeholder="Enter command JSON (e.g., {\"command\":\"TriggerRefresh\"})">
+                <button onclick="sendCustomCommand()">Send Custom Command</button>
+            </div>
+            
+            <h2>Message Log:</h2>
+            <div id="message-log"></div>
+
+        </div>
+
+        <div class="col-panel">
+            <div id="panel"></div>
+        </div>
+
+    </div>
     
     <script>
         // Debug channel implementation
@@ -64,9 +87,10 @@
             messageLog.appendChild(logEntry);
             messageLog.scrollTop = messageLog.scrollHeight;
         }
-        
-        chrome.runtime = {};
-        chrome.runtime.connect = () => {
+       
+        window.chrome = window.chrome || {};
+        window.chrome.runtime = {};
+        window.chrome.runtime.connect = () => {
             return {
                 onMessage: {
                     addListener: () => {}
