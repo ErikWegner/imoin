@@ -11,25 +11,74 @@ function logMessage(message, type = 'received') {
     messageLog.scrollTop = messageLog.scrollHeight;
 }
 
+const ProcessStatusUpdateCommand = {
+    command: 'ProcessStatusUpdate',
+}
+
+const clients = new Set();
+
 window.chrome = window.chrome || {};
 window.chrome.runtime = {};
 window.chrome.runtime.connect = () => {
     return {
         onMessage: {
-            addListener: () => { }
+            addListener: (port) => {
+                clients.add({ postMessage: port });
+            }
         },
         postMessage: (data) => logMessage(data, 'received'),
     }
 };
+window.chrome.storage = window.chrome.storage || {};
+window.chrome.storage.local = {
+    get: async (keys) => {
+        const r = {};
+        const arr = []
+        if (typeof keys === 'string') {
+            arr.push(keys);
+            r[keys] = JSON.parse(localStorage.getItem(keys));
+            return;
+        } else if (Array.isArray(keys)) {
+            arr.push(...keys);
+        } else if (typeof keys === 'object') {
+            arr.push(...Object.keys(keys));
+            Object.assign(r, JSON.parse(JSON.stringify(keys)));
+        }
 
-// Simulate receiving messages from host
-function simulateHostMessage(message) {
-    logMessage(message, 'received');
+        arr.forEach(key => {
+            const value = localStorage.getItem(key);
+            if (value !== null) {
+                r[key] = JSON.parse(value);
 
-    if (message.command === 'ProcessStatusUpdate' || message.command === 'UpdatePanelData') {
-        showAndUpdatePanelContent(message.data || {});
-    } else if (message.command === 'uisettings') {
-        sendUisettings(message.data || {});
+            }
+        });
+
+        return r;
+    },
+    set: async (data) => {
+        Object.entries(data).forEach(([key, value]) => {
+            localStorage.setItem(key, JSON.stringify(value));
+        })
+    },
+};
+
+function simulateHostMessage(message) { }
+
+function simulateEventToPanel(event) {
+    logMessage(event, 'sent event');
+
+    for (const client of clients) {
+        client.postMessage(event);
+    }
+}
+
+function savePanelData(instancesData) {
+    if (instancesData) {
+        return localStorage.setItem(
+            'instancesData', JSON.stringify(instancesData),
+        );
+    } else {
+        return Promise.resolve();
     }
 }
 
@@ -142,7 +191,11 @@ function renderTestCases() {
         li.textContent = tc.name + ' ';
         const btn = document.createElement('button');
         btn.textContent = 'Run';
-        btn.onclick = function () { simulateHostMessage(tc.data); runTests(tc.tests, li); };
+        btn.onclick = async function () {
+            await savePanelData(tc.data.data);
+            simulateEventToPanel(tc.data.command);
+            runTests(tc.tests, li);
+        };
         li.appendChild(btn);
         if (tc.tests && tc.tests.length) {
             // placeholder for tests results container
@@ -157,81 +210,63 @@ function renderTestCases() {
 
 
 
-// Initialize with a test message and render cases
-
-// Predefined test messages
-function sendProcessStatusUpdate() {
-    simulateHostMessage({
-        command: 'ProcessStatusUpdate',
-        data: {
-            message: 'Test status update',
-            hosts: [
-                {
-                    name: 'test-host',
-                    status: 'UP',
-                    checkresult: 'Host is up and running',
-                    services: [
-                        {
-                            name: 'HTTP Service',
-                            status: 'OK',
-                            checkresult: 'HTTP service is OK',
-                            servicelink: 'http://example.com'
-                        }
-                    ]
-                }
-            ],
-            totalhosts: 1,
-            filteredHostup: 1,
-            filteredHosterrors: 0,
-            totalservices: 1,
-            filteredServiceok: 1,
-            filteredServicewarnings: 0,
-            filteredServiceerrors: 0,
-            updatetime: '2023-01-01 12:00:00'
-        }
+async function sendUpSet() {
+    await savePanelData({
+        hosts: [
+            {
+                name: 'test-host',
+                status: 'UP',
+                checkresult: 'Host is up and running',
+                services: [
+                    {
+                        name: 'HTTP Service',
+                        status: 'OK',
+                        checkresult: 'HTTP service is OK',
+                        servicelink: 'http://example.com'
+                    }
+                ]
+            }
+        ],
+        totalhosts: 1,
+        filteredHostup: 1,
+        filteredHosterrors: 0,
+        totalservices: 1,
+        filteredServiceok: 1,
+        filteredServicewarnings: 0,
+        filteredServiceerrors: 0,
+        updatetime: '2023-01-01 12:00:00'
     });
+    simulateEventToPanel(ProcessStatusUpdateCommand);
 }
 
-function sendUpdatePanelData() {
-    simulateHostMessage({
-        command: 'UpdatePanelData',
-        data: {
-            message: 'Test update panel data',
-            hosts: [
-                {
-                    name: 'test-host-2',
-                    status: 'DOWN',
-                    checkresult: 'Host is down',
-                    services: [
-                        {
-                            name: 'SSH Service',
-                            status: 'CRIT',
-                            checkresult: 'SSH service is critical',
-                            servicelink: 'ssh://example.com'
-                        }
-                    ]
-                }
-            ],
-            totalhosts: 1,
-            filteredHostup: 0,
-            filteredHosterrors: 1,
-            totalservices: 1,
-            filteredServiceok: 0,
-            filteredServicewarnings: 0,
-            filteredServiceerrors: 1,
-            updatetime: '2023-01-01 12:05:00'
-        }
-    });
-}
-
-function sendUisettings() {
-    simulateHostMessage({
-        command: 'uisettings',
-        data: {
-            fontsize: 120,
-            inlineresults: true
-        }
-    });
+async function sendErrorSet() {
+    await savePanelData({
+        hosts: [
+            {
+                name: 'test-host-2',
+                status: 'DOWN',
+                checkresult: 'Host is down',
+                services: [
+                    {
+                        name: 'SSH Service',
+                        status: 'CRIT',
+                        checkresult: 'SSH service is critical',
+                        servicelink: 'ssh://example.com'
+                    }
+                ]
+            }
+        ],
+        totalhosts: 1,
+        filteredHostup: 0,
+        filteredHosterrors: 1,
+        totalservices: 1,
+        filteredServiceok: 0,
+        filteredServicewarnings: 0,
+        filteredServiceerrors: 1,
+        updatetime: '2023-01-01 12:05:00'
+    }
+    );
+    simulateEventToPanel(ProcessStatusUpdateCommand);
 }
 
 function sendCustomCommand() {

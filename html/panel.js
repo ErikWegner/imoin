@@ -23,32 +23,10 @@ if (typeof chrome !== 'undefined' || typeof browser !== 'undefined') {
   postPanelMessagePort = host.runtime.connect();
   postPanelMessagePort.onMessage.addListener(function (message) {
     var command = message.command || '';
-    var data = message.data || {};
 
     if (command === 'ProcessStatusUpdate') {
-      showAndUpdatePanelContent(data);
+      loadAndShowPanelContent(message.message);
     }
-
-    // This script runs at the moment that the popup is displayed
-    const myPort = host.runtime.connect();
-    myPort.onMessage.addListener(function (message) {
-      var command = message.command || '';
-      var data = message.data || {};
-
-      if (command === 'UpdatePanelData') {
-        showAndUpdatePanelContent(data);
-      }
-
-      if (command === 'uisettings') {
-        setupUISettings(data);
-      }
-    });
-
-    postPanelMessage = function (data) {
-      if (myPort) {
-        myPort.postMessage(data);
-      }
-    };
   });
 } else if (
   typeof self === 'object' &&
@@ -89,8 +67,7 @@ function setupUISettings(data) {
   document.head.appendChild(s);
 }
 
-function showAndUpdatePanelContent(data) {
-  const message = data.message;
+function showAndUpdatePanelContent(data, message) {
   log('Rendering main template');
   rendered_template = renderMainTemplate(data);
   if (message) {
@@ -569,18 +546,20 @@ function triggerShowOptions() {
   postPanelMessage({ command: 'OpenConfiguration' });
 }
 
-(async () => {
-  let startdata = {};
-  log('loading start data');
+async function loadAndShowPanelContent(message) {
+  let paneldata = {};
+  log('loading panel data');
   if (chrome && chrome.storage && chrome.storage.local) {
     log('loading from storage');
-    startdata =
+    paneldata =
       (await chrome.storage.local.get({ instancesData: {} }))[
       'instancesData'
       ] || [];
-    log('loaded start data:', startdata);
+    log('loaded panel data:', paneldata);
   }
-  log('start data loaded');
-  // Your logging logic here, for example, sending logs to a server
-  showAndUpdatePanelContent(startdata);
+  showAndUpdatePanelContent(paneldata, message);
+}
+
+(async () => {
+  await loadAndShowPanelContent(null);
 })();
