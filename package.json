@@ -12,7 +12,7 @@
     "test:karma:watch": "karma start karma.conf.js --no-single-run",
     "lint": "eslint scripts/*.ts scripts/**/*.ts test/*.ts test/**/*.ts",
     "demoserver": "node test/data/server.js | pino-pretty",
-    "panelhtml": "http-server html -o paneldebug.html",
+    "panelhtml": "http-server html -o paneldebug.html -c-1",
     "bump-version": "gulp bump",
     "bump-version-minor": "gulp bumpMinor",
     "build:firefox": "gulp firefox",

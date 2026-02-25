@@ -355,11 +355,12 @@ export interface ServiceV3 {
 export interface HostV3 {
   readonly name: string;
   readonly status: HostState;
+  readonly appearsInShortlist: boolean;
   readonly services: ServiceV3[];
 }
 
 /* This data must be serializable */
-export interface MonitorDataV3 {
+export interface InstanceDataV3 {
   /** The user defined label for the instance */
   readonly instanceLabel: string;
   /** The latest time an update occured on this instance */
@@ -373,5 +374,5 @@ export interface PanelDataV3 {
   /** The latest time an update occured */
   updatetime?: string;
   /** The instances are the top level grouping entity */
-  instances: MonitorDataV3[];
+  instances?: InstanceDataV3[];
 }

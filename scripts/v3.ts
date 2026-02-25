@@ -8,7 +8,7 @@ import {
   V3Settings,
 } from './IEnvironment';
 import { Imoin } from './imoin';
-import { MonitorDataV3 } from './monitors';
+import { InstanceDataV3, PanelDataV3 } from './monitors';
 import { remoteLog, RemoteLog } from './remotelogger';
 import { ImoinMonitorInstance, Settings, Sound } from './Settings';
 import { UICommand } from './UICommand';
@@ -170,14 +170,14 @@ class ChromeEnvironment implements V3Environment, V3Loader {
     chrome.runtime.openOptionsPage();
   }
 
-  public savePanelData(instancesData: MonitorDataV3[]): Promise<void> {
+  public savePanelData(instancesData: PanelDataV3): Promise<void> {
     return this.host.storage.local.set({
       instancesData,
     });
   }
 
-  public async getPanelData(): Promise<MonitorDataV3[]> {
-    const defaultValue: MonitorDataV3[] = [];
+  public async getPanelData(): Promise<PanelDataV3> {
+    const defaultValue: PanelDataV3 = {};
     const data = await this.host.storage.local.get({
       instancesData: defaultValue,
     });

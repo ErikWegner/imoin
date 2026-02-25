@@ -293,55 +293,55 @@ function renderMainTemplate(statusdata) {
   var html1 = document.createElement('div'),
     html2 = document.createElement('div'),
     html3 = document.createElement('div');
-  var hostdetail;
-  var hosts = statusdata.hosts;
 
-  for (var hostindex in hosts) {
-    hostdetail = hosts[hostindex];
-    log('Processing host ' + hostdetail.name);
+  for (let instanceindex in statusdata.instances) {
+    const hosts = statusdata.instances[instanceindex].hosts;
+    for (var hostindex in hosts) {
+      const hostdetail = hosts[hostindex];
+      log('Processing host ' + hostdetail.name);
 
-    // Show in list 1?
-    var show_host_in_list1 = hostdetail.appearsInShortlist;
-    var all_serviceshtml = [];
-    var not_ok_serviceshtml = [];
-    var renderbuffer;
+      // Show in list 1?
+      var show_host_in_list1 = hostdetail.appearsInShortlist;
+      var all_serviceshtml = [];
+      var not_ok_serviceshtml = [];
+      var renderbuffer;
 
-    // output the details for a host
-    hostdetail.acknowledged =
-      hostdetail.has_been_acknowledged === true ? 'A' : '';
+      // output the details for a host
+      hostdetail.acknowledged =
+        hostdetail.has_been_acknowledged === true ? 'A' : '';
 
-    for (var serviceindex in hostdetail.services) {
-      var servicedetail = hostdetail.services[serviceindex];
-      servicedetail.host = hostdetail;
-      servicedetail.acknowledged =
-        servicedetail.has_been_acknowledged === true ? 'A' : '';
+      for (var serviceindex in hostdetail.services) {
+        var servicedetail = hostdetail.services[serviceindex];
+        servicedetail.host = hostdetail;
+        servicedetail.acknowledged =
+          servicedetail.has_been_acknowledged === true ? 'A' : '';
 
-      renderbuffer = renderServiceTemplate(servicedetail);
+        renderbuffer = renderServiceTemplate(servicedetail);
 
-      all_serviceshtml.push(renderbuffer.cloneNode(true));
+        all_serviceshtml.push(renderbuffer.cloneNode(true));
 
-      // Show in list 2?
-      if (servicedetail.appearsInShortlist) {
-        not_ok_serviceshtml.push(renderbuffer.cloneNode(true));
+        // Show in list 2?
+        if (servicedetail.appearsInShortlist) {
+          not_ok_serviceshtml.push(renderbuffer.cloneNode(true));
+        }
       }
+
+      hostdetail.servicesdata = not_ok_serviceshtml;
+      renderbuffer = renderHostTemplate(hostdetail);
+
+      // list 1
+      if (show_host_in_list1) {
+        html1.appendChild(renderbuffer.cloneNode(true));
+      }
+
+      // list 2
+      html2.appendChild(renderbuffer);
+
+      // list 3
+      hostdetail.servicesdata = all_serviceshtml;
+      html3.appendChild(renderHostTemplate(hostdetail));
     }
-
-    hostdetail.servicesdata = not_ok_serviceshtml;
-    renderbuffer = renderHostTemplate(hostdetail);
-
-    // list 1
-    if (show_host_in_list1) {
-      html1.appendChild(renderbuffer.cloneNode(true));
-    }
-
-    // list 2
-    html2.appendChild(renderbuffer);
-
-    // list 3
-    hostdetail.servicesdata = all_serviceshtml;
-    html3.appendChild(renderHostTemplate(hostdetail));
   }
-
   var html4 = renderInstancesList(statusdata);
 
   filtered_lists_templates = {
@@ -553,7 +553,7 @@ async function loadAndShowPanelContent(message) {
     log('loading from storage');
     paneldata =
       (await chrome.storage.local.get({ instancesData: {} }))[
-      'instancesData'
+        'instancesData'
       ] || [];
     log('loaded panel data:', paneldata);
   }

@@ -13,10 +13,10 @@ import {
   filterUp,
 } from './filters/index.js';
 import { IMonitor } from './IMonitor.js';
-import { MonitorData, MonitorDataV3 } from './MonitorData.js';
+import { MonitorData, InstanceDataV3 } from './MonitorData.js';
 
 export interface MonitorV3 {
-  fetchStatusV3(loader: V3Loader): Promise<MonitorDataV3>;
+  fetchStatusV3(loader: V3Loader): Promise<InstanceDataV3>;
 }
 
 export abstract class AbstractMonitor implements IMonitor {

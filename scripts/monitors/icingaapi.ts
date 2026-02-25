@@ -7,7 +7,7 @@ import {
   Host,
   HostV3,
   MonitorData,
-  MonitorDataV3,
+  InstanceDataV3,
   Service,
   ServiceV3,
 } from './MonitorData.js';
@@ -138,7 +138,7 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
     return m;
   }
 
-  async fetchStatusV3(loader: V3Loader): Promise<MonitorDataV3> {
+  async fetchStatusV3(loader: V3Loader): Promise<InstanceDataV3> {
     const d = await this.fetchStatusInternal(loader);
     return {
       instanceLabel: this.settings.instancelabel ?? '<no label>',
@@ -157,6 +157,7 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
           name: h.name,
           status: h.getState(),
           services: servicesV3,
+          appearsInShortlist: true,
         };
         return v3host;
       }),
@@ -239,7 +240,7 @@ export class IcingaApi extends AbstractMonitor implements MonitorV3 {
   }
 
   protected handleUICommand(param: UICommand): void {
-    if (param.command === 'recheck') {
+    if (param.command === 'TriggerRefresh') {
       const url = this.settings.url + '/v1/actions/reschedule-check';
       const data = {
         type: 'Host',

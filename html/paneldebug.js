@@ -88,12 +88,19 @@ const testCases = [
         command: 'ProcessStatusUpdate',
       },
       data: {
-        hosts: [
+        instances: [
           {
-            name: 'host1',
-            status: 'UP',
-            checkresult: 'All good',
-            services: [{ name: 'HTTP', status: 'OK', checkresult: 'OK' }],
+            instanceLabel: 'Single instance',
+            updatetime: '2023-01-01 12:00:00',
+            hosts: [
+              {
+                name: 'host1',
+                status: 'UP',
+                appearsInShortlist: false,
+                checkresult: 'All good',
+                services: [{ name: 'HTTP', status: 'OK', checkresult: 'OK' }],
+              },
+            ],
           },
         ],
         totalhosts: 1,
@@ -120,30 +127,34 @@ const testCases = [
         command: 'ProcessStatusUpdate',
       },
       data: {
-        hosts: [
-          {
-            name: 'hostA',
-            status: 'DOWN',
-            checkresult: 'Down',
-            services: [
-              { name: 'SSH', status: 'CRIT', checkresult: 'Critical' },
-            ],
-          },
-          {
-            name: 'hostB',
-            status: 'UP',
-            checkresult: 'Running',
-            services: [{ name: 'HTTP', status: 'OK', checkresult: 'Good' }],
-          },
-        ],
         instances: [
           {
             instancelabel: 'Instance 1',
             updatetime: '2023-01-01 12:00:00',
+            hosts: [
+              {
+                name: 'hostA',
+                status: 'DOWN',
+                appearsInShortlist: true,
+                checkresult: 'Down',
+                services: [
+                  { name: 'SSH', status: 'CRIT', checkresult: 'Critical' },
+                ],
+              },
+            ],
           },
           {
             instancelabel: 'Instance 2',
             updatetime: '2024-02-02 12:00:00',
+            hosts: [
+              {
+                name: 'hostB',
+                status: 'UP',
+                appearsInShortlist: false,
+                checkresult: 'Running',
+                services: [{ name: 'HTTP', status: 'OK', checkresult: 'Good' }],
+              },
+            ],
           },
         ],
         totalhosts: 2,
